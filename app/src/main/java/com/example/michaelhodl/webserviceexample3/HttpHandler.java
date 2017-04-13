@@ -26,6 +26,8 @@ public class HttpHandler {
     public HttpHandler() {
     }
 
+
+    // diese Methode ist eigentlich irrelevant, weil nur die makeMyServiceCall verwendet wird.
     public String makeServiceCall(String reqUrl) {
         String response = null;
         try {
@@ -75,7 +77,7 @@ public class HttpHandler {
 
 
 
-
+    // Ein Webservice aufrufen, wobei man dynamisch die Url, die Methode, die Header und die Parameter angeben kann.
     public String makeMyServiceCall(String reqUrl,
                                     String reqMethod,
                                     ArrayList<NameValuePair> headers,

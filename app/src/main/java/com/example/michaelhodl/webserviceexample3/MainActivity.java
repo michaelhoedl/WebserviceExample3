@@ -38,13 +38,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        contactList = new ArrayList<>();
-
+        //contactList = new ArrayList<>();
         //lv = (ListView) findViewById(R.id.list);
-
-
-
-
     }
 
     /** Called when the user taps the Send button */
@@ -100,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    // irrelevante Methode...
 /*    private String doHttpHandling(){
 
         HttpHandler sh = new HttpHandler();
@@ -119,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
         headers.add(h2);
         headers.add(h3);
 
-
         // Making a request to url and getting response
         String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);//sh.makeServiceCall(url);
 
@@ -130,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
 
         return jsonStr;
     }*/
+
+
+    // Getters and Setters
 
     public String getHttpResponse() {
         return httpResponse;
@@ -169,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        //this method will be running on UI thread
         protected void onPreExecute() {
             super.onPreExecute();
             // Showing progress dialog
@@ -180,6 +179,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        //this method will be running on background thread so dont update UI from here
+        //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
@@ -277,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        //this method will be running on UI thread
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Dismiss the progress dialog

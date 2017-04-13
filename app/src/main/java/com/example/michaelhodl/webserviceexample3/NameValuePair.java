@@ -2,6 +2,8 @@ package com.example.michaelhodl.webserviceexample3;
 
 /**
  * Created by michaelhodl on 12.04.17.
+ *
+ * This class is used to represent a "name value pair" entry.
  */
 
 public class NameValuePair {
