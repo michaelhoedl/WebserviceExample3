@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "x= " + x);
         Log.e(TAG, "httpResponse: " + httpResponse);
 
-
+        // if server does not return any response, then show a message dialog saying that no session was found.
         if (httpResponse == null){
             AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
             alertDialog.setTitle("No Session found");
@@ -73,10 +73,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
             alertDialog.show();
-        }
+        } // else (if server returns session), then switch to a new screen where a list of all todos is shown.
         else {
             Intent intent = new Intent(this, DisplayMessageActivity.class);
-            intent.putExtra(EXTRA_MESSAGE, httpResponse);
+            intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
             startActivity(intent);
         }
     }
