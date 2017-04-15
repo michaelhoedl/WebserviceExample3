@@ -9,8 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.EditText;
+import android.widget.SimpleAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -287,14 +289,15 @@ public class MainActivity extends AppCompatActivity {
             /**
              * Updating parsed JSON data into ListView
              * */
-    /*            ListAdapter adapter = new SimpleAdapter(
+/*
+                ListAdapter adapter = new SimpleAdapter(
                     MainActivity.this, contactList,
-                    R.layout.list_item, new String[]{"name", "email",
-                    "mobile"}, new int[]{R.id.name,
-                    R.id.email, R.id.mobile});
+                    R.layout.list_item, new String[]{"id", "name",
+                    "description"}, new int[]{R.id.todoid,
+                    R.id.todoname, R.id.tododesc});
 
             lv.setAdapter(adapter);
-    */
+*/
             Log.e(TAG, "status: (im onPostExecute): " + this.getStatus());
         }
 
