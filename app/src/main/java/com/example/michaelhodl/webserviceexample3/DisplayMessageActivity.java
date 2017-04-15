@@ -41,16 +41,12 @@ public class DisplayMessageActivity extends AppCompatActivity {
         todoList = new ArrayList<>();
         lv = (ListView) findViewById(R.id.list);
 
-        // Get the Intent that started this activity and extract the string
+        // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
-        String message = "session="+intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
-
         sessionid = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
-        // Capture the layout's TextView and set the string as its text
-        //TextView textView = (TextView) findViewById(R.id.textView3);
-        //textView.setText(message);
 
+        //start the asynctask to retrieve the data from webservice
         AsyncTask bla = new DisplayMessageActivity.AsyncCaller(this).execute();
     }
 
@@ -81,14 +77,16 @@ public class DisplayMessageActivity extends AppCompatActivity {
      */
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
+        //necessary for exchanging data.
         DisplayMessageActivity caller;
-
         AsyncCaller(DisplayMessageActivity caller){
             this.caller = caller;
         }
 
         @Override
-        //this method will be running on UI thread
+        /**
+         * this method will be running on UI thread
+         */
         protected void onPreExecute() {
             super.onPreExecute();
             // Showing progress dialog
@@ -100,8 +98,10 @@ public class DisplayMessageActivity extends AppCompatActivity {
         }
 
         @Override
-        //this method will be running on background thread so dont update UI from here
-        //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
+        /**
+         * this method will be running on background thread so dont update UI from here
+         * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
+         */
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
@@ -118,22 +118,22 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
 
             // Making a request to url and getting response
-            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);//sh.makeServiceCall(url);
-
-            //httpResponse = jsonStr;
+            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);
 
             caller.setHttpResponse(jsonStr);
 
+            //just some logging
             Log.e(TAG, "Response from url: " + jsonStr);
-
             Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
             Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
-
-
-
             Log.e(TAG, "jsonStr.length: " + jsonStr.length());
+
+
             if (jsonStr != null) {
                 try {
+
+                    //dont use jsonobject for this use case ...
+                    //check: http://stackoverflow.com/questions/17441246/org-json-jsonarray-cannot-be-converted-to-jsonobject
                     /*
                     JSONObject jsonObj; // = new JSONObject(jsonStr);
                     jsonObj = new JSONObject(jsonStr);
@@ -156,7 +156,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
                         Log.e(TAG, "i="+i+", id="+id+", name="+name+", description="+description);
 
-                        // tmp hash map for single contact
+                        // tmp hash map for a single entry
                         HashMap<String, String> task = new HashMap<>();
 
                         // adding each child node to HashMap key => value
@@ -164,7 +164,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                         task.put("name", name);
                         task.put("description", description);
 
-                        // adding contact to contact list
+                        // adding the entry to the list
                         todoList.add(task);
 
                     }
@@ -193,13 +193,16 @@ public class DisplayMessageActivity extends AppCompatActivity {
                     }
                 });
 
-            }
+            } // end if
 
             return null;
-        }
+        } // end doInBackground
+
 
         @Override
-        //this method will be running on UI thread
+        /**
+         * this method will be running on UI thread
+         */
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Dismiss the progress dialog

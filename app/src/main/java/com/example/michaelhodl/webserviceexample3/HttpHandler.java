@@ -17,7 +17,9 @@ import java.util.ArrayList;
 
 /**
  * Created by Ravi Tamada on 01/09/16.
- * www.androidhive.info
+ * based on: www.androidhive.info
+ *
+ * good example: http://www.androidhive.info/2012/01/android-json-parsing-tutorial/
  */
 public class HttpHandler {
 
@@ -26,34 +28,11 @@ public class HttpHandler {
     public HttpHandler() {
     }
 
-
-    // diese Methode ist eigentlich irrelevant, weil nur die makeMyServiceCall verwendet wird.
-    public String makeServiceCall(String reqUrl) {
-        String response = null;
-        try {
-            URL url = new URL(reqUrl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-           // conn.setRequestProperty("Accept", "text/plain");
-           // conn.setRequestProperty("mail", "test");
-           // conn.setRequestProperty("pwd", "test");
-            // read the response
-            InputStream in = new BufferedInputStream(conn.getInputStream());
-            response = convertStreamToString(in);
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "MalformedURLException: " + e.getMessage());
-        } catch (ProtocolException e) {
-            Log.e(TAG, "ProtocolException: " + e.getMessage());
-        } catch (IOException e) {
-            Log.e(TAG, "IOException: " + e.getMessage());
-        } catch (Exception e) {
-            Log.e(TAG, "Exception: " + e.getMessage());
-        }
-        return response;
-    }
-
-
-
+    /**
+     * Method to convert an Input Stream from the Webservice into a String.
+     * @param is
+     * @return
+     */
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
@@ -76,8 +55,16 @@ public class HttpHandler {
     }
 
 
-
-    // Ein Webservice aufrufen, wobei man dynamisch die Url, die Methode, die Header und die Parameter angeben kann.
+    /**
+     *
+     * Ein Webservice aufrufen, wobei man dynamisch die Url, die Methode, die Header und die Parameter angeben kann.
+     *
+     * @param reqUrl
+     * @param reqMethod
+     * @param headers
+     * @param params
+     * @return
+     */
     public String makeMyServiceCall(String reqUrl,
                                     String reqMethod,
                                     ArrayList<NameValuePair> headers,
@@ -126,6 +113,5 @@ public class HttpHandler {
         }
         return response;
     }
-
 
 }
