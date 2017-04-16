@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog pDialog;
 
 
-    public static final String EXTRA_MESSAGE = "com.example.michaelhodl.webserviceexample2.MESSAGE";
+    public static final String EXTRA_MESSAGE = "com.example.michaelhodl.webserviceexample3.MESSAGE";
 
     private static String url = "http://campus02win14mobapp.azurewebsites.net/User/login";
 

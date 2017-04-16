@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -26,6 +28,8 @@ public class DisplayMessageActivity extends AppCompatActivity {
     private ListView lv;
     ArrayList<HashMap<String, String>> todoList;
 
+    public static final String EXTRA_MESSAGE2 = "com.example.michaelhodl.webserviceexample3.MESSAGETODO";
+    public static final String EXTRA_MESSAGE3 = "com.example.michaelhodl.webserviceexample3.MESSAGESESSION";
 
     private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo";
 
@@ -38,8 +42,30 @@ public class DisplayMessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
 
+        final DisplayMessageActivity dma = this;
+
         todoList = new ArrayList<>();
         lv = (ListView) findViewById(R.id.list);
+
+        // add listener to list. Reacting to a click on a list item.
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> myAdapter, View myView, int myItemInt, long mylng) {
+
+                // get the ID (todo_id) of the selected item.
+                String selectedFromList;
+                HashMap myhm = (HashMap) lv.getItemAtPosition(myItemInt);
+                selectedFromList = (String) myhm.get("id");
+                Log.e(TAG, "selected list item todo_id: " + selectedFromList);
+
+                // open new view (TodoDetailActivity) to display the details of the selected list item.
+                // send the session_id (which we got from the login view) and the selected todo_id.
+                Intent intentdetail = new Intent(dma, TodoDetailActivity.class);
+                intentdetail.putExtra(EXTRA_MESSAGE2, selectedFromList); // we have to send the todo_id.
+                intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // we have to send the session_id.
+                startActivity(intentdetail);
+            }
+        });
+
 
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
