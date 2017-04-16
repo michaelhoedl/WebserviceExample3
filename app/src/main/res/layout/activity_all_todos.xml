@@ -8,5 +8,7 @@ tools:context="com.example.michaelhodl.webserviceexample3.activities.AllTodosAct
 <ListView
     android:id="@+id/list"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" />
+    android:layout_height="wrap_content"
+    android:longClickable="true"
+    />
 </RelativeLayout>

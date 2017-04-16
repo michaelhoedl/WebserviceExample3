@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -30,12 +33,9 @@ public class AllTodosActivity extends AppCompatActivity {
     private ProgressDialog pDialog;
     private ListView lv;
     ArrayList<HashMap<String, String>> todoList;
-
     public static final String EXTRA_MESSAGE2 = "com.example.michaelhodl.webserviceexample3.MESSAGETODO";
     public static final String EXTRA_MESSAGE3 = "com.example.michaelhodl.webserviceexample3.MESSAGESESSION";
-
     private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo";
-
     private String sessionid = null;
     private String httpResponse = null;
 
@@ -50,7 +50,7 @@ public class AllTodosActivity extends AppCompatActivity {
         todoList = new ArrayList<>();
         lv = (ListView) findViewById(R.id.list);
 
-        // add listener to list. Reacting to a click on a list item.
+        // add click-listener to list. Reacting to a click on a list item.
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> myAdapter, View myView, int myItemInt, long mylng) {
 
@@ -70,6 +70,9 @@ public class AllTodosActivity extends AppCompatActivity {
         });
 
 
+        // register the List View for context menu pop-up when long-clicking on a list item. see also method onCreateContextMenu below.
+        registerForContextMenu(lv);
+
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
         sessionid = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -79,6 +82,63 @@ public class AllTodosActivity extends AppCompatActivity {
         AsyncTask bla = new AllTodosActivity.AsyncCaller(this).execute();
     }
 
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Override
+    /**
+     * This Method implements a context menu pop-up when long-clicking on a list item.
+     * see: http://stackoverflow.com/questions/18632331/using-contextmenu-with-listview-in-android
+     */
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.list) {
+            ListView lv1 = (ListView) v;
+            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
+
+            // get the ID (todo_id) of the selected item.
+            String selectedFromList;
+            HashMap myhm = (HashMap) lv1.getItemAtPosition(acmi.position);
+            selectedFromList = (String) myhm.get("id");
+            Log.e(TAG, "contextmenu: selected list item todo_id: " + selectedFromList);
+
+            menu.add(menu.NONE,1,1,"Delete ToDo");
+            menu.add(menu.NONE,2,2,"Complete ToDo");
+            menu.add(menu.NONE,3,3,"Edit ToDo");
+        }
+    }
+
+    @Override
+    /**
+     * reacting to the selected option from the context menu on the list item long-click.
+     * see: http://stackoverflow.com/questions/18632331/using-contextmenu-with-listview-in-android
+     */
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info;
+        info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        // get the ID (todo_id) of the selected item.
+        String selectedFromList;
+        HashMap myhm = (HashMap) lv.getItemAtPosition(info.position);
+        selectedFromList = (String) myhm.get("id");
+
+        // TODO: 16.04.17  tatsaechlich reagieren auf den ausgewaehlten menue-eintrag...
+        switch (item.getItemId()) {
+            case 1:
+                Log.d(TAG, "delete item pos=" + info.position+" = todo_id: " + selectedFromList);
+                //mAdapter.remove(info.position); // .... oder wie auch immer dann das wirkliche loeschen implementiert wird...
+                return true;
+            case 2:
+                Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
+                return true;
+            case 3:
+                Log.d(TAG, "edit item pos=" + info.position+" = todo_id: " + selectedFromList);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     // Getters and Setters
 
@@ -98,6 +158,7 @@ public class AllTodosActivity extends AppCompatActivity {
         this.sessionid = sessionid;
     }
 
+    // ---------------------------------------------------------------------------------------------
 
 
 
@@ -146,13 +207,12 @@ public class AllTodosActivity extends AppCompatActivity {
             headers.add(h3);
 
 
-            // Making a request to url and getting response
+            // Making a request to url and getting response as a string
             String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);
 
             caller.setHttpResponse(jsonStr);
 
             //just some logging
-            Log.e(TAG, "Response from url: " + jsonStr);
             Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
             Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
             Log.e(TAG, "jsonStr.length: " + jsonStr.length());
@@ -170,15 +230,17 @@ public class AllTodosActivity extends AppCompatActivity {
                     Log.e(TAG, "jsonObj.length: " + jsonObj.length());
                     */
 
-
                     // Getting JSON Array node
                     JSONArray todos = new JSONArray(jsonStr); //jsonObj.getJSONArray("contacts");
-
                     Log.e(TAG, "todos.length: " + todos.length());
 
-                    // looping through All To Do entries
+                    // looping through all To Do entries within the Json Array
                     for (int i = 0; i < todos.length(); i++) {
+
+                        // extract one Json Object from the Json Array
                         JSONObject c = todos.getJSONObject(i);
+
+                        // extract the attributes/values from the Json Object
                         String id = c.getString("id");
                         String name = c.getString("name");
                         String description = c.getString("description");
@@ -210,7 +272,7 @@ public class AllTodosActivity extends AppCompatActivity {
                     });
 
                 }
-            } else {
+            } else { // if no Json was returned from the Server, output an error message.
                 Log.e(TAG, "Couldn't get json from server.");
                 runOnUiThread(new Runnable() {
                     @Override
@@ -223,7 +285,6 @@ public class AllTodosActivity extends AppCompatActivity {
                 });
 
             } // end if
-
             return null;
         } // end doInBackground
 
@@ -240,7 +301,6 @@ public class AllTodosActivity extends AppCompatActivity {
             /**
              * Updating parsed JSON data into ListView
              * */
-
                 ListAdapter adapter = new SimpleAdapter(
                         AllTodosActivity.this, todoList,
                     R.layout.list_item, new String[]{"id", "name",

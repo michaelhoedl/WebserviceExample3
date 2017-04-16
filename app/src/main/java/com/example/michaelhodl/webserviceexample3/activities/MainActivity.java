@@ -20,14 +20,9 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private String TAG = MainActivity.class.getSimpleName();
-
     private ProgressDialog pDialog;
-
-
     public static final String EXTRA_MESSAGE = "com.example.michaelhodl.webserviceexample3.MESSAGE";
-
     private static String url = "http://campus02win14mobapp.azurewebsites.net/User/login";
-
     private String httpResponse = null;
     private String mymail = null;
     private String mypwd = null;
@@ -48,11 +43,14 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "mymail: " + mymail);
         Log.e(TAG, "mypwd: " + mypwd);
 
+        // execute the asyn task to get the json from the server by making a HTTP call.
         AsyncTask bla = new AsyncCaller(this).execute();
         Log.e(TAG, "status (im sendMessage): " + bla.getStatus());
 
-        // Solange httpResponse nicht befuellt ist, warten.
-        // Auch wenn httpResponse nie befuellt werden sollte, erstmal 4 Sekunden abwarten.
+        // bissl primitiver ansatz, um die problematik zu loesen
+        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
+        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
+        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
         int x = 0;
         while(httpResponse == null && x < 4000) {
             try {
@@ -66,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "x= " + x);
         Log.e(TAG, "httpResponse: " + httpResponse);
 
-        // if server does not return any response, then show a message dialog saying that no session was found.
+        // if server did not return any response, then show a message dialog saying that no session was found.
         if (httpResponse == null){
             AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
             alertDialog.setTitle("No Session found");
@@ -78,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
             alertDialog.show();
-        } // else (if server returns session), then switch to a new screen where a list of all todos is shown.
+        } // else (if server returns session), then switch to the new screen where a list of all todos is shown.
         else {
             Intent intent = new Intent(this, AllTodosActivity.class);
             intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    // ---------------------------------------------------------------------------------------------
 
     // Getters and Setters
 
@@ -114,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         this.mypwd = mypwd;
     }
 
+    // ---------------------------------------------------------------------------------------------
 
 
     /**
@@ -122,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
         MainActivity caller;
-
         AsyncCaller(MainActivity caller){
             this.caller = caller;
         }
@@ -136,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
-
         }
 
         @Override
@@ -163,14 +160,11 @@ public class MainActivity extends AppCompatActivity {
 
             // Making a request to url and getting response
             String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);//sh.makeServiceCall(url);
-
-
+            // fill the httpResponse with the json string. The httpResponse basically just is the session_id returned by the server.
             caller.setHttpResponse(jsonStr);
 
-            Log.e(TAG, "Response from url: " + jsonStr);
             Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
             Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
-
 
             return null;
         }
