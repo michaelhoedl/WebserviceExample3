@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3;
+package com.example.michaelhodl.webserviceexample3.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -11,8 +11,11 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.michaelhodl.webserviceexample3.R;
+import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
+import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,9 +24,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class DisplayMessageActivity extends AppCompatActivity {
+public class AllTodosActivity extends AppCompatActivity {
 
-    private String TAG = DisplayMessageActivity.class.getSimpleName();
+    private String TAG = AllTodosActivity.class.getSimpleName();
     private ProgressDialog pDialog;
     private ListView lv;
     ArrayList<HashMap<String, String>> todoList;
@@ -40,9 +43,9 @@ public class DisplayMessageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display_message);
+        setContentView(R.layout.activity_all_todos);
 
-        final DisplayMessageActivity dma = this;
+        final AllTodosActivity dma = this;
 
         todoList = new ArrayList<>();
         lv = (ListView) findViewById(R.id.list);
@@ -73,7 +76,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
 
         //start the asynctask to retrieve the data from webservice
-        AsyncTask bla = new DisplayMessageActivity.AsyncCaller(this).execute();
+        AsyncTask bla = new AllTodosActivity.AsyncCaller(this).execute();
     }
 
 
@@ -104,8 +107,8 @@ public class DisplayMessageActivity extends AppCompatActivity {
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
         //necessary for exchanging data.
-        DisplayMessageActivity caller;
-        AsyncCaller(DisplayMessageActivity caller){
+        AllTodosActivity caller;
+        AsyncCaller(AllTodosActivity caller){
             this.caller = caller;
         }
 
@@ -116,7 +119,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             // Showing progress dialog
-            pDialog = new ProgressDialog(DisplayMessageActivity.this);
+            pDialog = new ProgressDialog(AllTodosActivity.this);
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
@@ -239,7 +242,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
              * */
 
                 ListAdapter adapter = new SimpleAdapter(
-                        DisplayMessageActivity.this, todoList,
+                        AllTodosActivity.this, todoList,
                     R.layout.list_item, new String[]{"id", "name",
                     "description"}, new int[]{R.id.todoid,
                     R.id.todoname, R.id.tododesc});

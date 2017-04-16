@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3;
+package com.example.michaelhodl.webserviceexample3.utils;
 
 import android.util.Log;
 

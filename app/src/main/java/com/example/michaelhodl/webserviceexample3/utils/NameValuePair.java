@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3;
+package com.example.michaelhodl.webserviceexample3.utils;
 
 /**
  * Created by michaelhodl on 12.04.17.

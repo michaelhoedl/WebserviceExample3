@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3;
+package com.example.michaelhodl.webserviceexample3.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -10,6 +10,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+
+import com.example.michaelhodl.webserviceexample3.R;
+import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
+import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -75,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             alertDialog.show();
         } // else (if server returns session), then switch to a new screen where a list of all todos is shown.
         else {
-            Intent intent = new Intent(this, DisplayMessageActivity.class);
+            Intent intent = new Intent(this, AllTodosActivity.class);
             intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
             startActivity(intent);
         }
