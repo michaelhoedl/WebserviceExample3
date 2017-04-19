@@ -160,8 +160,6 @@ public class AllTodosActivity extends AppCompatActivity {
 
     // ---------------------------------------------------------------------------------------------
 
-
-
     /**
      * Async task class to get json by making HTTP call
      */
