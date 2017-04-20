@@ -9,6 +9,7 @@
         android:id="@+id/todoid"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
         android:paddingBottom="2dip"
         android:paddingTop="6dip"
         android:textColor="@color/colorPrimaryDark"
@@ -19,6 +20,7 @@
         android:id="@+id/todoname"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
         android:paddingBottom="2dip"
         android:textColor="@color/colorAccent" />
 
@@ -26,6 +28,7 @@
         android:id="@+id/tododesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
         android:textColor="#5d5d5d"
         android:textStyle="bold" />
 </LinearLayout>

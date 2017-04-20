@@ -48,11 +48,9 @@ public class TodoDetailActivity extends AppCompatActivity {
 
         // build the url for the HTTP request to get a specific todo-entry, i.e.: http://campus02win14mobapp.azurewebsites.net/Todo/3
         url = url+todoid;
-        Log.d(TAG, "url = "+url);
 
-        // just for testing... output the id.
-        //TextView t3 = (TextView) findViewById(R.id.tvTodoId);
-        //t3.setText("todo id = "+todoid+", session id = "+sessionid);
+        // test logging...
+        Log.d(TAG, "url = "+url);
         Log.d(TAG, "todo id = "+todoid+", session id = "+sessionid);
 
 
