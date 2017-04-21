@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "mypwd: " + mypwd);
 
         // execute the asyn task to get the json from the server by making a HTTP call.
-        AsyncTask bla = new AsyncCaller(this).execute();
-        Log.e(TAG, "status (im sendMessage): " + bla.getStatus());
+        AsyncTask async = new AsyncCaller(this).execute();
+        Log.e(TAG, "status (im sendMessage): " + async.getStatus());
 
         // bissl primitiver ansatz, um die problematik zu loesen
         //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
