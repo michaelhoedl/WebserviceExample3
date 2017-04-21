@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     /** Called when the user taps the Send button */
     public void sendMessage(View view) {
 
+
         EditText emymail = (EditText) findViewById(R.id.editTextMail);
         EditText emypwd = (EditText) findViewById(R.id.editTextPwd);
         MainActivity.this.setMymail(emymail.getText().toString());
