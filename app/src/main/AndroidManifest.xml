@@ -29,9 +29,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
         </activity>
-
-        <activity android:name=".activities.TodoDetailActivity"></activity>
-
+        <activity android:name=".activities.TodoDetailActivity" />
+        <activity android:name=".activities.TodoSearchActivity"></activity>
     </application>
 
 </manifest>
