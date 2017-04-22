@@ -30,7 +30,8 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity android:name=".activities.TodoDetailActivity" />
-        <activity android:name=".activities.TodoSearchActivity"></activity>
+        <activity android:name=".activities.TodoSearchActivity" />
+        <activity android:name=".activities.CreateToDoActivity"></activity>
     </application>
 
 </manifest>
