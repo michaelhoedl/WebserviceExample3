@@ -42,6 +42,7 @@ public class AllTodosActivity extends AppCompatActivity {
     private String sessionid = null;
     private String httpResponse = null;
     private boolean deleteIt = false;
+    private AllTodosActivity dma;
 
 
     @Override
@@ -49,7 +50,7 @@ public class AllTodosActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_todos);
 
-        final AllTodosActivity dma = this;
+        dma = this;
 
         todoList = new ArrayList<>();
         lv = (ListView) findViewById(R.id.list);
@@ -350,6 +351,16 @@ public class AllTodosActivity extends AppCompatActivity {
     private void runAsync()
     {
         new AllTodosActivity.AsyncCaller(this).execute();
+    }
+
+    public void addButtonClicked(View view){
+        Log.e(TAG, "Add Button (FloatingActionButton) was clicked!");
+
+        // open new view (TodoDetailActivity) to display the details of the selected list item.
+        // send the session_id (which we got from the login view) and the selected todo_id.
+        Intent intentdetail = new Intent(dma, CreateToDoActivity.class);
+        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // we have to send the session_id.
+        startActivity(intentdetail);
     }
 
 }

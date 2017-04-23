@@ -13,7 +13,8 @@
         android:layout_marginLeft="16dp"
         android:text="ToDo ID:"
         app:layout_constraintLeft_toLeftOf="parent"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/textView6"
@@ -43,7 +44,8 @@
         android:layout_marginLeft="16dp"
         android:text="Description:"
         app:layout_constraintLeft_toLeftOf="parent"
-        tools:layout_editor_absoluteY="117dp" />
+        android:layout_marginTop="18dp"
+        app:layout_constraintTop_toBottomOf="@+id/txtName" />
 
     <EditText
         android:id="@+id/txtDescription"
