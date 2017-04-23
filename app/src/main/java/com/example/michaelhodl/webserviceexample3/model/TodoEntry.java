@@ -18,6 +18,7 @@ public class TodoEntry {
     private float usedtime;
     private int done;
     private Date createdate;
+    private Date duedate;
 
     public TodoEntry() {
     }
@@ -78,6 +79,14 @@ public class TodoEntry {
         this.createdate = createdate;
     }
 
+    public Date getDuedate() {
+        return duedate;
+    }
+
+    public void setDuedate(Date duedate) {
+        this.duedate = duedate;
+    }
+
     @Override
     public String toString() {
         return "TodoEntry{" +
@@ -88,6 +97,7 @@ public class TodoEntry {
                 ", usedtime=" + usedtime +
                 ", done=" + done +
                 ", createdate=" + createdate +
+                ", duedate=" + duedate +
                 '}';
     }
 }

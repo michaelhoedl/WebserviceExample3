@@ -4,39 +4,42 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextWatcher;
-import android.text.Editable;
+import android.util.Log;
 import android.widget.EditText;
-import android.widget.TextView;
 
 
 import com.example.michaelhodl.webserviceexample3.R;
 import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
 
-import org.w3c.dom.Text;
 
-import java.util.HashMap
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class CreateToDoActivity extends AppCompatActivity {
 
     private String TAG = CreateToDoActivity.class.getSimpleName();
-    private String todoid;
     private String sessionid = null;
     private String httpResponse = null;
     private ProgressDialog pDialog;
     private TodoEntry mytodo;
+
+    // EditText Elemente
     private EditText txtEName;
     private EditText txtEDescription;
     private EditText txtEDeadline;
     private EditText txtEEstimatedEffort;
     private EditText txtEActualEffort;
-    private TextView txtVName;
-    private TextView txtVDescription;
-    private TextView txtVDeadline;
-    private TextView txtVEstimatedEffort;
-    private TextView txtVActualEffort;
 
+    // Variablen die mit den Inhalten aus den EditText Elementen befuellt werden bei Klick auf Button "Save"
+    private String  txtVName;
+    private String  txtVDescription;
+    private Date    txtVDeadline;
+    private float   txtVEstimatedEffort;
+    private float   txtVActualEffort;
 
+    // HTTP POST auf diese Url, um ein neues To Do zu erzeugen.
     private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/";
 
     @Override
@@ -46,60 +49,61 @@ public class CreateToDoActivity extends AppCompatActivity {
 
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
-        todoid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE2);
         sessionid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE3);
 
-// Objektzuweisung, Anzeigen und Auslesen Text
-        txtVName = (TextView)
-                this.findViewById(R.id.txtName)
-        txtEName = (EditText)
-                this.findViewById(R.id.txtName)
-                txtEName.getText().toString()
-
-        txtVDescription = (TextView)
-                this.findViewById(R.id.txtName)
-        txtEDescription = (EditText)
-                this.findViewById(R.id.txtDescription)
-                txtEDescription.getText().toString()
-
-        txtVDeadline = (TextView)
-                this.findViewById(R.id.txtDeadline)
-        txtEDeadline = (EditText)
-                this.findViewById(R.id.txtDeadline)
-                txtEDeadline.getText().toString()
-
-        txtVEstimatedEffort = (TextView)
-                this.findViewById(R.id.txtEstimatedEffort)
-        txtEEstimatedEffort = (EditText)
-                this.findViewById(R.id.txtEstimatedEffort)
-                txtEEstimatedEffort.getText().toString()
-
-        txtVActualEffort = (TextView)
-                this.findViewById(R.id.txtActualEffort)
-        txtEActualEffort = (EditText)
-                this.findViewById(R.id.txtActualEffort)
-                txtEActualEffort.getText().toString();
-
-// Geänderter Text anzeigen
-        EditText.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                TextView.setText(EditText.getText().toString());
-            }
-
-
-
-
     }
+
+    /**
+     * Auslagern des Auslesens der EditText-Felder in eine eigene Methode.
+     * Wird aufgerufen bei Klick auf den "Save" Button.
+     */
+    public void readDataFromFields(){
+        // Objektzuweisung, Anzeigen und Auslesen Text
+
+        txtEName = (EditText)
+                this.findViewById(R.id.txtName);
+        txtVName = txtEName.getText().toString();
+
+
+        txtEDescription = (EditText)
+                this.findViewById(R.id.txtDescription);
+        txtVDescription = txtEDescription.getText().toString();
+
+
+        // Datum aus dem Text extrahieren:
+        txtEDeadline = (EditText)
+                this.findViewById(R.id.txtDeadline);
+        DateFormat dformat = new SimpleDateFormat("dd.mm.yyyy", Locale.getDefault());
+        String datumstring = txtEDeadline.getText().toString();
+        try {
+            txtVDeadline = dformat.parse(datumstring);
+        }catch(java.text.ParseException e){
+            datumstring = null; // falls das parsen nicht funktioniert...ins log schreiben
+            Log.e(TAG, "Date parsing error: "+datumstring);
+        }
+
+
+        txtEEstimatedEffort = (EditText)
+                this.findViewById(R.id.txtEstimatedEffort);
+        txtVEstimatedEffort = Float.valueOf(txtEEstimatedEffort.getText().toString());
+
+
+        txtEActualEffort = (EditText)
+                this.findViewById(R.id.txtActualEffort);
+        txtVActualEffort = Float.valueOf(txtEActualEffort.getText().toString());
+
+        // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
+        mytodo = new TodoEntry();
+        mytodo.setTitle(txtVName);
+        mytodo.setTododesc(txtVDescription);
+        mytodo.setEstimatedeffort(txtVEstimatedEffort);
+        mytodo.setUsedtime(txtVActualEffort);
+        
+        // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
+        Log.e(TAG, "Save Button was clicked");
+        Log.e(TAG, "mytodo="+mytodo.toString());
+    }
+
 }
 
 
