@@ -115,7 +115,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView12" />
 
     <EditText
-        android:id="@+id/txtAcutalEffort"
+        android:id="@+id/txtActualEffort"
         android:layout_width="103dp"
         android:layout_height="42dp"
         android:layout_marginLeft="177dp"
