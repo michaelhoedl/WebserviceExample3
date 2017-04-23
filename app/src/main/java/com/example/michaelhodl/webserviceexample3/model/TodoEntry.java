@@ -1,5 +1,6 @@
 package com.example.michaelhodl.webserviceexample3.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -81,6 +82,14 @@ public class TodoEntry {
 
     public Date getDuedate() {
         return duedate;
+    }
+
+    public String getDuedateFormatted() {
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        if(duedate != null)
+            return dt1.format(duedate);
+        else
+            return null;
     }
 
     public void setDuedate(Date duedate) {

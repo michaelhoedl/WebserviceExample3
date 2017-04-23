@@ -13,6 +13,7 @@ tools:context="com.example.michaelhodl.webserviceexample3.activities.AllTodosAct
     android:longClickable="true"
     />
 
+    <!-- bzgl. FloatingActionButton, siehe auch: https://guides.codepath.com/android/floating-action-buttons -->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"

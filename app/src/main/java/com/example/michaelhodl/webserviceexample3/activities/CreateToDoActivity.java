@@ -2,19 +2,28 @@ package com.example.michaelhodl.webserviceexample3.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-
 import com.example.michaelhodl.webserviceexample3.R;
 import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
+import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -43,10 +52,14 @@ public class CreateToDoActivity extends AppCompatActivity {
     // HTTP POST auf diese Url, um ein neues To Do zu erzeugen.
     private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/";
 
+    private CreateToDoActivity dma;
+    //public static final String EXTRA_MESSAGE4 = "com.example.michaelhodl.webserviceexample3.MESSAGESESSION";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_to_do);
+        dma = this;
 
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
@@ -97,19 +110,226 @@ public class CreateToDoActivity extends AppCompatActivity {
             txtVActualEffort = Float.valueOf(float2string);
         }
 
-        // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
-        mytodo = new TodoEntry();
-        mytodo.setTitle(txtVName);
-        mytodo.setTododesc(txtVDescription);
-        mytodo.setEstimatedeffort(txtVEstimatedEffort);
-        mytodo.setUsedtime(txtVActualEffort);
-        mytodo.setDuedate(txtVDeadline);
+        // check whether name and description fields are filled
+        if(txtVName != null && !txtVName.isEmpty() && txtVDescription != null && !txtVDescription.isEmpty()){
+            // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
+            mytodo = new TodoEntry();
+            mytodo.setTitle(txtVName);
+            mytodo.setTododesc(txtVDescription);
+            mytodo.setEstimatedeffort(txtVEstimatedEffort);
+            mytodo.setUsedtime(txtVActualEffort);
+            mytodo.setDuedate(txtVDeadline);
 
-        // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
-        Log.e(TAG, "Save Button was clicked");
-        Log.e(TAG, "mytodo="+mytodo.toString());
+            // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
+            Log.e(TAG, "Save Button was clicked");
+            Log.e(TAG, "mytodo="+mytodo.toString());
+
+            // call the webservice via HTTP POST to create a new To Do.
+            runAsync();
+
+
+            /* // funktioniert noch nicht, dass es wieder zur AllTodosActivity wechselt...
+            // open the AllTodosActivity view to display all list items.
+            // send the session_id.
+            Intent intentdetail = new Intent(dma, AllTodosActivity.class);
+            intentdetail.putExtra(EXTRA_MESSAGE4, sessionid); // we have to send the session_id.
+            startActivity(intentdetail);
+            */
+
+        } else{ // if both fields are empty, then log it.
+            Log.e(TAG, "Name and Description must be filled!");
+        }
 
     }
+
+
+    // ---------------------------------------------------------------------------------------------
+
+    // Getters and Setters
+
+    public String getHttpResponse() {
+        return httpResponse;
+    }
+
+    public void setHttpResponse(String httpResponse) {
+        this.httpResponse = httpResponse;
+    }
+
+    public String getSessionid() {
+        return sessionid;
+    }
+
+    public void setSessionid(String sessionid) {
+        this.sessionid = sessionid;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * method used for calling the async task class which makes the HTTP calls.
+     */
+    private void runAsync()
+    {
+        new CreateToDoActivity.AsyncCaller(this).execute();
+    }
+
+    /**
+     * TODO: evtl. diese Klasse und die Methoden auslagern in separate Utils Klasse, bzw. im HttpHandler fuers POST ergaenzen....
+     * Async task class to get json by making HTTP call
+     */
+    private class AsyncCaller extends AsyncTask<Void, Void, Void> {
+
+        //necessary for exchanging data.
+        CreateToDoActivity caller;
+        AsyncCaller(CreateToDoActivity caller){
+            this.caller = caller;
+        }
+
+        @Override
+        /**
+         * this method will be running on UI thread
+         */
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(CreateToDoActivity.this);
+            pDialog.setMessage("Please wait...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        /**
+         * this method will be running on background thread so dont update UI from here
+         * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
+         */
+        protected Void doInBackground(Void... arg0) {
+            String response = "";
+
+            // set headers
+            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+            NameValuePair h1 = new NameValuePair();
+            h1.setName("Content-Type");
+            h1.setValue(new String("application/json"));
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("session");
+            h2.setValue(caller.getSessionid());
+            NameValuePair h3 = new NameValuePair();
+            h3.setName("Accept");
+            h3.setValue(new String("application/json"));
+            headers.add(h1);
+            headers.add(h2);
+            headers.add(h3);
+
+            try {
+                response = performPostCall(caller.url, headers);
+            } catch (Exception e) {
+                Log.e(TAG, "Error ...");
+            }
+            Log.e(TAG, "create, response: " + response);
+
+            return null;
+        } // end doInBackground
+
+
+        @Override
+        /**
+         * this method will be running on UI thread
+         */
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
+            Log.e(TAG, "status: (im onPostExecute): " + this.getStatus());
+        }
+
+
+        /**
+         * Method to perform a POST call to the webservice.
+         * @param requestURL
+         * @param postDataParams
+         * @return
+         */
+        public String performPostCall(String requestURL,
+                                      ArrayList<NameValuePair> postDataParams) {
+            Log.e(TAG, "performPostCall (1)");
+            URL url;
+            String response = "";
+
+            try {
+                url = new URL(requestURL);
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                //conn.setReadTimeout(context.getResources().getInteger(
+                //        R.integer.maximum_timeout_to_server));
+                //conn.setConnectTimeout(context.getResources().getInteger(
+                //        R.integer.maximum_timeout_to_server));
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+
+                // add headers
+                if (postDataParams!=null) {
+                    for (NameValuePair h : postDataParams)
+                        conn.setRequestProperty(h.getName(), (String) h.getValue());
+                }
+
+                // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    if(caller.mytodo.getTitle() != null && !caller.mytodo.getTitle().isEmpty())
+                        jsonObject.put("name",caller.mytodo.getTitle());
+                    if(caller.mytodo.getTododesc() != null && !caller.mytodo.getTododesc().isEmpty())
+                        jsonObject.put("description", caller.mytodo.getTododesc());
+                    if(caller.mytodo.getEstimatedeffort() != 0.0f)
+                        jsonObject.put("estimatedEffort", caller.mytodo.getEstimatedeffort());
+                    if(caller.mytodo.getUsedtime() != 0.0f)
+                        jsonObject.put("usedTime", caller.mytodo.getUsedtime());
+                    if(caller.mytodo.getDuedateFormatted() != null && !caller.mytodo.getDuedateFormatted().isEmpty())
+                        jsonObject.put("dueDate", caller.mytodo.getDuedateFormatted());
+                    if(caller.mytodo.getDone() == 0 || caller.mytodo.getDone() == 1)
+                        jsonObject.put("done",caller.mytodo.getDone());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                String str = jsonObject.toString();
+                Log.e(TAG, "jsonObject.toString()="+str);
+                byte[] outputBytes = str.getBytes("UTF-8");
+                OutputStream os = conn.getOutputStream();
+                os.write(outputBytes);
+
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    Log.e(TAG, "14 - HTTP_OK");
+
+                    String line;
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            conn.getInputStream()));
+                    while ((line = br.readLine()) != null) {
+                        response += line;
+                    }
+                } else {
+                    Log.e(TAG, "14 - False - responseCode="+responseCode);
+                    response = "";
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Log.e(TAG, "performPostCall (2)");
+            return response;
+
+        } // end performPostCall
+
+    } // end private class AsyncCaller
+
+
 
 }
 

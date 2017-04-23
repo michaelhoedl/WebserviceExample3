@@ -82,7 +82,6 @@ public class AllTodosActivity extends AppCompatActivity {
         Intent intent = getIntent();
         sessionid = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
-
         //start the asynctask to retrieve the data from webservice
         runAsync();
     }
