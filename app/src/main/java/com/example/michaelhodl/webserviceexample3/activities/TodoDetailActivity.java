@@ -21,8 +21,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class TodoDetailActivity extends AppCompatActivity {
 
@@ -32,6 +36,20 @@ public class TodoDetailActivity extends AppCompatActivity {
     private String httpResponse = null;
     private ProgressDialog pDialog;
     private TodoEntry mytodo;
+
+    // EditText Elemente
+    private EditText txtEName;
+    private EditText txtEDescription;
+    private EditText txtEDeadline;
+    private EditText txtEEstimatedEffort;
+    private EditText txtEActualEffort;
+
+    // Variablen die mit den Inhalten aus den EditText Elementen befuellt werden bei Klick auf Button "Save"
+    private String  txtVName;
+    private String  txtVDescription;
+    private Date txtVDeadline;
+    private float   txtVEstimatedEffort;
+    private float   txtVActualEffort;
 
     private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/";
 
@@ -84,7 +102,62 @@ public class TodoDetailActivity extends AppCompatActivity {
 
         // ... datum und andere felder evtl noch ergaenzen .... und ggf. das befuellen der felder in eigene methode auslagern.
 
+
+
     }
+
+    /**
+     * Auslagern des Auslesens der EditText-Felder in eine eigene Methode.
+     * Wird aufgerufen bei Klick auf den "Save" Button.
+     */
+    public void readDataFromFields(){
+        // Objektzuweisung, Anzeigen und Auslesen Text
+
+        txtEName = (EditText)
+                this.findViewById(R.id.txtName);
+        txtVName = txtEName.getText().toString();
+
+
+        txtEDescription = (EditText)
+                this.findViewById(R.id.txtDescription);
+        txtVDescription = txtEDescription.getText().toString();
+
+
+        // Datum aus dem Text extrahieren:
+        txtEDeadline = (EditText)
+                this.findViewById(R.id.txtDeadline);
+        DateFormat dformat = new SimpleDateFormat("dd.mm.yyyy", Locale.getDefault());
+        String datumstring = txtEDeadline.getText().toString();
+        try {
+            txtVDeadline = dformat.parse(datumstring);
+        }catch(java.text.ParseException e){
+            datumstring = null; // falls das parsen nicht funktioniert...ins log schreiben
+            Log.e(TAG, "Date parsing error: "+datumstring);
+        }
+
+
+        txtEEstimatedEffort = (EditText)
+                this.findViewById(R.id.txtEstimatedEffort);
+        txtVEstimatedEffort = Float.valueOf(txtEEstimatedEffort.getText().toString());
+
+
+        txtEActualEffort = (EditText)
+                this.findViewById(R.id.txtActualEffort);
+        txtVActualEffort = Float.valueOf(txtEActualEffort.getText().toString());
+
+        // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
+        mytodo = new TodoEntry();
+        mytodo.setTitle(txtVName);
+        mytodo.setTododesc(txtVDescription);
+        mytodo.setEstimatedeffort(txtVEstimatedEffort);
+        mytodo.setUsedtime(txtVActualEffort);
+
+        // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
+        Log.e(TAG, "Save Button was clicked");
+        Log.e(TAG, "mytodo="+mytodo.toString());
+    }
+
+
 
     // ---------------------------------------------------------------------------------------------
 
