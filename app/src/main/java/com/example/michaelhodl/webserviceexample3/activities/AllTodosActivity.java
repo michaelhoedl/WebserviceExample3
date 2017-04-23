@@ -1,6 +1,8 @@
 package com.example.michaelhodl.webserviceexample3.activities;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.example.michaelhodl.webserviceexample3.R;
+import com.example.michaelhodl.webserviceexample3.utils.DeleteTodoAction;
 import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
 import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
 
@@ -38,6 +41,7 @@ public class AllTodosActivity extends AppCompatActivity {
     private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo";
     private String sessionid = null;
     private String httpResponse = null;
+    private boolean deleteIt = false;
 
 
     @Override
@@ -79,7 +83,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
 
         //start the asynctask to retrieve the data from webservice
-        AsyncTask bla = new AllTodosActivity.AsyncCaller(this).execute();
+        runAsync();
     }
 
 
@@ -117,15 +121,45 @@ public class AllTodosActivity extends AppCompatActivity {
         info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
         // get the ID (todo_id) of the selected item.
-        String selectedFromList;
         HashMap myhm = (HashMap) lv.getItemAtPosition(info.position);
-        selectedFromList = (String) myhm.get("id");
+        String selectedFromList = (String) myhm.get("id");
 
         // TODO: 16.04.17  tatsaechlich reagieren auf den ausgewaehlten menue-eintrag...
         switch (item.getItemId()) {
+            //delete action
             case 1:
                 Log.d(TAG, "delete item pos=" + info.position+" = todo_id: " + selectedFromList);
-                //mAdapter.remove(info.position); // .... oder wie auch immer dann das wirkliche loeschen implementiert wird...
+                final DeleteTodoAction delaction =  new DeleteTodoAction(this, selectedFromList, sessionid);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Delete");
+                builder.setMessage("Are you sure?");
+
+                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        // runs the delete action, where the Http Service Call to the API will be done
+                        deleteIt = delaction.runDeleteAction();
+
+                        // if the delete was successful, the list of the todo will be reloaded with a service call to the api
+                        if(deleteIt) {
+                            runAsync();
+                        }
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // if the user says no, nothing will be done and the dialog is closed again
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog alert = builder.create();
+                alert.show();
                 return true;
             case 2:
                 Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
@@ -231,6 +265,7 @@ public class AllTodosActivity extends AppCompatActivity {
                     // Getting JSON Array node
                     JSONArray todos = new JSONArray(jsonStr); //jsonObj.getJSONArray("contacts");
                     Log.e(TAG, "todos.length: " + todos.length());
+                    todoList = new ArrayList<>();
 
                     // looping through all To Do entries within the Json Array
                     for (int i = 0; i < todos.length(); i++) {
@@ -312,5 +347,9 @@ public class AllTodosActivity extends AppCompatActivity {
 
     } // end private class AsyncCaller
 
+    private void runAsync()
+    {
+        new AllTodosActivity.AsyncCaller(this).execute();
+    }
 
 }
