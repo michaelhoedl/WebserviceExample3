@@ -175,7 +175,9 @@ public class CreateToDoActivity extends AppCompatActivity {
 
     /**
      * TODO: evtl. diese Klasse und die Methoden auslagern in separate Utils Klasse, bzw. im HttpHandler fuers POST ergaenzen....
-     * Async task class to get json by making HTTP call
+     * Async task class to get json by making HTTP call (POST)
+     *
+     * see: http://stackoverflow.com/questions/2938502/sending-post-data-in-android
      */
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
