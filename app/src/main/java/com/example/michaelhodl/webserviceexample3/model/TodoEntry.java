@@ -1,5 +1,8 @@
 package com.example.michaelhodl.webserviceexample3.model;
 
+import android.util.Log;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -84,14 +87,6 @@ public class TodoEntry {
         return duedate;
     }
 
-    public String getDuedateFormatted() {
-        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        if(duedate != null)
-            return dt1.format(duedate);
-        else
-            return null;
-    }
-
     public void setDuedate(Date duedate) {
         this.duedate = duedate;
     }
@@ -109,4 +104,58 @@ public class TodoEntry {
                 ", duedate=" + duedate +
                 '}';
     }
+
+
+    //----------------------------------------------------------------------------------------------
+
+
+    public String getDuedateFormatted() {
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd.mm.yyyy"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        if(duedate != null)
+            return dt1.format(duedate);
+        else
+            return null;
+    }
+
+
+    public void setDuedateAsString(String duedateAsString) {
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        if(duedateAsString != null && !duedateAsString.isEmpty()) {
+            try {
+                this.duedate = dt1.parse(duedateAsString);
+            } catch (java.text.ParseException e){
+                e.printStackTrace();
+            }
+        }
+        Log.e(null, "duedate="+duedate+", id="+this.id);
+    }
+
+
+
+    private Date string2date (String date, String format) throws ParseException
+    {
+        Date d = null;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat(format);
+            d = formatter.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
+
+    private String date2string (Date date, String format) throws ParseException
+    {
+        String d = null;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat(format);
+            d = formatter.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
+
+
+
 }

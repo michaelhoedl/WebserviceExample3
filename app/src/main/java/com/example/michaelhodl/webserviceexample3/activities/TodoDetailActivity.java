@@ -59,13 +59,12 @@ public class TodoDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo_detail);
 
-
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
         todoid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE2);
         sessionid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE3);
 
-        // build the url for the HTTP request to get a specific todo-entry, i.e.: http://campus02win14mobapp.azurewebsites.net/Todo/3
+        // build the url for the HTTP request to get a specific to do entry, i.e.: http://campus02win14mobapp.azurewebsites.net/Todo/3
         url = url+todoid;
 
         // test logging...
@@ -101,9 +100,9 @@ public class TodoDetailActivity extends AppCompatActivity {
         EditText etactualeffort = (EditText) findViewById(R.id.txtActualEffort);
         etactualeffort.setText(mytodo.getUsedtime()+"");
 
-        // ... datum und andere felder evtl noch ergaenzen .... und ggf. das befuellen der felder in eigene methode auslagern.
-
-
+        // ... datum und andere felder evtl noch ergaenzen ....
+        EditText eduedate = (EditText) findViewById(R.id.txtDeadline);
+        eduedate.setText(mytodo.getDuedateFormatted());
 
     }
 
@@ -214,7 +213,6 @@ public class TodoDetailActivity extends AppCompatActivity {
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
-
         }
 
         @Override
@@ -262,7 +260,7 @@ public class TodoDetailActivity extends AppCompatActivity {
                     float estimatedEffort   = (float) jsonObj.getDouble("estimatedEffort");
                     float usedTime          = (float) jsonObj.getDouble("usedTime");
                     boolean done            = jsonObj.getBoolean("done");
-                    // ... datum fehlt noch...
+                    String duedate          = jsonObj.getString("dueDate");
 
 
                     // create a TodoEntry object and set the data.
@@ -278,11 +276,10 @@ public class TodoDetailActivity extends AppCompatActivity {
                         caller.mytodo.setDone(0);
                     }
                     // ... evt. noch das datum einbauen...
-
+                    caller.mytodo.setDuedateAsString(duedate);
 
                     Log.e(TAG, "jsonObj: id="+id+", name="+name+", description="+description);
                     Log.e(TAG, "jsonObj: mytodo.tostring="+caller.mytodo.toString());
-
 
                 } catch (final JSONException e) {
                     Log.e(TAG, "Json parsing error: " + e.getMessage());

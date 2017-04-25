@@ -107,7 +107,6 @@ public class AllTodosActivity extends AppCompatActivity {
 
             menu.add(menu.NONE,1,1,"Delete ToDo");
             menu.add(menu.NONE,2,2,"Complete ToDo");
-            menu.add(menu.NONE,3,3,"Edit ToDo");
         }
     }
 
@@ -163,9 +162,7 @@ public class AllTodosActivity extends AppCompatActivity {
                 return true;
             case 2:
                 Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
-                return true;
-            case 3:
-                Log.d(TAG, "edit item pos=" + info.position+" = todo_id: " + selectedFromList);
+                // ... hier kommt der code fuers erledigen hin...
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -216,7 +213,6 @@ public class AllTodosActivity extends AppCompatActivity {
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
-
         }
 
         @Override
