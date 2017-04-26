@@ -236,7 +236,7 @@ public class TodoDetailActivity extends AppCompatActivity {
 
 
             // Making a request to url and getting response as a string
-            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);
+            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null, null);
 
             caller.setHttpResponse(jsonStr);
 

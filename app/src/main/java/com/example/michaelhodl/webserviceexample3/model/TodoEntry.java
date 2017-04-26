@@ -109,6 +109,7 @@ public class TodoEntry {
     //----------------------------------------------------------------------------------------------
 
 
+    // get the duedate as a string with a given dateformat
     public String getDuedateFormatted() {
         SimpleDateFormat dt1 = new SimpleDateFormat("dd.mm.yyyy"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
         if(duedate != null)
@@ -117,7 +118,7 @@ public class TodoEntry {
             return null;
     }
 
-
+    // set the duedate from a string with a given dateformat
     public void setDuedateAsString(String duedateAsString) {
         SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         if(duedateAsString != null && !duedateAsString.isEmpty()) {
@@ -131,7 +132,7 @@ public class TodoEntry {
     }
 
 
-
+    // convert a string into a date with a given dateformat
     private Date string2date (String date, String format) throws ParseException
     {
         Date d = null;
@@ -144,6 +145,7 @@ public class TodoEntry {
         return d;
     }
 
+    // convert a date into a string with a given dateformat
     private String date2string (Date date, String format) throws ParseException
     {
         String d = null;

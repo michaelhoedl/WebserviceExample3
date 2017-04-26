@@ -11,16 +11,12 @@ import android.widget.EditText;
 
 import com.example.michaelhodl.webserviceexample3.R;
 import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
+import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
 import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -257,27 +253,10 @@ public class CreateToDoActivity extends AppCompatActivity {
         public String performPostCall(String requestURL,
                                       ArrayList<NameValuePair> postDataParams) {
             Log.e(TAG, "performPostCall (1)");
-            URL url;
             String response = "";
+            HttpHandler sh = new HttpHandler();
 
             try {
-                url = new URL(requestURL);
-
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                //conn.setReadTimeout(context.getResources().getInteger(
-                //        R.integer.maximum_timeout_to_server));
-                //conn.setConnectTimeout(context.getResources().getInteger(
-                //        R.integer.maximum_timeout_to_server));
-                conn.setRequestMethod("POST");
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-
-
-                // add headers
-                if (postDataParams!=null) {
-                    for (NameValuePair h : postDataParams)
-                        conn.setRequestProperty(h.getName(), (String) h.getValue());
-                }
 
                 // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
                 JSONObject jsonObject = new JSONObject();
@@ -301,24 +280,9 @@ public class CreateToDoActivity extends AppCompatActivity {
 
                 String str = jsonObject.toString();
                 Log.e(TAG, "jsonObject.toString()="+str);
-                byte[] outputBytes = str.getBytes("UTF-8");
-                OutputStream os = conn.getOutputStream();
-                os.write(outputBytes);
 
-                int responseCode = conn.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, "14 - HTTP_OK");
-
-                    String line;
-                    BufferedReader br = new BufferedReader(new InputStreamReader(
-                            conn.getInputStream()));
-                    while ((line = br.readLine()) != null) {
-                        response += line;
-                    }
-                } else {
-                    Log.e(TAG, "14 - False - responseCode="+responseCode);
-                    response = "";
-                }
+                // make the webservice-call (HTTP POST).
+                response = sh.makeMyServiceCall(requestURL, "POST", postDataParams, null, str);
 
             } catch (Exception e) {
                 e.printStackTrace();

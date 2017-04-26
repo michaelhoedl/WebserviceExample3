@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             // Making a request to url and getting response
-            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);//sh.makeServiceCall(url);
+            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null, null); //sh.makeServiceCall(url);
             // fill the httpResponse with the json string. The httpResponse basically just is the session_id returned by the server.
             caller.setHttpResponse(jsonStr);
 

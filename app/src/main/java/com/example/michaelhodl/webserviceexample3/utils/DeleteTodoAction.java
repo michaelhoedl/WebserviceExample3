@@ -1,14 +1,10 @@
 package com.example.michaelhodl.webserviceexample3.utils;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.michaelhodl.webserviceexample3.activities.AllTodosActivity;
-import com.example.michaelhodl.webserviceexample3.activities.MainActivity;
 
 import java.util.ArrayList;
 
@@ -105,7 +101,7 @@ public class DeleteTodoAction {
             url = "http://campus02win14mobapp.azurewebsites.net/Todo/"+todoId;
 
             // Making a delete request to url and getting response
-            String jsonStr = sh.makeMyServiceCall(url,"DELETE",headers, null);//sh.makeServiceCall(url);
+            String jsonStr = sh.makeMyServiceCall(url,"DELETE",headers, null, null);//sh.makeServiceCall(url);
             // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
             caller.setHttpResponse(jsonStr);
 

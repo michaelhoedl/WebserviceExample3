@@ -4,6 +4,9 @@ package com.example.michaelhodl.webserviceexample3.utils;
  * Created by michaelhodl on 12.04.17.
  *
  * This class is used to represent a "name value pair" entry.
+ * This is useful for setting the headers for the HTTP requests
+ *   (for example, a HTTP header "Accept" could have a value "text/plain").
+ * (Alternatively you could use a HashMap with key/value.)
  */
 
 public class NameValuePair {

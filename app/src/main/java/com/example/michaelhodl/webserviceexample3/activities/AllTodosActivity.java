@@ -123,7 +123,7 @@ public class AllTodosActivity extends AppCompatActivity {
         HashMap myhm = (HashMap) lv.getItemAtPosition(info.position);
         String selectedFromList = (String) myhm.get("id");
 
-        // TODO: 16.04.17  tatsaechlich reagieren auf den ausgewaehlten menue-eintrag...
+        // reagieren auf den ausgewaehlten menue-eintrag.
         switch (item.getItemId()) {
             //delete action
             case 1:
@@ -236,7 +236,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
 
             // Making a request to url and getting response as a string
-            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null);
+            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null, null);
 
             caller.setHttpResponse(jsonStr);
 
@@ -254,8 +254,6 @@ public class AllTodosActivity extends AppCompatActivity {
                     /*
                     JSONObject jsonObj; // = new JSONObject(jsonStr);
                     jsonObj = new JSONObject(jsonStr);
-
-                    Log.e(TAG, "jsonObj.length: " + jsonObj.length());
                     */
 
                     // Getting JSON Array node
@@ -348,6 +346,10 @@ public class AllTodosActivity extends AppCompatActivity {
         new AllTodosActivity.AsyncCaller(this).execute();
     }
 
+    /**
+     * method which is performed when the Add-Button (+) is clicked.
+     * @param view
+     */
     public void addButtonClicked(View view){
         Log.e(TAG, "Add Button (FloatingActionButton) was clicked!");
 
