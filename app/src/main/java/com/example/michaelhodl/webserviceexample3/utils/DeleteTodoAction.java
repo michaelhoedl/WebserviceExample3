@@ -73,6 +73,9 @@ public class DeleteTodoAction {
         //this method will be running on UI thread
         protected void onPreExecute() {
             super.onPreExecute();
+
+
+
             // Showing progress dialog
             pDialog = new ProgressDialog(mainDialog);
             pDialog.setMessage("Please wait...");
