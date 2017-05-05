@@ -71,6 +71,13 @@ public class TodoEntry {
         return done;
     }
 
+    public Boolean getDoneBoolean() {
+        if(done == 1)
+            return true;
+        else
+            return false;
+    }
+
     public void setDone(int done) {
         this.done = done;
     }

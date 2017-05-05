@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
@@ -103,6 +104,9 @@ public class TodoDetailActivity extends AppCompatActivity {
         // ... datum und andere felder evtl noch ergaenzen ....
         EditText eduedate = (EditText) findViewById(R.id.txtDeadline);
         eduedate.setText(mytodo.getDuedateFormatted());
+
+        CheckBox cErledigt = (CheckBox) findViewById(R.id.cbCompleted);
+        cErledigt.setChecked(mytodo.getDoneBoolean());
 
     }
 
