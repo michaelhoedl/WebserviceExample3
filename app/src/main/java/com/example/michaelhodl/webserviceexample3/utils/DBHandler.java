@@ -156,4 +156,10 @@ public class DBHandler extends SQLiteOpenHelper {
 
         return user;
     }
+
+    public void deleteTodo(String id, String session) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
+        db.delete(TABLE_TODOS, where, null);
+    }
 }

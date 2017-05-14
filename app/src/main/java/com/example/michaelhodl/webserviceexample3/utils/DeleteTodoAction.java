@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.michaelhodl.webserviceexample3.activities.AllTodosActivity;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 
 /**
@@ -29,11 +30,11 @@ public class DeleteTodoAction {
         this.sessionId = sessionId;
     }
 
-    public boolean runDeleteAction() {
-        return runDelete();
+    public void runDeleteAction() {
+        runDelete();
     }
 
-    private boolean runDelete() {
+    private void runDelete() {
         // execute the asyn task to get the json from the server by making a HTTP call.
         runAsync();
 
@@ -54,9 +55,6 @@ public class DeleteTodoAction {
 
         Log.e(TAG, "x= " + x);
         Log.e(TAG, "httpResponse: " + httpResponse);
-
-        // if server did not return any response, then show a message dialog saying that no session was found.
-        return httpResponse != null;
     }
 
     /**
@@ -65,8 +63,13 @@ public class DeleteTodoAction {
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
         DeleteTodoAction caller;
+        boolean isInternetConnected;
+        HttpHandler sh;
+
         AsyncCaller(DeleteTodoAction caller){
             this.caller = caller;
+            sh = new HttpHandler();
+            isInternetConnected = sh.isNetworkAvailable(mainDialog.getApplicationContext());
         }
 
         @Override
@@ -87,31 +90,42 @@ public class DeleteTodoAction {
         //this method will be running on background thread so dont update UI from here
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
-            HttpHandler sh = new HttpHandler();
 
-            // headers - at delete action only the session key is necessary, the todo id will be added to the path of the url
-            ArrayList<NameValuePair> headers = new ArrayList<>();
-            NameValuePair h1 = new NameValuePair();
-            h1.setName("session");
-            h1.setValue(sessionId);
-            NameValuePair h2 = new NameValuePair();
-            h2.setName("Accept");
-            h2.setValue("text/plain");
-            headers.add(h1);
-            headers.add(h2);
+            if(isInternetConnected) {
+                Log.e(TAG, "--- internet connection! ---");
+                // headers - at delete action only the session key is necessary, the todo id will be added to the path of the url
+                ArrayList<NameValuePair> headers = new ArrayList<>();
+                NameValuePair h1 = new NameValuePair();
+                h1.setName("session");
+                h1.setValue(sessionId);
+                NameValuePair h2 = new NameValuePair();
+                h2.setName("Accept");
+                h2.setValue("text/plain");
+                headers.add(h1);
+                headers.add(h2);
 
-            // add the todo id to the path from the url
-            url = "http://campus02win14mobapp.azurewebsites.net/Todo/"+todoId;
+                // add the todo id to the path from the url
+                url = "http://campus02win14mobapp.azurewebsites.net/Todo/" + todoId;
 
-            // Making a delete request to url and getting response
-            String jsonStr = sh.makeMyServiceCall(url,"DELETE",headers, null, null);//sh.makeServiceCall(url);
-            // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
-            caller.setHttpResponse(jsonStr);
+                // Making a delete request to url and getting response
+                String jsonStr = sh.makeMyServiceCall(url, "DELETE", headers, null, null);//sh.makeServiceCall(url);
+                // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
+                caller.setHttpResponse(jsonStr);
 
-            Log.e(TAG, "Response from url (jsonStr) delete action: " + jsonStr);
-            Log.e(TAG, "Response from url (httpResponse) delete action: " + httpResponse);
-
-            return null;
+                Log.e(TAG, "Response from url (jsonStr) delete action: " + jsonStr);
+                Log.e(TAG, "Response from url (httpResponse) delete action: " + httpResponse);
+                return null;
+            } // else: if no internet connection is available
+            else {
+                DBHandler localDb = new DBHandler(mainDialog);
+                try {
+                    localDb.deleteTodo(todoId, sessionId);
+                    localDb.getTodos(sessionId);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
         }
 
         @Override

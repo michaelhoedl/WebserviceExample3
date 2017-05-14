@@ -40,7 +40,6 @@ public class AllTodosActivity extends AppCompatActivity {
     private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo";
     private String sessionid = null;
     private String httpResponse = null;
-    private boolean deleteIt = false;
     private AllTodosActivity dma;
 
     private ArrayList<TodoEntry> alltodos;
@@ -195,15 +194,12 @@ public class AllTodosActivity extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int which) {
 
-                        // runs the delete action, where the Http Service Call to the API will be done
-                        deleteIt = delaction.runDeleteAction();
+                        // runs the delete action, where the Http Service Call to the API will be done or the local db will be used
+                        delaction.runDeleteAction();
 
-                        // if the delete was successful, the list of the todo will be reloaded with a service call to the api
-                        if(deleteIt) {
-                            // at first, clear the list. Then reload the data and fill the list again.
-                            adapter.clear();
-                            runAsync();
-                        }
+                        // at first, clear the list. Then reload the data and fill the list again.
+                        adapter.clear();
+                        runAsync();
                         dialog.dismiss();
                     }
                 });
