@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.example.michaelhodl.webserviceexample3.R;
+import com.example.michaelhodl.webserviceexample3.model.UserEntry;
+import com.example.michaelhodl.webserviceexample3.utils.DBHandler;
 import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
 import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
 
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private String httpResponse = null;
     private String mymail = null;
     private String mypwd = null;
+    private DBHandler localDb = new DBHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +40,10 @@ public class MainActivity extends AppCompatActivity {
     public void sendMessage(View view) {
 
 
-        EditText emymail = (EditText) findViewById(R.id.editTextMail);
-        EditText emypwd = (EditText) findViewById(R.id.editTextPwd);
-        MainActivity.this.setMymail(emymail.getText().toString());
-        MainActivity.this.setMypwd(emypwd.getText().toString());
+        String emymail = ((EditText) findViewById(R.id.editTextMail)).getText().toString();
+        String emypwd = ((EditText) findViewById(R.id.editTextPwd)).getText().toString();
+        MainActivity.this.setMymail(emymail);
+        MainActivity.this.setMypwd(emypwd);
         Log.e(TAG, "mymail: " + mymail);
         Log.e(TAG, "mypwd: " + mypwd);
 
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
         // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
         int x = 0;
-        while(httpResponse == null && x < 4000) {
+        while(httpResponse == null && x <= 4000) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -66,19 +69,32 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "httpResponse: " + httpResponse);
 
         // if server did not return any response, then show a message dialog saying that no session was found.
-        if (httpResponse == null){
-            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("No Session found");
-            alertDialog.setMessage("No Session found. Your Username or Password is incorrect.");
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
+        if (httpResponse == null || httpResponse == ""){
+            UserEntry myuser = localDb.getUser(emymail, emypwd);
+            if(!(myuser.getMail().equals(emymail) && myuser.getPwd().equals(emypwd))) {
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                alertDialog.setTitle("No Session found");
+                alertDialog.setMessage("No Session found. Your Username or Password is incorrect.");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            }
+            else {
+                httpResponse = myuser.getSessionKey();
+                Intent intent = new Intent(this, AllTodosActivity.class);
+                intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
+                startActivity(intent);
+            }
         } // else (if server returns session), then switch to the new screen where a list of all todos is shown.
         else {
+            //TODO: insert the user only once?
+            UserEntry user = new UserEntry(emymail, emypwd, httpResponse);
+            localDb.addUser(user);
+
             Intent intent = new Intent(this, AllTodosActivity.class);
             intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
             startActivity(intent);

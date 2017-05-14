@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.michaelhodl.webserviceexample3.R;
 import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
 import com.example.michaelhodl.webserviceexample3.model.TodoListAdapter;
+import com.example.michaelhodl.webserviceexample3.utils.DBHandler;
 import com.example.michaelhodl.webserviceexample3.utils.DeleteTodoAction;
 import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
 import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
@@ -26,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class AllTodosActivity extends AppCompatActivity {
@@ -43,6 +45,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     private ArrayList<TodoEntry> alltodos;
     private TodoListAdapter adapter;
+    private DBHandler localDb = new DBHandler(this);
 
 
     @Override
@@ -85,6 +88,41 @@ public class AllTodosActivity extends AppCompatActivity {
 
         //start the asynctask to retrieve the data from webservice
         runAsync();
+
+        // bissl primitiver ansatz, um die problematik zu loesen
+        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
+        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
+        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
+        int x = 0;
+        while(httpResponse == null && x <= 4000) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            x += 1;
+        }
+
+        //httpResponse = null;
+
+        if(httpResponse == "" || httpResponse == null)
+        {
+            try {
+                // get todos from the local database
+                alltodos = localDb.getTodos(sessionid);
+                //TODO: show here the new list in GUI
+            } catch (ParseException e)
+            {
+                e.printStackTrace();
+            }
+
+        } else {
+            // save the todos into the local db
+            for(TodoEntry todo : alltodos) {
+                todo.setSessionKey(sessionid);
+                localDb.addTodo(todo);
+            }
+        }
     }
 
 
@@ -240,85 +278,85 @@ public class AllTodosActivity extends AppCompatActivity {
             headers.add(h3);
 
             // Making a request to url and getting response as a string
-            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null, null);
+            String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
 
-            caller.setHttpResponse(jsonStr);
+                caller.setHttpResponse(jsonStr);
 
-            //just some logging
-            Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
-            Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
-            Log.e(TAG, "jsonStr.length: " + jsonStr.length());
+                //just some logging
+                Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
+                Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
+                Log.e(TAG, "jsonStr.length: " + jsonStr.length());
 
 
-            if (jsonStr != null) {
-                try {
+                if (jsonStr != null && jsonStr != "") {
+                    try {
 
-                    // Getting JSON Array node. see: http://stackoverflow.com/questions/17441246/org-json-jsonarray-cannot-be-converted-to-jsonobject
-                    JSONArray todos = new JSONArray(jsonStr); //jsonObj.getJSONArray("contacts");
-                    Log.e(TAG, "todos.length: " + todos.length());
+                        // Getting JSON Array node. see: http://stackoverflow.com/questions/17441246/org-json-jsonarray-cannot-be-converted-to-jsonobject
+                        JSONArray todos = new JSONArray(jsonStr); //jsonObj.getJSONArray("contacts");
+                        Log.e(TAG, "todos.length: " + todos.length());
 
-                    // looping through all To Do entries within the Json Array
-                    for (int i = 0; i < todos.length(); i++) {
+                        // looping through all To Do entries within the Json Array
+                        for (int i = 0; i < todos.length(); i++) {
 
-                        // extract one Json Object from the Json Array
-                        JSONObject c = todos.getJSONObject(i);
+                            // extract one Json Object from the Json Array
+                            JSONObject c = todos.getJSONObject(i);
 
-                        // extract the attributes/values from the Json Object
-                        int _id                  = c.getInt("id");
-                        String _name             = c.getString("name");
-                        String _description      = c.getString("description");
-                        float _estimatedEffort   = (float) c.getDouble("estimatedEffort");
-                        float _usedTime          = (float) c.getDouble("usedTime");
-                        boolean _done            = c.getBoolean("done");
-                        String _duedate          = c.getString("dueDate");
+                            // extract the attributes/values from the Json Object
+                            int _id = c.getInt("id");
+                            String _name = c.getString("name");
+                            String _description = c.getString("description");
+                            float _estimatedEffort = (float) c.getDouble("estimatedEffort");
+                            float _usedTime = (float) c.getDouble("usedTime");
+                            boolean _done = c.getBoolean("done");
+                            String _duedate = c.getString("dueDate");
 
-                        // create a TodoEntry object and set the data.
-                        TodoEntry mytodo = new TodoEntry();
-                        mytodo.setId(_id);
-                        mytodo.setTitle(_name);
-                        mytodo.setTododesc(_description);
-                        mytodo.setEstimatedeffort(_estimatedEffort);
-                        mytodo.setUsedtime(_usedTime);
-                        if (_done){
-                            mytodo.setDone(1);
-                        } else {
-                            mytodo.setDone(0);
+                            // create a TodoEntry object and set the data.
+                            TodoEntry mytodo = new TodoEntry();
+                            mytodo.setId(_id);
+                            mytodo.setTitle(_name);
+                            mytodo.setTododesc(_description);
+                            mytodo.setEstimatedeffort(_estimatedEffort);
+                            mytodo.setUsedtime(_usedTime);
+                            if (_done) {
+                                mytodo.setDone(1);
+                            } else {
+                                mytodo.setDone(0);
+                            }
+                            mytodo.setDuedateAsString(_duedate);
+
+
+                            // adding the entry to the list
+                            alltodos.add(mytodo);
+
+                            Log.e(TAG, "i=" + i + ", id=" + _id + ", name=" + _name + ", description=" + _description + ", done=" + _done);
+
                         }
-                        mytodo.setDuedateAsString(_duedate);
-
-
-                        // adding the entry to the list
-                        alltodos.add(mytodo);
-
-                        Log.e(TAG, "i="+i+", id="+_id+", name="+_name+", description="+_description+", done="+_done);
+                    } catch (final JSONException e) {
+                        Log.e(TAG, "Json parsing error: " + e.getMessage());
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(),
+                                        "Json parsing error: " + e.getMessage(),
+                                        Toast.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
 
                     }
-                } catch (final JSONException e) {
-                    Log.e(TAG, "Json parsing error: " + e.getMessage());
-                    runOnUiThread(new Runnable() {
+                } else { // if no Json was returned from the Server, output an error message.
+                    Log.e(TAG, "Couldn't get json from server.");
+                    /*runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(),
-                                    "Json parsing error: " + e.getMessage(),
+                                    "Couldn't get json from server. Check LogCat for possible errors!",
                                     Toast.LENGTH_LONG)
                                     .show();
                         }
                     });
-
-                }
-            } else { // if no Json was returned from the Server, output an error message.
-                Log.e(TAG, "Couldn't get json from server.");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
-                                Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
-
-            } // end if
+*/
+                } // end if
             return null;
         } // end doInBackground
 

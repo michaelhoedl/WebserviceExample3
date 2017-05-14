@@ -23,8 +23,18 @@ public class TodoEntry {
     private int done;
     private Date createdate;
     private Date duedate;
+    private String sessionKey;
 
     public TodoEntry() {
+    }
+
+
+    public void setSessionKey(String sessionKey) {
+        this.sessionKey = sessionKey;
+    }
+
+    public String getSessionKey() {
+        return sessionKey;
     }
 
     public int getId() {
@@ -140,7 +150,7 @@ public class TodoEntry {
 
 
     // convert a string into a date with a given dateformat
-    private Date string2date (String date, String format) throws ParseException
+    public Date string2date (String date, String format) throws ParseException
     {
         Date d = null;
         try {
