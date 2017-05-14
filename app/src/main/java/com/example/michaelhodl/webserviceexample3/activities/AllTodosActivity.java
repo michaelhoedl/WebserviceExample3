@@ -56,7 +56,7 @@ public class AllTodosActivity extends AppCompatActivity {
         dma = this;
 
         alltodos = new ArrayList<TodoEntry>();
-        adapter = new TodoListAdapter(AllTodosActivity.this, alltodos);
+        //adapter = new TodoListAdapter(AllTodosActivity.this, alltodos);
 
         lv = (ListView) findViewById(R.id.list);
 

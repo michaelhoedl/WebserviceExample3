@@ -36,9 +36,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    /** Called when the user taps the Send button */
+    /** Called when the user taps the Login button, a Message is sent to the Webservice */
     public void sendMessage(View view) {
-
 
         String emymail = ((EditText) findViewById(R.id.editTextMail)).getText().toString();
         String emypwd = ((EditText) findViewById(R.id.editTextPwd)).getText().toString();
@@ -47,58 +46,83 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "mymail: " + mymail);
         Log.e(TAG, "mypwd: " + mypwd);
 
-        // execute the asyn task to get the json from the server by making a HTTP call.
-        AsyncTask async = new AsyncCaller(this).execute();
-        Log.e(TAG, "status (im sendMessage): " + async.getStatus());
+        // some simple input validation:
+        // if nothing was input into the text fields, then show message, otherwise continue with login process
+        if(emymail.isEmpty() || emypwd.isEmpty() || emymail.equals("") || emypwd.equals("")) {
+            showMyAlert("No Data entered", "Your Username and/or Password is empty. Both fields must be filled!");
+        } else {
 
-        // bissl primitiver ansatz, um die problematik zu loesen
-        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
-        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
-        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
-        int x = 0;
-        while(httpResponse == null && x <= 4000) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            // execute the async task to get the json from the server by making a HTTP call.
+            AsyncTask async = new AsyncCaller(this).execute();
+            Log.e(TAG, "status (im sendMessage): " + async.getStatus());
+
+            // bissl primitiver ansatz, um die problematik zu loesen
+            //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
+            // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
+            // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
+            int x = 0;
+            while (httpResponse == null && x <= 4000) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                x += 1;
             }
-            x += 1;
-        }
 
-        Log.e(TAG, "x= " + x);
-        Log.e(TAG, "httpResponse: " + httpResponse);
+            Log.e(TAG, "x= " + x);
+            Log.e(TAG, "httpResponse: " + httpResponse);
 
-        // if server did not return any response, then show a message dialog saying that no session was found.
-        if (httpResponse == null || httpResponse == ""){
-            UserEntry myuser = localDb.getUser(emymail, emypwd);
-            if(!(myuser.getMail().equals(emymail) && myuser.getPwd().equals(emypwd))) {
-                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                alertDialog.setTitle("No Session found");
-                alertDialog.setMessage("No Session found. Your Username or Password is incorrect.");
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.show();
-            }
+
+            UserEntry myuser = null;
+
+            // if server did not return any response, then show a message dialog saying that no session was found.
+            if (httpResponse == null || httpResponse.equals("")) {
+                myuser = localDb.getUser(emymail, emypwd);
+                if (myuser != null) {
+                    if (!(myuser.getMail().equals(emymail) && myuser.getPwd().equals(emypwd))) {
+                        showMyAlert("No Session found", "No Session found. Your Username or Password is incorrect.");
+                    } else {
+                        httpResponse = myuser.getSessionKey();
+                        Intent intent = new Intent(this, AllTodosActivity.class);
+                        intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
+                        startActivity(intent);
+                    }
+                } else {
+                    httpResponse = null;
+                    showMyAlert("No Session found","No Session found. Your Username or Password is incorrect.");
+                }
+
+            } // else (if server returns session), then switch to the new screen where a list of all todos is shown.
             else {
-                httpResponse = myuser.getSessionKey();
+                //TODO: insert the user only once?
+                myuser = new UserEntry(emymail, emypwd, httpResponse);
+                localDb.addUser(myuser);
+
                 Intent intent = new Intent(this, AllTodosActivity.class);
                 intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
                 startActivity(intent);
             }
-        } // else (if server returns session), then switch to the new screen where a list of all todos is shown.
-        else {
-            //TODO: insert the user only once?
-            UserEntry user = new UserEntry(emymail, emypwd, httpResponse);
-            localDb.addUser(user);
+        } // end if username and/or password is empty
+    }
 
-            Intent intent = new Intent(this, AllTodosActivity.class);
-            intent.putExtra(EXTRA_MESSAGE, httpResponse); // we have to send the session_id.
-            startActivity(intent);
-        }
+
+    /**
+     * a simple method to create a simple alert message box with a title and a message.
+     * @param s
+     * @param s1
+     */
+    private void showMyAlert(String s, String s1) {
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle(s);
+        alertDialog.setMessage(s1);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 
     // ---------------------------------------------------------------------------------------------

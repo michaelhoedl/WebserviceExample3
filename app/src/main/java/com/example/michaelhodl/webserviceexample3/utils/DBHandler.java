@@ -150,6 +150,8 @@ public class DBHandler extends SQLiteOpenHelper {
             user.setMail(cursor.getString(0));
             user.setPwd(cursor.getString(1));
             user.setSessionKey(cursor.getString(2));
+        } else {
+            user = null;
         }
 
         return user;
