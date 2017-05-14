@@ -87,7 +87,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_TODO_DESC, todo.getTododesc());
         values.put(KEY_TODO_ESTIMATED, todo.getEstimatedeffort());
         values.put(KEY_TODO_USED, todo.getUsedtime());
-        values.put(KEY_TODO_DONE, todo.getUsedtime());
+        values.put(KEY_TODO_DONE, todo.getDone());
         values.put(KEY_TODO_CREATE, String.valueOf(todo.getCreatedate()));
         values.put(KEY_TODO_DUE, String.valueOf(todo.getDuedate()));
         values.put(KEY_TODO_SESSIONKEY, todo.getSessionKey());
@@ -98,8 +98,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public ArrayList<TodoEntry> getTodos (String session) throws ParseException {
         String selectQuery = "SELECT * FROM " + TABLE_TODOS
-                + " WHERE " + KEY_TODO_SESSIONKEY + " ='" + session
-                + "'";
+                + " WHERE " + KEY_TODO_SESSIONKEY + " = '" + session + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -116,6 +115,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setDone(cursor.getInt(5));
                 todo.setCreatedate(todo.string2date(cursor.getString(6), "yyyy-MM-dd'T'HH:mm:ss"));
                 todo.setCreatedate(todo.string2date(cursor.getString(7), "yyyy-MM-dd'T'HH:mm:ss"));
+                todo.setSessionKey(cursor.getString(8));
 
                 todos.add(todo);
             } while (cursor.moveToNext());
@@ -139,8 +139,8 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public UserEntry getUser(String mail, String pwd) {
         String selectQuery = "SELECT * FROM " + TABLE_USER
-                + " WHERE " + KEY_USER_MAIL + " ='" + mail
-                + "' AND " + KEY_USER_PDW + " ='" + pwd+"'";
+                + " WHERE " + KEY_USER_MAIL + " = '" + mail
+                + "' AND " + KEY_USER_PDW + " = '" + pwd+"'";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);

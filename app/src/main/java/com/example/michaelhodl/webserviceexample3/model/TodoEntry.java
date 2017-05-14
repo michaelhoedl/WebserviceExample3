@@ -119,6 +119,7 @@ public class TodoEntry {
                 ", done=" + done +
                 ", createdate=" + createdate +
                 ", duedate=" + duedate +
+                ", sessionKey=" + sessionKey +
                 '}';
     }
 

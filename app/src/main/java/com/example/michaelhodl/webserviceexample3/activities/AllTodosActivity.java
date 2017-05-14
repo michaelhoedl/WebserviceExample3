@@ -93,8 +93,10 @@ public class AllTodosActivity extends AppCompatActivity {
         //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
         // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
         // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
+        // UPDATE: solange die Liste alltodos noch leer ist, warten. (weil: Liste kann entweder aus HTTP Request befuellt worden sein,
+        //   oder via Lokaler SQLite DB.
         int x = 0;
-        while(httpResponse == null && x <= 4000) {
+        while(alltodos.size() == 0 /*httpResponse == null*/ && x <= 4000) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -103,26 +105,41 @@ public class AllTodosActivity extends AppCompatActivity {
             x += 1;
         }
 
-        //httpResponse = null;
-
-        if(httpResponse == "" || httpResponse == null)
-        {
-            try {
-                // get todos from the local database
-                alltodos = localDb.getTodos(sessionid);
-                //TODO: show here the new list in GUI
-            } catch (ParseException e)
-            {
-                e.printStackTrace();
-            }
-
-        } else {
-            // save the todos into the local db
-            for(TodoEntry todo : alltodos) {
-                todo.setSessionKey(sessionid);
-                localDb.addTodo(todo);
-            }
+        Log.e(TAG, "x= "+x);
+        Log.e(TAG, "alltodos.size= "+alltodos.size());
+        for(TodoEntry t : alltodos){
+            Log.e(TAG, "--- t= "+t.toString());
         }
+
+
+
+        // nachfolgender code ist jetzt im doInBackground eingebaut. .. braucht man daher hier nicht.
+        //if(httpResponse == "" || httpResponse == null)
+        //{
+        //    try {
+        //        // get todos from the local database
+        //        alltodos = localDb.getTodos(sessionid);
+        //
+        //        // test: log the todoentries which was loaded from local DB
+        //        for(TodoEntry t : alltodos){
+        //            Log.e(TAG, "--- t= "+t.toString());
+        //        }
+        //
+        //        //TODO: show here the new list in GUI
+        //    } catch (ParseException e)
+        //    {
+        //        e.printStackTrace();
+        //    }
+        //
+        //} else {
+           // // save the todos into the local db --> passiert im doInBackground
+           // for(TodoEntry todo : alltodos) {
+           //     todo.setSessionKey(sessionid);
+           //     localDb.addTodo(todo);
+           // }
+        //} // end if(httpResponse == "" || httpResponse == null)
+
+
     }
 
 
@@ -239,10 +256,19 @@ public class AllTodosActivity extends AppCompatActivity {
      */
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
+        boolean isInternetConnected;
+        HttpHandler sh;
+
         //necessary for exchanging data.
         AllTodosActivity caller;
         AsyncCaller(AllTodosActivity caller){
             this.caller = caller;
+            sh = new HttpHandler();
+            isInternetConnected = sh.isNetworkAvailable(caller.getApplicationContext());
+
+            // initially set httpResponse and the alltodos list to be empty
+            httpResponse = null;
+            alltodos.clear();
         }
 
         @Override
@@ -264,21 +290,23 @@ public class AllTodosActivity extends AppCompatActivity {
          * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
          */
         protected Void doInBackground(Void... arg0) {
-            HttpHandler sh = new HttpHandler();
+            // if internet connection is available, get data from the webserver
+            if(isInternetConnected) {
+                Log.e(TAG, "--- internet connection! ---");
 
-            // set headers
-            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-            NameValuePair h2 = new NameValuePair();
-            h2.setName("session");
-            h2.setValue(caller.getSessionid());
-            NameValuePair h3 = new NameValuePair();
-            h3.setName("Accept");
-            h3.setValue(new String("application/json"));
-            headers.add(h2);
-            headers.add(h3);
+                // set headers
+                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+                NameValuePair h2 = new NameValuePair();
+                h2.setName("session");
+                h2.setValue(caller.getSessionid());
+                NameValuePair h3 = new NameValuePair();
+                h3.setName("Accept");
+                h3.setValue(new String("application/json"));
+                headers.add(h2);
+                headers.add(h3);
 
-            // Making a request to url and getting response as a string
-            String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
+                // Making a request to url and getting response as a string
+                String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
 
                 caller.setHttpResponse(jsonStr);
 
@@ -293,7 +321,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
                         // Getting JSON Array node. see: http://stackoverflow.com/questions/17441246/org-json-jsonarray-cannot-be-converted-to-jsonobject
                         JSONArray todos = new JSONArray(jsonStr); //jsonObj.getJSONArray("contacts");
-                        Log.e(TAG, "todos.length: " + todos.length());
+                        Log.e(TAG, "JSONArray todos.length: " + todos.length());
 
                         // looping through all To Do entries within the Json Array
                         for (int i = 0; i < todos.length(); i++) {
@@ -323,13 +351,16 @@ public class AllTodosActivity extends AppCompatActivity {
                                 mytodo.setDone(0);
                             }
                             mytodo.setDuedateAsString(_duedate);
-
+                            mytodo.setSessionKey(sessionid);
 
                             // adding the entry to the list
                             alltodos.add(mytodo);
 
-                            Log.e(TAG, "i=" + i + ", id=" + _id + ", name=" + _name + ", description=" + _description + ", done=" + _done);
+                            // save the todos into local DB
+                            localDb.addTodo(mytodo);
 
+                            //Log.e(TAG, "i=" + i + ", id=" + _id + ", name=" + _name + ", description=" + _description + ", done=" + _done);
+                            Log.e(TAG, "i="+i+", todo="+mytodo.toString());
                         }
                     } catch (final JSONException e) {
                         Log.e(TAG, "Json parsing error: " + e.getMessage());
@@ -346,7 +377,7 @@ public class AllTodosActivity extends AppCompatActivity {
                     }
                 } else { // if no Json was returned from the Server, output an error message.
                     Log.e(TAG, "Couldn't get json from server.");
-                    /*runOnUiThread(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(),
@@ -355,8 +386,21 @@ public class AllTodosActivity extends AppCompatActivity {
                                     .show();
                         }
                     });
-*/
-                } // end if
+                } // end if (jsonStr != null && jsonStr != "")
+            } // else: if no internet connection is available
+            else {
+                Log.e(TAG, "--- no internet connection! ---");
+                httpResponse = null;
+                alltodos.clear();
+
+                // get todos from the local database
+                try {
+                    alltodos = localDb.getTodos(sessionid);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            } // end if(isInternetConnected)
             return null;
         } // end doInBackground
 
@@ -382,10 +426,19 @@ public class AllTodosActivity extends AppCompatActivity {
                     R.id.todoname, R.id.tododesc});
             */
 
-            // set our custom list adapter.
-            lv.setAdapter(adapter);
+
 
             Log.e(TAG, "status: (im onPostExecute): " + this.getStatus());
+
+            Log.e(TAG, " (onPostExecute) alltodos.size= "+alltodos.size());
+            for(TodoEntry t : alltodos){
+                Log.e(TAG, "(onPostExecute) --- t= "+t.toString());
+            }
+
+            // set our custom list adapter.
+            adapter = new TodoListAdapter(caller.getApplicationContext(), alltodos);
+            lv.setAdapter(adapter);
+            Log.e(TAG,"lv.getAdapter().getCount()="+lv.getAdapter().getCount());
         }
 
     } // end private class AsyncCaller

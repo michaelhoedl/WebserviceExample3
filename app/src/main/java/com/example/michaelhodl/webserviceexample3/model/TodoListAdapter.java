@@ -23,9 +23,10 @@ import java.util.ArrayList;
 
 public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
 
-
+    private ArrayList<TodoEntry> tl;
     public TodoListAdapter(Context context, ArrayList<TodoEntry> todos) {
         super(context, 0, todos);
+        this.tl = todos;
     }
 
     @Override
@@ -51,6 +52,21 @@ public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    @Override
+    public int getCount() {
+        return tl.size();
+    }
+
+    @Override
+    public TodoEntry getItem(int position) {
+        return (tl != null) ? tl.get(position) : null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return (tl != null) ? tl.indexOf(tl.get(position)) : 0;
     }
 
 }
