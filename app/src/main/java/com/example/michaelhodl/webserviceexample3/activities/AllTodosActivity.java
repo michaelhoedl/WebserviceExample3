@@ -458,4 +458,14 @@ public class AllTodosActivity extends AppCompatActivity {
         startActivity(intentdetail);
     }
 
+    public void addButtonSearchClicked(View view){
+        Log.e(TAG, "Add Button Search (FloatingActionButton) was clicked!");
+
+        // open new view (TodoSearchActivity) to search through existing items.
+        // send the session_id (which we got from the login view).
+        Intent intentdetail = new Intent(dma, TodoSearchActivity.class);
+        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // we have to send the session_id.
+        startActivity(intentdetail);
+    }
+
 }

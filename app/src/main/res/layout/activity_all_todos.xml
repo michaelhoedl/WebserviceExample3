@@ -11,7 +11,9 @@ tools:context="com.example.michaelhodl.webserviceexample3.activities.AllTodosAct
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:longClickable="true"
-    />
+    >
+
+</ListView>
 
     <!-- bzgl. FloatingActionButton, siehe auch: https://guides.codepath.com/android/floating-action-buttons -->
     <android.support.design.widget.FloatingActionButton
@@ -27,4 +29,21 @@ tools:context="com.example.michaelhodl.webserviceexample3.activities.AllTodosAct
         app:fabSize="normal"
         app:layout_anchorGravity="bottom|right|end"
         app:srcCompat="@android:drawable/ic_input_add" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="top|right|start"
+        android:layout_marginBottom="80dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:clickable="true"
+        android:onClick="addButtonSearchClicked"
+        app:backgroundTint="@color/colorAccent"
+        app:fabSize="normal"
+        app:layout_anchorGravity="bottom|right|end"
+        app:srcCompat="@android:drawable/ic_search_category_default" />
 </RelativeLayout>
