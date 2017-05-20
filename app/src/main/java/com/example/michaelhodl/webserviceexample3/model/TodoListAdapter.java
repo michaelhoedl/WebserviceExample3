@@ -55,8 +55,8 @@ public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
 
 
         // Hintergrundfarbe für erledigte ToDo's
-        if (todo.getDone()  == 1)
-            convertView.setBackgroundColor(0xFFE6E6E6); // ARGB  Grau-Ton
+        if (todo.getDone()  == 1)   // Prüfung ob ToDo erledigt ist
+            convertView.setBackgroundColor(0xFFE6E6E6); // ARGB Wert für Grau-Ton setzen
             // A steht für die Deckkraft
             // R Rot, G Grün, B Blau in Hex Werten
 
