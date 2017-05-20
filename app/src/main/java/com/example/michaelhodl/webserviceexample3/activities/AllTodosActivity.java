@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.michaelhodl.webserviceexample3.R;
 import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
 import com.example.michaelhodl.webserviceexample3.model.TodoListAdapter;
+import com.example.michaelhodl.webserviceexample3.utils.CompleteTodoAction;
 import com.example.michaelhodl.webserviceexample3.utils.DBHandler;
 import com.example.michaelhodl.webserviceexample3.utils.DeleteTodoAction;
 import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
@@ -186,6 +187,7 @@ public class AllTodosActivity extends AppCompatActivity {
                 Log.d(TAG, "delete item pos=" + info.position+" = todo_id: " + selectedFromList);
                 final DeleteTodoAction delaction =  new DeleteTodoAction(this, selectedFromList, sessionid);
 
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Delete");
                 builder.setMessage("Are you sure?");
@@ -218,7 +220,9 @@ public class AllTodosActivity extends AppCompatActivity {
                 return true;
             case 2:
                 Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
-                // ... hier kommt der code fuers erledigen hin...
+                final CompleteTodoAction complete =  new CompleteTodoAction(this, selectedFromList, sessionid,e);
+                complete.runTodoAction();
+
                 return true;
             default:
                 return super.onContextItemSelected(item);
