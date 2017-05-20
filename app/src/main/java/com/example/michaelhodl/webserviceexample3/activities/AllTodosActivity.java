@@ -222,6 +222,8 @@ public class AllTodosActivity extends AppCompatActivity {
                 Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
                 final CompleteTodoAction complete =  new CompleteTodoAction(this, selectedFromList, sessionid,e);
                 complete.runTodoAction();
+                adapter.clear();
+                runAsync();
 
                 return true;
             default:

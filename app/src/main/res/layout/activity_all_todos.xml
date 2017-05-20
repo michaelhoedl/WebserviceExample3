@@ -11,7 +11,8 @@ tools:context="com.example.michaelhodl.webserviceexample3.activities.AllTodosAct
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:longClickable="true"
-    >
+    android:layout_alignParentTop="true"
+    android:layout_alignParentStart="true">
 
 </ListView>
 

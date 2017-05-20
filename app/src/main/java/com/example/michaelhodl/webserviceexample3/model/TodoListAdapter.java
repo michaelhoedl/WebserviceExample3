@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+
+
 import com.example.michaelhodl.webserviceexample3.R;
 
 import java.util.ArrayList;
@@ -50,6 +52,14 @@ public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
         tvName.setText(todo.getTitle());
         tvHome.setText(todo.getTododesc());
 
+
+
+        // Hintergrundfarbe für erledigte ToDo's
+        if (todo.getDone()  == 1)
+            convertView.setBackgroundColor(0xFFE6E6E6); // ARGB  Grau-Ton
+            // A steht für die Deckkraft
+            // R Rot, G Grün, B Blau in Hex Werten
+
         // Return the completed view to render on screen
         return convertView;
     }
@@ -68,5 +78,10 @@ public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
     public long getItemId(int position) {
         return (tl != null) ? tl.indexOf(tl.get(position)) : 0;
     }
+
+
+
+
+
 
 }
