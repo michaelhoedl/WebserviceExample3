@@ -49,6 +49,15 @@ public class AllTodosActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Neu Laden der Liste nachdem neues To Do erstell wurde:
+        //adapter.clear();
+        runAsync();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_todos);
@@ -87,7 +96,7 @@ public class AllTodosActivity extends AppCompatActivity {
         sessionid = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         //start the asynctask to retrieve the data from webservice
-        runAsync();
+        //runAsync();
 
         // bissl primitiver ansatz, um die problematik zu loesen
         //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
@@ -110,35 +119,6 @@ public class AllTodosActivity extends AppCompatActivity {
         for(TodoEntry t : alltodos){
             Log.e(TAG, "--- t= "+t.toString());
         }
-
-
-
-        // nachfolgender code ist jetzt im doInBackground eingebaut. .. braucht man daher hier nicht.
-        //if(httpResponse == "" || httpResponse == null)
-        //{
-        //    try {
-        //        // get todos from the local database
-        //        alltodos = localDb.getTodos(sessionid);
-        //
-        //        // test: log the todoentries which was loaded from local DB
-        //        for(TodoEntry t : alltodos){
-        //            Log.e(TAG, "--- t= "+t.toString());
-        //        }
-        //
-        //        //TODO: show here the new list in GUI
-        //    } catch (ParseException e)
-        //    {
-        //        e.printStackTrace();
-        //    }
-        //
-        //} else {
-           // // save the todos into the local db --> passiert im doInBackground
-           // for(TodoEntry todo : alltodos) {
-           //     todo.setSessionKey(sessionid);
-           //     localDb.addTodo(todo);
-           // }
-        //} // end if(httpResponse == "" || httpResponse == null)
-
 
     }
 

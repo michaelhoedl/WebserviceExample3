@@ -124,13 +124,17 @@ public class CreateToDoActivity extends AppCompatActivity {
             runAsync();
 
 
-            /* // funktioniert noch nicht, dass es wieder zur AllTodosActivity wechselt...
+            /*// funktioniert noch nicht, dass es wieder zur AllTodosActivity wechselt...
             // open the AllTodosActivity view to display all list items.
             // send the session_id.
             Intent intentdetail = new Intent(dma, AllTodosActivity.class);
             intentdetail.putExtra(EXTRA_MESSAGE4, sessionid); // we have to send the session_id.
             startActivity(intentdetail);
             */
+
+            // mit finish() wird die aktuelle Activity geschlossen und wieder die Activity angezeigt, von der man gekommen ist.
+            // (Im Hintergrund arbeitet hier ein Stack)
+            finish();
 
         } else{ // if both fields are empty, then log it.
             Log.e(TAG, "Name and Description must be filled!");
