@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.utils;
+package com.example.campus02.webserviceexample3.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

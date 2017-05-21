@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.michaelhodl.webserviceexample3.activities.TodoDetailActivity">
+    tools:context="com.example.campus02.webserviceexample3.activities.TodoDetailActivity">
 
     <TextView
         android:id="@+id/textView4"
@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="120dp"
         android:layout_marginTop="56dp"
-        android:editable="false"
         android:ems="10"
         android:inputType="textPersonName"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.model;
+package com.example.campus02.webserviceexample3.model;
 
 import android.util.Log;
 
@@ -82,10 +82,7 @@ public class TodoEntry {
     }
 
     public Boolean getDoneBoolean() {
-        if(done == 1)
-            return true;
-        else
-            return false;
+        return done == 1;
     }
 
     public void setDone(int done) {

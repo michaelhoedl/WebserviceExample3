@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3;
+package com.example.campus02.webserviceexample3;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.model;
+package com.example.campus02.webserviceexample3.model;
 
 /**
  * Created by andreas on 12.05.2017.

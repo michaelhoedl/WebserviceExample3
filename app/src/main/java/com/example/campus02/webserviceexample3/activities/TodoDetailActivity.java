@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.activities;
+package com.example.campus02.webserviceexample3.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -9,17 +9,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.michaelhodl.webserviceexample3.R;
-import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
-import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
-import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.utils.HttpHandler;
+import com.example.campus02.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,7 +24,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
 public class TodoDetailActivity extends AppCompatActivity {
@@ -74,7 +70,7 @@ public class TodoDetailActivity extends AppCompatActivity {
 
 
         //start the asynctask to retrieve the data from webservice
-        AsyncTask bla = new TodoDetailActivity.AsyncCaller(this).execute();
+        runAsync();
 
         // wait a little bit ... just to ensure that the HTTP request was processed completely.
         int x = 0;
@@ -234,7 +230,7 @@ public class TodoDetailActivity extends AppCompatActivity {
             h2.setValue(caller.getSessionid());
             NameValuePair h3 = new NameValuePair();
             h3.setName("Accept");
-            h3.setValue(new String("application/json"));
+            h3.setValue("application/json");
             headers.add(h2);
             headers.add(h3);
 
@@ -329,6 +325,15 @@ public class TodoDetailActivity extends AppCompatActivity {
         }
 
     } // end private class AsyncCaller
+
+
+    /**
+     * Diese Methode ruft den AsyncTask auf
+     */
+    private void runAsync()
+    {
+        new TodoDetailActivity.AsyncCaller(this).execute();
+    }
 
 
 }

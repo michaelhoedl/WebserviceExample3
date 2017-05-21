@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3;
+package com.example.campus02.webserviceexample3;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.michaelhodl.webserviceexample3", appContext.getPackageName());
+        assertEquals("com.example.campus02.webserviceexample3", appContext.getPackageName());
     }
 }

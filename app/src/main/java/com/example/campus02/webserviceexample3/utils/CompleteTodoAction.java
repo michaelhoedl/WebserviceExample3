@@ -1,15 +1,11 @@
-package com.example.michaelhodl.webserviceexample3.utils;
+package com.example.campus02.webserviceexample3.utils;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.michaelhodl.webserviceexample3.activities.AllTodosActivity;
-import com.example.michaelhodl.webserviceexample3.activities.MainActivity;
-import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.activities.AllTodosActivity;
+import com.example.campus02.webserviceexample3.model.TodoEntry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,8 +74,6 @@ public class CompleteTodoAction {
         protected void onPreExecute() {
             super.onPreExecute();
 
-
-
             // Showing progress dialog
             pDialog = new ProgressDialog(mainDialog);
             pDialog.setMessage("Please wait...");
@@ -99,13 +93,13 @@ public class CompleteTodoAction {
                 ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
                 NameValuePair h1 = new NameValuePair();
                 h1.setName("Content-Type");
-                h1.setValue(new String("application/json"));
+                h1.setValue("application/json");
                 NameValuePair h2 = new NameValuePair();
                 h2.setName("session");
                 h2.setValue(sessionId);
                 NameValuePair h3 = new NameValuePair();
                 h3.setName("Accept");
-                h3.setValue(new String("application/json"));
+                h3.setValue("application/json");
                 headers.add(h1);
                 headers.add(h2);
                 headers.add(h3);

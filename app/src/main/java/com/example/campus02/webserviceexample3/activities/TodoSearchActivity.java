@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.activities;
+package com.example.campus02.webserviceexample3.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -11,9 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import com.example.michaelhodl.webserviceexample3.R;
-import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
-import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.utils.HttpHandler;
+import com.example.campus02.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.R;
 
 import java.util.ArrayList;
 
@@ -133,7 +133,7 @@ public class TodoSearchActivity extends AppCompatActivity {
             h2.setValue(caller.getSearchStr());
             NameValuePair h3 = new NameValuePair();
             h3.setName("Accept");
-            h3.setValue(new String("application/json"));
+            h3.setValue("application/json");
             headers.add(h1);
             headers.add(h2);
             headers.add(h3);

@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.activities;
+package com.example.campus02.webserviceexample3.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -11,11 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import com.example.michaelhodl.webserviceexample3.R;
-import com.example.michaelhodl.webserviceexample3.model.UserEntry;
-import com.example.michaelhodl.webserviceexample3.utils.DBHandler;
-import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
-import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.model.UserEntry;
+import com.example.campus02.webserviceexample3.utils.DBHandler;
+import com.example.campus02.webserviceexample3.utils.HttpHandler;
+import com.example.campus02.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.R;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String TAG = MainActivity.class.getSimpleName();
     private ProgressDialog pDialog;
-    public static final String EXTRA_MESSAGE = "com.example.michaelhodl.webserviceexample3.MESSAGE";
+    public static final String EXTRA_MESSAGE = "com.example.campus02.webserviceexample3.MESSAGE";
     private static String url = "http://campus02win14mobapp.azurewebsites.net/User/login";
     private String httpResponse = null;
     private String mymail = null;
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             h2.setValue(MainActivity.this.getMypwd());
             NameValuePair h3 = new NameValuePair();
             h3.setName("Accept");
-            h3.setValue(new String("text/plain"));
+            h3.setValue("text/plain");
             headers.add(h1);
             headers.add(h2);
             headers.add(h3);

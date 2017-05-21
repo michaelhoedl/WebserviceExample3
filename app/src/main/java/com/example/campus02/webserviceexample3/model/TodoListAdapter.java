@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.model;
+package com.example.campus02.webserviceexample3.model;
 
 
 import android.content.Context;
@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 
 
-import com.example.michaelhodl.webserviceexample3.R;
+import com.example.campus02.webserviceexample3.R;
 
 import java.util.ArrayList;
 

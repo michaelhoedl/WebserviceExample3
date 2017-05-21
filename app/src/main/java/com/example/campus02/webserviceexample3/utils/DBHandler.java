@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.utils;
+package com.example.campus02.webserviceexample3.utils;
 
 import android.content.Context;
 import android.content.ContentValues;
@@ -8,10 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
 
-import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
-import com.example.michaelhodl.webserviceexample3.model.UserEntry;
+import com.example.campus02.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.model.UserEntry;
 
 /**
  * Created by andreas on 12.05.2017.

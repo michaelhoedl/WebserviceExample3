@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.activities;
+package com.example.campus02.webserviceexample3.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -9,10 +9,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import com.example.michaelhodl.webserviceexample3.R;
-import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
-import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
-import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.utils.HttpHandler;
+import com.example.campus02.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +49,7 @@ public class CreateToDoActivity extends AppCompatActivity {
     private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/";
 
     private CreateToDoActivity dma;
-    //public static final String EXTRA_MESSAGE4 = "com.example.michaelhodl.webserviceexample3.MESSAGESESSION";
+    //public static final String EXTRA_MESSAGE4 = "com.example.campus02.webserviceexample3.MESSAGESESSION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,13 +212,13 @@ public class CreateToDoActivity extends AppCompatActivity {
             ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
             NameValuePair h1 = new NameValuePair();
             h1.setName("Content-Type");
-            h1.setValue(new String("application/json"));
+            h1.setValue("application/json");
             NameValuePair h2 = new NameValuePair();
             h2.setName("session");
             h2.setValue(caller.getSessionid());
             NameValuePair h3 = new NameValuePair();
             h3.setName("Accept");
-            h3.setValue(new String("application/json"));
+            h3.setValue("application/json");
             headers.add(h1);
             headers.add(h2);
             headers.add(h3);

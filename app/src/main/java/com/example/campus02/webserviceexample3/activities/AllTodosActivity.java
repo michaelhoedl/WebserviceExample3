@@ -1,4 +1,4 @@
-package com.example.michaelhodl.webserviceexample3.activities;
+package com.example.campus02.webserviceexample3.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -15,14 +15,14 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.michaelhodl.webserviceexample3.R;
-import com.example.michaelhodl.webserviceexample3.model.TodoEntry;
-import com.example.michaelhodl.webserviceexample3.model.TodoListAdapter;
-import com.example.michaelhodl.webserviceexample3.utils.CompleteTodoAction;
-import com.example.michaelhodl.webserviceexample3.utils.DBHandler;
-import com.example.michaelhodl.webserviceexample3.utils.DeleteTodoAction;
-import com.example.michaelhodl.webserviceexample3.utils.HttpHandler;
-import com.example.michaelhodl.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.utils.CompleteTodoAction;
+import com.example.campus02.webserviceexample3.utils.DBHandler;
+import com.example.campus02.webserviceexample3.utils.DeleteTodoAction;
+import com.example.campus02.webserviceexample3.utils.HttpHandler;
+import com.example.campus02.webserviceexample3.utils.NameValuePair;
+import com.example.campus02.webserviceexample3.R;
+import com.example.campus02.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.model.TodoListAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,8 +36,8 @@ public class AllTodosActivity extends AppCompatActivity {
     private String              TAG = AllTodosActivity.class.getSimpleName();
     private ProgressDialog      pDialog;
     private ListView            lv;
-    public static final String  EXTRA_MESSAGE2 = "com.example.michaelhodl.webserviceexample3.MESSAGETODO";
-    public static final String  EXTRA_MESSAGE3 = "com.example.michaelhodl.webserviceexample3.MESSAGESESSION";
+    public static final String  EXTRA_MESSAGE2 = "com.example.campus02.webserviceexample3.MESSAGETODO";
+    public static final String  EXTRA_MESSAGE3 = "com.example.campus02.webserviceexample3.MESSAGESESSION";
     private static String       url = "http://campus02win14mobapp.azurewebsites.net/Todo";
     private String              sessionid = null;
     private String              httpResponse = null;
@@ -45,7 +45,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     private ArrayList<TodoEntry> alltodos;
     private TodoListAdapter      adapter;
-    private DBHandler            localDb = new DBHandler(this);
+    private DBHandler localDb = new DBHandler(this);
 
 
     @Override
@@ -87,7 +87,24 @@ public class AllTodosActivity extends AppCompatActivity {
         Intent intent = getIntent();
         sessionid = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
+    }
 
+    @Override
+    /**
+     * Wenn ein Neues To Do in der CreateToDoActivity erstellt wurde (und die Activity mit finish() abgeschlossen wurde),
+     * dann wechselt die Ansicht wieder zurueck zu derjenigen Activity, von der aus die CreateToDoActivity gestartet wurde,
+     * also diese Activity (AllTodosActivity).
+     * Und dann wird automatisch diese Methode onResume() aufgerufen.
+     * Diese Methode macht ladet die Liste neu, da ein neues To Do erstellt wurde.
+     *
+     * Laut Android Workflow-Status wird zuerst die onCreate(), dann onStart(), dann onResume() aufgerufen.
+     * Somit reicht es, wenn die runAsync() nur in der onResume() aufgerufen wird (und nicht auch in der onCreate).
+     */
+    protected void onResume() {
+        super.onResume();
+
+        // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
+        runAsync();
 
         // bissl primitiver ansatz, um die problematik zu loesen
         //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
@@ -111,25 +128,6 @@ public class AllTodosActivity extends AppCompatActivity {
         for(TodoEntry t : alltodos){
             Log.e(TAG, "--- t= "+t.toString());
         }
-
-    }
-
-    @Override
-    /**
-     * Wenn ein Neues To Do in der CreateToDoActivity erstellt wurde (und die Activity mit finish() abgeschlossen wurde),
-     * dann wechselt die Ansicht wieder zurueck zu derjenigen Activity, von der aus die CreateToDoActivity gestartet wurde,
-     * also diese Activity (AllTodosActivity).
-     * Und dann wird automatisch diese Methode onResume() aufgerufen.
-     * Diese Methode macht ladet die Liste neu, da ein neues To Do erstellt wurde.
-     *
-     * Laut Android Workflow-Status wird zuerst die onCreate(), dann onStart(), dann onResume() aufgerufen.
-     * Somit reicht es, wenn die runAsync() nur in der onResume() aufgerufen wird (und nicht auch in der onCreate).
-     */
-    protected void onResume() {
-        super.onResume();
-
-        // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
-        runAsync();
     }
 
 
@@ -298,7 +296,7 @@ public class AllTodosActivity extends AppCompatActivity {
                 h2.setValue(caller.getSessionid());
                 NameValuePair h3 = new NameValuePair();
                 h3.setName("Accept");
-                h3.setValue(new String("application/json"));
+                h3.setValue("application/json");
                 headers.add(h2);
                 headers.add(h3);
 

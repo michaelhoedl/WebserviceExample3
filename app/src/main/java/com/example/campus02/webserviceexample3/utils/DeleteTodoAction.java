@@ -1,10 +1,10 @@
-package com.example.michaelhodl.webserviceexample3.utils;
+package com.example.campus02.webserviceexample3.utils;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.michaelhodl.webserviceexample3.activities.AllTodosActivity;
+import com.example.campus02.webserviceexample3.activities.AllTodosActivity;
 
 import java.text.ParseException;
 import java.util.ArrayList;
