@@ -199,12 +199,11 @@ public class AllTodosActivity extends AppCompatActivity {
                 alert.show();
                 return true;
             case 2:
-                Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
-                final CompleteTodoAction complete =  new CompleteTodoAction(this, selectedFromList, sessionid,e);
+                Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList + " e:"+e.getSessionKey());
+                final CompleteTodoAction complete =  new CompleteTodoAction(this,e);
                 complete.runTodoAction();
                 adapter.clear();
                 runAsync();
-
                 return true;
             default:
                 return super.onContextItemSelected(item);
