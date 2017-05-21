@@ -26,13 +26,15 @@ public class CompleteTodoAction {
     private String sessionId;
     private String httpResponse = null;
     private String url;
-    private TodoEntry myToDo;
+    private String todoName;
+    private String todoDescription;
 
-    public CompleteTodoAction(AllTodosActivity mainDialog, String todoId, String sessionId, TodoEntry e) {
+    public CompleteTodoAction(AllTodosActivity mainDialog, TodoEntry e) {
         this.mainDialog = mainDialog;
-        this.todoId = todoId;
-        this.sessionId = sessionId;
-        this.myToDo = e;
+        this.todoId = e.getId()+"";
+        this.sessionId = e.getSessionKey();
+        this.todoName = e.getTitle();
+        this.todoDescription = e.getTododesc();
     }
 
     public boolean runCompleteTodoAction() {
@@ -110,13 +112,14 @@ public class CompleteTodoAction {
                     // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
                     JSONObject jsonObject = new JSONObject();
 
-                    // Zusammensetzung für Notwendige Dateninformatin, damit ToDo auf done gesetzt werden kann.
+                    // Zusammensetzung für Notwendige Dateninformatin, damit die ToDo auf done gesetzt werden kann.
                     //  id, name, decrioption sind notwendige Felder
-                    // mit "done",1 wird die ToDo an die DB übergeben
+                    // mit "done",1 wird die ToDo als erledigt an die DB übergeben
+                   // Hintergrundfarbe für erledigte ToDo's wird in der Klasse model/TodoListAdapter.java ab Zeile 57- 59 gesetzt
                     try {
                             jsonObject.put("id",todoId);
-                             jsonObject.put("name",myToDo.getTitle());
-                             jsonObject.put("description",myToDo.getTododesc());
+                             jsonObject.put("name",todoName);
+                             jsonObject.put("description",todoDescription);
                             jsonObject.put("done",1);
 
                     } catch (JSONException e) {
