@@ -209,7 +209,7 @@ public class AllTodosActivity extends AppCompatActivity {
             // 2 = complete action
             case 2:
                 Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
-                final CompleteTodoAction complete =  new CompleteTodoAction(this, selectedFromList, sessionid,e);
+                final CompleteTodoAction complete =  new CompleteTodoAction(this,e);
 
                 // aufrufen der complete action, wo ein Http Service Call zur API durchgefuehrt wird oder der Eintrag in der lokalen DB erledigt wird.
                 complete.runCompleteTodoAction();
