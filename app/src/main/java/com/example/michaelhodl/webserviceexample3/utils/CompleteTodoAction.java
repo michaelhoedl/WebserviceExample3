@@ -39,7 +39,7 @@ public class CompleteTodoAction {
         this.myToDo = e;
     }
 
-    public boolean runTodoAction() {
+    public boolean runCompleteTodoAction() {
         return runComplete();
     }
 
