@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import com.example.campus02.webserviceexample3.model.TodoEntry;
 import com.example.campus02.webserviceexample3.model.UserEntry;
+import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 
 /**
  * Created by andreas on 12.05.2017.
@@ -18,12 +19,13 @@ import com.example.campus02.webserviceexample3.model.UserEntry;
 
 public class DBHandler extends SQLiteOpenHelper {
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
     // Database Name
-    private static final String DATABASE_NAME = "dbLocal6";
+    private static final String DATABASE_NAME = "dbLocal";
     // Contacts table name
     private static final String TABLE_TODOS = "todos";
     private static final String TABLE_USER = "user";
+    private static final String TABLE_SYNCTODO = "synctodos";
     // Todo Table Columns names
     private static final String KEY_TODO_ID = "id";
     private static final String KEY_TODO_TITLE = "title";
@@ -38,6 +40,13 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String KEY_USER_MAIL = "mail";
     private static final String KEY_USER_PDW = "pwd";
     private static final String KEY_USER_SESSIONKEY = "sessionKey";
+    // Sync Todo Table
+    private static final String KEY_SYNCTODO_ID = "id";
+    private static final String KEY_SYNCTODO_URL = "url";
+    private static final String KEY_SYNCTODO_CMD = "cmd";
+    private static final String KEY_SYNCTODO_HEADERS = "headers";
+    private static final String KEY_SYNCTODO_PARAMS = "params";
+    private static final String KEY_SYNCTODO_JSONPOSTSTR = "jsonpoststr";
 
     public DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -66,6 +75,17 @@ public class DBHandler extends SQLiteOpenHelper {
                         + KEY_USER_SESSIONKEY + " TEXT "
                         + ")";
         db.execSQL(CREATE_USER_TABLE);
+
+        String CREATE_SYNCTODO_TABLE =
+                "CREATE TABLE IF NOT EXISTS " + TABLE_SYNCTODO + "("
+                        + KEY_SYNCTODO_ID + " INTEGER PRIMARY KEY autoincrement,"
+                        + KEY_SYNCTODO_URL + " TEXT, "
+                        + KEY_SYNCTODO_CMD + " TEXT, "
+                        + KEY_SYNCTODO_HEADERS + " TEXT, "
+                        + KEY_SYNCTODO_PARAMS + " TEXT, "
+                        + KEY_SYNCTODO_JSONPOSTSTR + " TEXT "
+                        + ")";
+        db.execSQL(CREATE_SYNCTODO_TABLE);
     }
 
     @Override
@@ -169,6 +189,18 @@ public class DBHandler extends SQLiteOpenHelper {
         String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
         db.update(TABLE_TODOS, values , where, null);
 
+    }
+
+    public void addSyncTodoEntry(SyncTodoEntry syncEntry) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_SYNCTODO_URL, syncEntry.getUrl());
+        values.put(KEY_SYNCTODO_CMD, syncEntry.getCmd());
+        values.put(KEY_SYNCTODO_HEADERS, syncEntry.getHeaders());
+        values.put(KEY_SYNCTODO_PARAMS, syncEntry.getParams());
+        values.put(KEY_SYNCTODO_JSONPOSTSTR, syncEntry.getJsonPostStr());
+        db.insertWithOnConflict(TABLE_SYNCTODO, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
     }
 
 

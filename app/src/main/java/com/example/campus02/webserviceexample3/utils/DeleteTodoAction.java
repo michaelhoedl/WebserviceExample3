@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.campus02.webserviceexample3.activities.AllTodosActivity;
+import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -91,6 +92,9 @@ public class DeleteTodoAction {
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
 
+            // add the todo id to the path from the url
+            url = "http://campus02win14mobapp.azurewebsites.net/Todo/" + todoId;
+
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
                 // headers - at delete action only the session key is necessary, the todo id will be added to the path of the url
@@ -104,9 +108,6 @@ public class DeleteTodoAction {
                 headers.add(h1);
                 headers.add(h2);
 
-                // add the todo id to the path from the url
-                url = "http://campus02win14mobapp.azurewebsites.net/Todo/" + todoId;
-
                 // Making a delete request to url and getting response
                 String jsonStr = sh.makeMyServiceCall(url, "DELETE", headers, null, null);//sh.makeServiceCall(url);
                 // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
@@ -119,6 +120,10 @@ public class DeleteTodoAction {
             else {
                 DBHandler localDb = new DBHandler(mainDialog);
                 try {
+                    String headersForLocalDb = "session:"+sessionId+";"+"Accept:text/plain;";
+                    SyncTodoEntry syncEntry = new SyncTodoEntry(url, "DELETE", headersForLocalDb, "", "");
+
+                    localDb.addSyncTodoEntry(syncEntry);
                     localDb.deleteTodo(todoId, sessionId);
                     localDb.getTodos(sessionId);
                 } catch (ParseException e) {
