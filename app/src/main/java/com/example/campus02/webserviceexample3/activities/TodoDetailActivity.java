@@ -16,6 +16,7 @@ import com.example.campus02.webserviceexample3.model.TodoEntry;
 import com.example.campus02.webserviceexample3.utils.HttpHandler;
 import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
+import com.example.campus02.webserviceexample3.utils.UpdateTodoAction;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,10 +114,11 @@ public class TodoDetailActivity extends AppCompatActivity {
     public void readDataFromFields(View view){
         // Objektzuweisung, Anzeigen und Auslesen Text
 
+        final UpdateTodoAction updateaction;
+
         txtEName = (EditText)
                 this.findViewById(R.id.txtName);
         txtVName = txtEName.getText().toString();
-
 
         txtEDescription = (EditText)
                 this.findViewById(R.id.txtDescription);
@@ -160,6 +162,9 @@ public class TodoDetailActivity extends AppCompatActivity {
         mytodo.setUsedtime(txtVActualEffort);
         mytodo.setDuedate(txtVDeadline);
 
+
+        updateaction =  new UpdateTodoAction(this, sessionid, mytodo);
+        updateaction.runUpdateAction();
         // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
         Log.e(TAG, "Save Button was clicked");
         Log.e(TAG, "mytodo="+mytodo.toString());
@@ -275,7 +280,6 @@ public class TodoDetailActivity extends AppCompatActivity {
                     } else {
                         caller.mytodo.setDone(0);
                     }
-                    // ... evt. noch das datum einbauen...
                     caller.mytodo.setDuedateAsString(duedate);
 
                     Log.e(TAG, "jsonObj: id="+id+", name="+name+", description="+description);

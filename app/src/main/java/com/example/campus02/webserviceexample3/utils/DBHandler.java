@@ -185,10 +185,25 @@ public class DBHandler extends SQLiteOpenHelper {
     public void completeTodo (String id, String session){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("done",1);
+        values.put(KEY_TODO_DONE,1);
         String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
         db.update(TABLE_TODOS, values , where, null);
+    }
 
+
+    public void updateTodo (String id, String session, TodoEntry mytodo){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_TODO_TITLE,mytodo.getTitle());
+        values.put(KEY_TODO_DESC, mytodo.getTododesc());
+        values.put(KEY_TODO_ESTIMATED, mytodo.getEstimatedeffort());
+        values.put(KEY_TODO_USED,mytodo.getUsedtime());
+        values.put(KEY_TODO_DUE,mytodo.getDuedateFormatted());
+        values.put(KEY_TODO_DONE,mytodo.getDone());
+
+        String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
+        db.update(TABLE_TODOS, values , where, null);
     }
 
     public void addSyncTodoEntry(SyncTodoEntry syncEntry) {
