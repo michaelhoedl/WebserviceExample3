@@ -33,46 +33,39 @@ import java.util.ArrayList;
 
 public class AllTodosActivity extends AppCompatActivity {
 
-    private String TAG = AllTodosActivity.class.getSimpleName();
-    private ProgressDialog pDialog;
-    private ListView lv;
-    public static final String EXTRA_MESSAGE2 = "com.example.michaelhodl.webserviceexample3.MESSAGETODO";
-    public static final String EXTRA_MESSAGE3 = "com.example.michaelhodl.webserviceexample3.MESSAGESESSION";
-    private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo";
-    private String sessionid = null;
-    private String httpResponse = null;
-    private AllTodosActivity dma;
+    private String              TAG = AllTodosActivity.class.getSimpleName();
+    private ProgressDialog      pDialog;
+    private ListView            lv;
+    public static final String  EXTRA_MESSAGE2 = "com.example.michaelhodl.webserviceexample3.MESSAGETODO";
+    public static final String  EXTRA_MESSAGE3 = "com.example.michaelhodl.webserviceexample3.MESSAGESESSION";
+    private static String       url = "http://campus02win14mobapp.azurewebsites.net/Todo";
+    private String              sessionid = null;
+    private String              httpResponse = null;
+    private AllTodosActivity    dma;
 
     private ArrayList<TodoEntry> alltodos;
-    private TodoListAdapter adapter;
-    private DBHandler localDb = new DBHandler(this);
+    private TodoListAdapter      adapter;
+    private DBHandler            localDb = new DBHandler(this);
 
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Neu Laden der Liste nachdem neues To Do erstell wurde:
-        //adapter.clear();
-        runAsync();
-    }
-
-    @Override
+    /**
+     * die onCreate() Methode wird automatisch beim Starten der Activity aufgerufen.
+     *
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_todos);
 
         dma = this;
-
         alltodos = new ArrayList<TodoEntry>();
-        //adapter = new TodoListAdapter(AllTodosActivity.this, alltodos);
 
+        // Das GUI Element "list" ermitteln und die ListView lv damit initialisieren.
         lv = (ListView) findViewById(R.id.list);
 
         // add click-listener to list. Reacting to a click on a list item.
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> myAdapter, View myView, int myItemInt, long mylng) {
-
                 // get the ID (todo_id) of the selected list item.
                 TodoEntry e = (TodoEntry) lv.getItemAtPosition(myItemInt);
                 String selectedFromList = e.getId()+"";
@@ -87,7 +80,6 @@ public class AllTodosActivity extends AppCompatActivity {
             }
         });
 
-
         // register the List View for context menu pop-up when long-clicking on a list item. see also method onCreateContextMenu below.
         registerForContextMenu(lv);
 
@@ -95,8 +87,7 @@ public class AllTodosActivity extends AppCompatActivity {
         Intent intent = getIntent();
         sessionid = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
-        //start the asynctask to retrieve the data from webservice
-        //runAsync();
+
 
         // bissl primitiver ansatz, um die problematik zu loesen
         //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
@@ -114,6 +105,7 @@ public class AllTodosActivity extends AppCompatActivity {
             x += 1;
         }
 
+        // testweise ein paar daten ausgeben
         Log.e(TAG, "x= "+x);
         Log.e(TAG, "alltodos.size= "+alltodos.size());
         for(TodoEntry t : alltodos){
@@ -122,25 +114,43 @@ public class AllTodosActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    /**
+     * Wenn ein Neues To Do in der CreateToDoActivity erstellt wurde (und die Activity mit finish() abgeschlossen wurde),
+     * dann wechselt die Ansicht wieder zurueck zu derjenigen Activity, von der aus die CreateToDoActivity gestartet wurde,
+     * also diese Activity (AllTodosActivity).
+     * Und dann wird automatisch diese Methode onResume() aufgerufen.
+     * Diese Methode macht ladet die Liste neu, da ein neues To Do erstellt wurde.
+     *
+     * Laut Android Workflow-Status wird zuerst die onCreate(), dann onStart(), dann onResume() aufgerufen.
+     * Somit reicht es, wenn die runAsync() nur in der onResume() aufgerufen wird (und nicht auch in der onCreate).
+     */
+    protected void onResume() {
+        super.onResume();
+
+        // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
+        runAsync();
+    }
+
 
     // ---------------------------------------------------------------------------------------------
 
     @Override
     /**
-     * This Method implements a context menu pop-up when long-clicking on a list item.
-     * see: http://stackoverflow.com/questions/18632331/using-contextmenu-with-listview-in-android
+     * Diese Methode implementiert ein Kontext-Menue Pop-Up wenn man einen Listen-Eintrag laenger anklickt.
+     * siehe auch: http://stackoverflow.com/questions/18632331/using-contextmenu-with-listview-in-android
      */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         if (v.getId() == R.id.list) {
-            ListView lv1 = (ListView) v;
+
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
 
-            // get the ID (todo_id) of the selected list item.
+            // Die ID (todo_id) des ausgewaehlten Listen-Eintrages ermitteln. Nur zum Testen die ID ausgeben.
             TodoEntry e = (TodoEntry) lv.getItemAtPosition(acmi.position);
             String selectedFromList = e.getId()+"";
             Log.e(TAG, "contextmenu: selected list item todo_id: " + selectedFromList);
 
-            // defining two menu options for delete and complete
+            // Zwei Optionen festlegen: 1 = Loeschen, 2 = Erledigen.
             menu.add(menu.NONE,1,1,"Delete ToDo");
             menu.add(menu.NONE,2,2,"Complete ToDo");
         }
@@ -152,8 +162,7 @@ public class AllTodosActivity extends AppCompatActivity {
      * see: http://stackoverflow.com/questions/18632331/using-contextmenu-with-listview-in-android
      */
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info;
-        info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
         // get the ID (todo_id) of the selected list item.
         TodoEntry e = (TodoEntry) lv.getItemAtPosition(info.position);
@@ -162,24 +171,23 @@ public class AllTodosActivity extends AppCompatActivity {
 
         // reagieren auf den ausgewaehlten menue-eintrag.
         switch (item.getItemId()) {
-            //delete action
+            //1 = delete action
             case 1:
                 Log.d(TAG, "delete item pos=" + info.position+" = todo_id: " + selectedFromList);
                 final DeleteTodoAction delaction =  new DeleteTodoAction(this, selectedFromList, sessionid);
 
-
+                // eine Alert-Message, damit der Benutzer bestaetigen kann, dass er wirklich den Eintrag loeschen will.
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Delete");
                 builder.setMessage("Are you sure?");
-
                 builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-
+                    // wenn User auf Yes klickt, dann wird folgendes ausgefuehrt:
                     public void onClick(DialogInterface dialog, int which) {
 
-                        // runs the delete action, where the Http Service Call to the API will be done or the local db will be used
+                        // aufrufen der delete action, wo ein Http Service Call zur API durchgefuehrt wird oder der Eintrag aus der lokalen DB geloescht wird.
                         delaction.runDeleteAction();
 
-                        // at first, clear the list. Then reload the data and fill the list again.
+                        // Liste leeren, dann neu laden der Daten und Liste befuellen.
                         adapter.clear();
                         runAsync();
                         dialog.dismiss();
@@ -190,7 +198,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // if the user says no, nothing will be done and the dialog is closed again
+                        // Wenn User auf No klickt, passiert nichts und der Alert wird geschlossen.
                         dialog.dismiss();
                     }
                 });
@@ -198,12 +206,18 @@ public class AllTodosActivity extends AppCompatActivity {
                 AlertDialog alert = builder.create();
                 alert.show();
                 return true;
+            // 2 = complete action
             case 2:
-                Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList + " e:"+e.getSessionKey());
-                final CompleteTodoAction complete =  new CompleteTodoAction(this,e);
-                complete.runTodoAction();
+                Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
+                final CompleteTodoAction complete =  new CompleteTodoAction(this, selectedFromList, sessionid,e);
+
+                // aufrufen der complete action, wo ein Http Service Call zur API durchgefuehrt wird oder der Eintrag in der lokalen DB erledigt wird.
+                complete.runCompleteTodoAction();
+
+                // Liste leeren, dann neu laden der Daten und Liste befuellen.
                 adapter.clear();
                 runAsync();
+
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -212,7 +226,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     // ---------------------------------------------------------------------------------------------
 
-    // Getters and Setters
+    // Getters und Setters
 
     public String getHttpResponse() {
         return httpResponse;
@@ -233,7 +247,8 @@ public class AllTodosActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Async task class to get json by making HTTP call
+     * Innere Private Klasse
+     * Async Task macht die HTTP Anfragen und laedt die Daten als Json.
      */
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
@@ -245,16 +260,17 @@ public class AllTodosActivity extends AppCompatActivity {
         AsyncCaller(AllTodosActivity caller){
             this.caller = caller;
             sh = new HttpHandler();
+            // ermitteln ob die App eine Internet-Verbindung hat
             isInternetConnected = sh.isNetworkAvailable(caller.getApplicationContext());
 
-            // initially set httpResponse and the alltodos list to be empty
+            // Initial-Werte fuer httpResponse und die alltodos Liste auf leer setzen.
             httpResponse = null;
             alltodos.clear();
         }
 
         @Override
         /**
-         * this method will be running on UI thread
+         * diese Methode laeuft im UI Thread
          */
         protected void onPreExecute() {
             super.onPreExecute();
@@ -267,15 +283,15 @@ public class AllTodosActivity extends AppCompatActivity {
 
         @Override
         /**
-         * this method will be running on background thread so dont update UI from here
-         * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
+         * Diese Methode laeuft in einem Hintergrundprozess (background thread).  Hier sollte man die UI nicht updaten.
+         * Laenger laufende Tasks (http) sollten hier passieren.
          */
         protected Void doInBackground(Void... arg0) {
-            // if internet connection is available, get data from the webserver
+            // Wenn eine Internetverbindung besteht, dann lade Daten vom Webservice.
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
 
-                // set headers
+                // HTTP Header setzen:
                 ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
                 NameValuePair h2 = new NameValuePair();
                 h2.setName("session");
@@ -286,9 +302,8 @@ public class AllTodosActivity extends AppCompatActivity {
                 headers.add(h2);
                 headers.add(h3);
 
-                // Making a request to url and getting response as a string
+                // Sende eine GET Anfrage an den Webservice an die URl mit den definierten Headern und erhalte einen Json String als Response.
                 String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
-
                 caller.setHttpResponse(jsonStr);
 
                 //just some logging
@@ -296,30 +311,31 @@ public class AllTodosActivity extends AppCompatActivity {
                 Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
                 Log.e(TAG, "jsonStr.length: " + jsonStr.length());
 
-
-                if (jsonStr != null && jsonStr != "") {
+                // Wenn der Json String aus der HTTP Anfrage nicht leer ist, dann passiert folgendes:
+                if (jsonStr != null && !jsonStr.isEmpty() && !jsonStr.equals("")) {
                     try {
 
-                        // Getting JSON Array node. see: http://stackoverflow.com/questions/17441246/org-json-jsonarray-cannot-be-converted-to-jsonobject
-                        JSONArray todos = new JSONArray(jsonStr); //jsonObj.getJSONArray("contacts");
+                        // Wandle den Json String in ein JSON Array um.
+                        // siehe auch: http://stackoverflow.com/questions/17441246/org-json-jsonarray-cannot-be-converted-to-jsonobject
+                        JSONArray todos = new JSONArray(jsonStr);
                         Log.e(TAG, "JSONArray todos.length: " + todos.length());
 
-                        // looping through all To Do entries within the Json Array
+                        // Durchlaufe alle Eintraege im Json Array:
                         for (int i = 0; i < todos.length(); i++) {
 
-                            // extract one Json Object from the Json Array
+                            // Extrahiere ein Json Object aus dem Json Array:
                             JSONObject c = todos.getJSONObject(i);
 
-                            // extract the attributes/values from the Json Object
-                            int _id = c.getInt("id");
-                            String _name = c.getString("name");
-                            String _description = c.getString("description");
-                            float _estimatedEffort = (float) c.getDouble("estimatedEffort");
-                            float _usedTime = (float) c.getDouble("usedTime");
-                            boolean _done = c.getBoolean("done");
-                            String _duedate = c.getString("dueDate");
+                            // Extrahiere die Attribute/Werte aus dem aktuellen Json Object:
+                            int     _id                 = c.getInt("id");
+                            String  _name               = c.getString("name");
+                            String  _description        = c.getString("description");
+                            float   _estimatedEffort    = (float) c.getDouble("estimatedEffort");
+                            float   _usedTime           = (float) c.getDouble("usedTime");
+                            boolean _done               = c.getBoolean("done");
+                            String  _duedate            = c.getString("dueDate");
 
-                            // create a TodoEntry object and set the data.
+                            // Erstelle ein TodoEntry Objekt und befuelle es mit den Daten aus dem Json Object:
                             TodoEntry mytodo = new TodoEntry();
                             mytodo.setId(_id);
                             mytodo.setTitle(_name);
@@ -334,13 +350,12 @@ public class AllTodosActivity extends AppCompatActivity {
                             mytodo.setDuedateAsString(_duedate);
                             mytodo.setSessionKey(sessionid);
 
-                            // adding the entry to the list
+                            // Hinzufuegen des TodoEntry Objektes zur ArrayList:
                             alltodos.add(mytodo);
 
-                            // save the todos into local DB
+                            // Hinzufuegen des TodoEntry Objectes zur lokalen DB:
                             localDb.addTodo(mytodo);
 
-                            //Log.e(TAG, "i=" + i + ", id=" + _id + ", name=" + _name + ", description=" + _description + ", done=" + _done);
                             Log.e(TAG, "i="+i+", todo="+mytodo.toString());
                         }
                     } catch (final JSONException e) {
@@ -356,7 +371,7 @@ public class AllTodosActivity extends AppCompatActivity {
                         });
 
                     }
-                } else { // if no Json was returned from the Server, output an error message.
+                } else { // wenn kein Json vom Server zurueckgeliefert wurde, dann eine Fehlermeldung ausgeben.
                     Log.e(TAG, "Couldn't get json from server.");
                     runOnUiThread(new Runnable() {
                         @Override
@@ -368,13 +383,15 @@ public class AllTodosActivity extends AppCompatActivity {
                         }
                     });
                 } // end if (jsonStr != null && jsonStr != "")
-            } // else: if no internet connection is available
+            } // else: wenn keine Internetverbindung verfuegbar ist, dann aus lokaler DB auslesen:
             else {
                 Log.e(TAG, "--- no internet connection! ---");
+
+                // leeren des httpResponse und der ArrayList:
                 httpResponse = null;
                 alltodos.clear();
 
-                // get todos from the local database
+                // Die ToDos aus der Lokalen DB laden:
                 try {
                     alltodos = localDb.getTodos(sessionid);
                 } catch (ParseException e) {
@@ -388,35 +405,22 @@ public class AllTodosActivity extends AppCompatActivity {
 
         @Override
         /**
-         * this method will be running on UI thread
+         * Diese Methode laeuft im UI Thread
          */
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Dismiss the progress dialog
             if (pDialog.isShowing())
                 pDialog.dismiss();
-            /**
-             * Updating parsed JSON data into ListView
-             * */
 
-            /* // not needed, because a custom list adapter with TodoEntry Objects is used.
-                ListAdapter adapter = new SimpleAdapter(
-                        AllTodosActivity.this, todoList,            // todoList was a ArrayList<HashMap<String, String>>
-                    R.layout.list_item, new String[]{"id", "name",
-                    "description"}, new int[]{R.id.todoid,
-                    R.id.todoname, R.id.tododesc});
-            */
-
-
-
+            // testweise logging...
             Log.e(TAG, "status: (im onPostExecute): " + this.getStatus());
-
             Log.e(TAG, " (onPostExecute) alltodos.size= "+alltodos.size());
             for(TodoEntry t : alltodos){
                 Log.e(TAG, "(onPostExecute) --- t= "+t.toString());
             }
 
-            // set our custom list adapter.
+            // Den Custom List Adapter fuer die Liste setzen:
             adapter = new TodoListAdapter(caller.getApplicationContext(), alltodos);
             lv.setAdapter(adapter);
             Log.e(TAG,"lv.getAdapter().getCount()="+lv.getAdapter().getCount());
@@ -424,32 +428,39 @@ public class AllTodosActivity extends AppCompatActivity {
 
     } // end private class AsyncCaller
 
+    /**
+     * Diese Methode ruft den AsyncTask auf
+     */
     private void runAsync()
     {
         new AllTodosActivity.AsyncCaller(this).execute();
     }
 
     /**
-     * method which is performed when the Add-Button (+) is clicked.
+     * Diese Methode wird bei Klick auf den Hinzufuegen-Button (+) aufgerufen.
      * @param view
      */
     public void addButtonClicked(View view){
         Log.e(TAG, "Add Button (FloatingActionButton) was clicked!");
 
-        // open new view (TodoDetailActivity) to display the details of the selected list item.
-        // send the session_id (which we got from the login view) and the selected todo_id.
+        // Neue Ansicht (CreateToDoActivity) oeffnen um einen neuen TodoEintrages zu erstellen.
+        // Es wird die session_id (die aus Login Ansicht MainActivity kommt) an die neue Activity uebergeben.
         Intent intentdetail = new Intent(dma, CreateToDoActivity.class);
-        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // we have to send the session_id.
+        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der the session_id.
         startActivity(intentdetail);
     }
 
+    /**
+     * Diese Methode wird bei Klick auf den Suchen-Button aufgerufen.
+     * @param view
+     */
     public void addButtonSearchClicked(View view){
         Log.e(TAG, "Add Button Search (FloatingActionButton) was clicked!");
 
-        // open new view (TodoSearchActivity) to search through existing items.
-        // send the session_id (which we got from the login view).
+        // Neue Ansicht (TodoSearchActivity) oeffnen um eine Suche ueber die TodoEintraege zu machen.
+        // Es wird die session_id (die aus Login Ansicht MainActivity kommt) an die neue Activity uebergeben.
         Intent intentdetail = new Intent(dma, TodoSearchActivity.class);
-        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // we have to send the session_id.
+        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der the session_id.
         startActivity(intentdetail);
     }
 

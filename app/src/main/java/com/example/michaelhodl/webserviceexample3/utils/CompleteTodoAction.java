@@ -34,7 +34,7 @@ public class CompleteTodoAction {
         this.todoDescription = e.getTododesc();
     }
 
-    public boolean runTodoAction() {
+    public boolean runCompleteTodoAction() {
         return runComplete();
     }
 
