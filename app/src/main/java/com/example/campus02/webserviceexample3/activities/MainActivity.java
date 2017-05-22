@@ -18,6 +18,7 @@ import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
 
 import java.util.ArrayList;
+import java.security.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
             // if server did not return any response, then show a message dialog saying that no session was found.
             if (httpResponse == null || httpResponse.equals("")) {
+                try {
+                    //verschlüsselt das Passwort bevor es in der lokalen Datenbank geprüft wird
+                    emypwd = encrypt(emypwd);
+                } catch (NoSuchAlgorithmException e){
+                    e.printStackTrace();
+                }
                 myuser = localDb.getUser(emymail, emypwd);
                 if (myuser != null) {
                     if (!(myuser.getMail().equals(emymail) && myuser.getPwd().equals(emypwd))) {
@@ -96,6 +103,12 @@ public class MainActivity extends AppCompatActivity {
             } // else (if server returns session), then switch to the new screen where a list of all todos is shown.
             else {
                 //TODO: insert the user only once?
+                try {
+                    //verschlüsselt das Passwort bevor es in die lokale Datenbank geschrieben wird
+                    emypwd = encrypt(emypwd);
+                } catch (NoSuchAlgorithmException e){
+                    e.printStackTrace();
+                }
                 myuser = new UserEntry(emymail, emypwd, httpResponse);
                 localDb.addUser(myuser);
 
@@ -104,6 +117,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         } // end if username and/or password is empty
+    }
+
+    // liefert ein MD5 verschlüsseltes Passwort zurück
+    private String encrypt (String pwd) throws NoSuchAlgorithmException {
+        MessageDigest m = MessageDigest.getInstance("MD5");
+        m.reset();
+        m.update(pwd.getBytes());
+        byte[] digest = m.digest();
+
+        String hexString = "";
+        for (int i=0; i<digest.length; i++) {
+            if(digest[i] <= 15 && digest[i] >= 0){
+                hexString += "0";
+            }
+            hexString += Integer.toHexString(0xFF & digest[i]);
+        }
+        return hexString;
     }
 
 
@@ -220,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
 
             Log.e(TAG, "status: (im onPostExecute): " + this.getStatus());
         }
-
     } // end private class AsyncCaller
 
 
