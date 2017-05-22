@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -34,12 +35,31 @@ public class TodoSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo_search);
 
+        // Anzeigen eines Zurück-Buttons in der Statusleiste der App.
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Getting the SessionID from AllTodosActivity
         Intent intent = getIntent();
         this.sessionid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE3);
 
         // Logging the SessionID
         Log.d(TAG, "SessionID = " + sessionid);
+    }
+
+    @Override
+    /**
+     * bei Klick auf den Zurück-Button in der App-Statusleiste
+     * wird die aktuelle Activity mit finish() geschlossen
+     * und man kommt zu jener Activity zurück, von der aus diese Activity gestartet wurde.
+     */
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     // buttonSearch onClick

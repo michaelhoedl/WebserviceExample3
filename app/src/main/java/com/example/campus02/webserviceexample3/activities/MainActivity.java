@@ -119,7 +119,13 @@ public class MainActivity extends AppCompatActivity {
         } // end if username and/or password is empty
     }
 
-    // liefert ein MD5 verschlüsseltes Passwort zurück
+
+    /**
+     * liefert ein MD5 verschlüsseltes Passwort zurück für einen String pwd.
+     * @param pwd
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
     private String encrypt (String pwd) throws NoSuchAlgorithmException {
         MessageDigest m = MessageDigest.getInstance("MD5");
         m.reset();
@@ -138,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * a simple method to create a simple alert message box with a title and a message.
+     * Einfache Methode, um das Erstellen einer Alert Message Box mit Titel s und Message s1 auszulagern.
      * @param s
      * @param s1
      */
@@ -157,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
     // ---------------------------------------------------------------------------------------------
 
-    // Getters and Setters
+    // Getters und Setters
 
     public String getHttpResponse() {
         return httpResponse;

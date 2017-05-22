@@ -13,7 +13,16 @@ public class SyncTodoEntry {
     private String params;
     private String jsonPostStr;
 
-    // Konstruktor ohne Id, da diese in der lokalen Datenbank automatisch vergeben wird
+
+    /**
+     * Konstruktor ohne Id, da diese in der lokalen Datenbank automatisch vergeben wird.
+     *
+     * @param url
+     * @param cmd
+     * @param headers
+     * @param params
+     * @param jsonPostStr
+     */
     public SyncTodoEntry(String url, String cmd, String headers, String params, String jsonPostStr) {
         this.url = url;
         this.cmd = cmd;

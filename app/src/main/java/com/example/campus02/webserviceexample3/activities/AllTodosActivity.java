@@ -416,9 +416,9 @@ public class AllTodosActivity extends AppCompatActivity {
             // testweise logging...
             Log.e(TAG, "status: (im onPostExecute): " + this.getStatus());
             Log.e(TAG, " (onPostExecute) alltodos.size= "+alltodos.size());
-            for(TodoEntry t : alltodos){
-                Log.e(TAG, "(onPostExecute) --- t= "+t.toString());
-            }
+            //for(TodoEntry t : alltodos){
+            //    Log.e(TAG, "(onPostExecute) --- t= "+t.toString());
+            //}
 
             // Den Custom List Adapter fuer die Liste setzen:
             adapter = new TodoListAdapter(caller.getApplicationContext(), alltodos);

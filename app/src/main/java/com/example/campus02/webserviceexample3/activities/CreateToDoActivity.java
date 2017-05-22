@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -55,12 +56,32 @@ public class CreateToDoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_to_do);
+
+        // Anzeigen eines Zurück-Buttons in der Statusleiste der App.
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         dma = this;
 
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
         sessionid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE3);
 
+    }
+
+    @Override
+    /**
+     * bei Klick auf den Zurück-Button in der App-Statusleiste
+     * wird die aktuelle Activity mit finish() geschlossen
+     * und man kommt zu jener Activity zurück, von der aus diese Activity gestartet wurde.
+     */
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

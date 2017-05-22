@@ -12,10 +12,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.campus02.webserviceexample3.activities.MainActivity">
+
+        <activity
+            android:name="com.example.campus02.webserviceexample3.activities.MainActivity"
+            android:launchMode="singleTop"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -30,9 +33,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.campus02.webserviceexample3.activities.MainActivity" />
         </activity>
+
         <activity android:name="com.example.campus02.webserviceexample3.activities.TodoDetailActivity" />
+
         <activity android:name="com.example.campus02.webserviceexample3.activities.TodoSearchActivity" />
+
         <activity android:name="com.example.campus02.webserviceexample3.activities.CreateToDoActivity" />
+
     </application>
 
 </manifest>

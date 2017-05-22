@@ -100,7 +100,7 @@ public class HttpHandler {
                 }
             }
 
-            // add headers
+            // add headers to the http request:
             if (headers!=null)
             {
                 for (NameValuePair h : headers)
@@ -150,6 +150,11 @@ public class HttpHandler {
     } // end makeMyServiceCall
 
 
+    /**
+     * Diese Methode liefert true wenn die App eine Internetverbindung hat, sonst false.
+     * @param mycontext
+     * @return
+     */
     public boolean isNetworkAvailable(Context mycontext) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) mycontext.getSystemService(Context.CONNECTIVITY_SERVICE);

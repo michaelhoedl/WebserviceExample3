@@ -5,6 +5,7 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  *
@@ -124,18 +125,24 @@ public class TodoEntry {
     //----------------------------------------------------------------------------------------------
 
 
-    // get the duedate as a string with a given dateformat
+    /**
+     * get the duedate as a string with a given dateformat
+     * @return
+     */
     public String getDuedateFormatted() {
-        SimpleDateFormat dt1 = new SimpleDateFormat("dd.mm.yyyy"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd.mm.yyyy", Locale.GERMANY); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
         if(duedate != null)
             return dt1.format(duedate);
         else
             return null;
     }
 
-    // set the duedate from a string with a given dateformat
+    /**
+     * set the duedate from a string with a given dateformat
+     * @param duedateAsString
+     */
     public void setDuedateAsString(String duedateAsString) {
-        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.GERMAN);
         if(duedateAsString != null && !duedateAsString.isEmpty()) {
             try {
                 this.duedate = dt1.parse(duedateAsString);
@@ -147,12 +154,18 @@ public class TodoEntry {
     }
 
 
-    // convert a string into a date with a given dateformat
+    /**
+     * convert a string into a date with a given dateformat
+     * @param date
+     * @param format
+     * @return
+     * @throws ParseException
+     */
     public Date string2date (String date, String format) throws ParseException
     {
         Date d = null;
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat(format);
+            SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.GERMAN);
             d = formatter.parse(date);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -160,12 +173,19 @@ public class TodoEntry {
         return d;
     }
 
-    // convert a date into a string with a given dateformat
+
+    /**
+     * convert a date into a string with a given dateformat
+     * @param date
+     * @param format
+     * @return
+     * @throws ParseException
+     */
     private String date2string (Date date, String format) throws ParseException
     {
         String d = null;
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat(format);
+            SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.GERMAN);
             d = formatter.format(date);
         } catch (Exception e) {
             e.printStackTrace();

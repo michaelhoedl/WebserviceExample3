@@ -6,13 +6,16 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 import com.example.campus02.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.utils.DBHandler;
 import com.example.campus02.webserviceexample3.utils.HttpHandler;
 import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
@@ -22,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,25 +56,32 @@ public class TodoDetailActivity extends AppCompatActivity {
 
     private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/";
 
+    // Instanz des Datenbank-Handlers für die lokale Datenbank
+    private DBHandler localDb = new DBHandler(this);
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo_detail);
+
+        // Anzeigen eines Zurück-Buttons in der Statusleiste der App.
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
         todoid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE2);
         sessionid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE3);
 
-        // build the url for the HTTP request to get a specific to do entry, i.e.: http://campus02win14mobapp.azurewebsites.net/Todo/3
-        url = url+todoid;
+        // die URL für den HTTP Request zusammenbauen, z.B.: http://campus02win14mobapp.azurewebsites.net/Todo/3
+        url += todoid;
 
         // test logging...
         Log.d(TAG, "url = "+url);
         Log.d(TAG, "todo id = "+todoid+", session id = "+sessionid);
 
 
-        //start the asynctask to retrieve the data from webservice
+        // AsyncTask starten um Details eines Todos vom Webservice oder aus der Lokalen DB anzuzeigen.
         runAsync();
 
         // wait a little bit ... just to ensure that the HTTP request was processed completely.
@@ -84,27 +95,44 @@ public class TodoDetailActivity extends AppCompatActivity {
             x += 1;
         }
         Log.e(TAG, "x= " + x);
-        Log.d(TAG, "mytodo.tostring="+mytodo.toString());
+        Log.d(TAG, "mytodo.tostring="+ ((mytodo != null) ? mytodo.toString() : "(mytodo is null)"));
 
-        // fill the data into the fields
+        // Die Felder der Detailansicht ermitteln:
         TextView tvid = (TextView) findViewById(R.id.tvTodoId);
-        tvid.setText(mytodo.getId()+"");
         EditText etname = (EditText) findViewById(R.id.txtName);
-        etname.setText(mytodo.getTitle());
         EditText etdesc = (EditText) findViewById(R.id.txtDescription);
-        etdesc.setText(mytodo.getTododesc());
         EditText etestimatedeffort = (EditText) findViewById(R.id.txtEstimatedEffort);
-        etestimatedeffort.setText(mytodo.getEstimatedeffort()+"");
         EditText etactualeffort = (EditText) findViewById(R.id.txtActualEffort);
-        etactualeffort.setText(mytodo.getUsedtime()+"");
-
-        // ... datum und andere felder evtl noch ergaenzen ....
         EditText eduedate = (EditText) findViewById(R.id.txtDeadline);
-        eduedate.setText(mytodo.getDuedateFormatted());
-
         CheckBox cErledigt = (CheckBox) findViewById(R.id.cbCompleted);
-        cErledigt.setChecked(mytodo.getDoneBoolean());
 
+        // die Felder der Detail-Ansicht nur befüllen, wenn das mytodo Objekt nicht null ist:
+        if (mytodo != null) {
+            tvid.setText(mytodo.getId() + "");
+            etname.setText(mytodo.getTitle());
+            etdesc.setText(mytodo.getTododesc());
+            etestimatedeffort.setText(mytodo.getEstimatedeffort() + "");
+            etactualeffort.setText(mytodo.getUsedtime() + "");
+            eduedate.setText(mytodo.getDuedateFormatted());
+            cErledigt.setChecked(mytodo.getDoneBoolean());
+        }
+
+    }
+
+    @Override
+    /**
+     * bei Klick auf den Zurück-Button in der App-Statusleiste
+     * wird die aktuelle Activity mit finish() geschlossen
+     * und man kommt zu jener Activity zurück, von der aus diese Activity gestartet wurde.
+     */
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -139,7 +167,6 @@ public class TodoDetailActivity extends AppCompatActivity {
             }
         }
 
-
         txtEEstimatedEffort = (EditText)
                 this.findViewById(R.id.txtEstimatedEffort);
         String float1string = txtEEstimatedEffort.getText().toString();
@@ -162,19 +189,19 @@ public class TodoDetailActivity extends AppCompatActivity {
         mytodo.setUsedtime(txtVActualEffort);
         mytodo.setDuedate(txtVDeadline);
 
-
-        updateaction =  new UpdateTodoAction(this, sessionid, mytodo);
+        // Durchführen des Updates
+        updateaction = new UpdateTodoAction(this, sessionid, mytodo);
         updateaction.runUpdateAction();
+
         // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
         Log.e(TAG, "Save Button was clicked");
         Log.e(TAG, "mytodo="+mytodo.toString());
     }
 
 
-
     // ---------------------------------------------------------------------------------------------
 
-    // Getters and Setters
+    // Getters und Setters
 
     public String getHttpResponse() {
         return httpResponse;
@@ -203,8 +230,14 @@ public class TodoDetailActivity extends AppCompatActivity {
 
         //necessary for exchanging data.
         TodoDetailActivity caller;
+        HttpHandler sh;
+        boolean isInternetConnected;
+
         AsyncCaller(TodoDetailActivity caller){
             this.caller = caller;
+            sh = new HttpHandler();
+            //Prüfen ob eine Internetverbindung besteht
+            isInternetConnected = sh.isNetworkAvailable(caller.getApplicationContext());
         }
 
         @Override
@@ -226,91 +259,101 @@ public class TodoDetailActivity extends AppCompatActivity {
          * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
          */
         protected Void doInBackground(Void... arg0) {
-            HttpHandler sh = new HttpHandler();
+            // wenn eine Internetverbindung besteht wird das Löschen in der API ausgeführt
+            if(isInternetConnected) {
+                // set headers
+                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+                NameValuePair h2 = new NameValuePair();
+                h2.setName("session");
+                h2.setValue(caller.getSessionid());
+                NameValuePair h3 = new NameValuePair();
+                h3.setName("Accept");
+                h3.setValue("application/json");
+                headers.add(h2);
+                headers.add(h3);
 
-            // set headers
-            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-            NameValuePair h2 = new NameValuePair();
-            h2.setName("session");
-            h2.setValue(caller.getSessionid());
-            NameValuePair h3 = new NameValuePair();
-            h3.setName("Accept");
-            h3.setValue("application/json");
-            headers.add(h2);
-            headers.add(h3);
+                // Making a request to url and getting response as a string
+                String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
 
+                caller.setHttpResponse(jsonStr);
 
-            // Making a request to url and getting response as a string
-            String jsonStr = sh.makeMyServiceCall(url,"GET",headers, null, null);
-
-            caller.setHttpResponse(jsonStr);
-
-            //just some logging
-            Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
-            Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
-            Log.e(TAG, "jsonStr.length: " + jsonStr.length());
-
-
-            if (jsonStr != null) {
-                try {
-
-                    JSONObject jsonObj; // = new JSONObject(jsonStr);
-                    jsonObj = new JSONObject(jsonStr);
-                    Log.e(TAG, "jsonObj.length: " + jsonObj.length());
-
-                    // extract the attributes/values from the Json Object
-                    int id                  = jsonObj.getInt("id");
-                    String name             = jsonObj.getString("name");
-                    String description      = jsonObj.getString("description");
-                    float estimatedEffort   = (float) jsonObj.getDouble("estimatedEffort");
-                    float usedTime          = (float) jsonObj.getDouble("usedTime");
-                    boolean done            = jsonObj.getBoolean("done");
-                    String duedate          = jsonObj.getString("dueDate");
+                //just some logging
+                Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
+                Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
+                Log.e(TAG, "jsonStr.length: " + jsonStr.length());
 
 
-                    // create a TodoEntry object and set the data.
-                    caller.mytodo = new TodoEntry();
-                    caller.mytodo.setId(id);
-                    caller.mytodo.setTitle(name);
-                    caller.mytodo.setTododesc(description);
-                    caller.mytodo.setEstimatedeffort(estimatedEffort);
-                    caller.mytodo.setUsedtime(usedTime);
-                    if (done){
-                        caller.mytodo.setDone(1);
-                    } else {
-                        caller.mytodo.setDone(0);
+                if (jsonStr != null) {
+                    try {
+
+                        JSONObject jsonObj = new JSONObject(jsonStr);
+                        Log.e(TAG, "jsonObj.length: " + jsonObj.length());
+
+                        // extract the attributes/values from the Json Object
+                        int id = jsonObj.getInt("id");
+                        String name = jsonObj.getString("name");
+                        String description = jsonObj.getString("description");
+                        float estimatedEffort = (float) jsonObj.getDouble("estimatedEffort");
+                        float usedTime = (float) jsonObj.getDouble("usedTime");
+                        boolean done = jsonObj.getBoolean("done");
+                        String duedate = jsonObj.getString("dueDate");
+
+
+                        // create a TodoEntry object and set the data.
+                        caller.mytodo = new TodoEntry();
+                        caller.mytodo.setId(id);
+                        caller.mytodo.setTitle(name);
+                        caller.mytodo.setTododesc(description);
+                        caller.mytodo.setEstimatedeffort(estimatedEffort);
+                        caller.mytodo.setUsedtime(usedTime);
+                        if (done) {
+                            caller.mytodo.setDone(1);
+                        } else {
+                            caller.mytodo.setDone(0);
+                        }
+                        caller.mytodo.setDuedateAsString(duedate);
+
+                        Log.e(TAG, "jsonObj: id=" + id + ", name=" + name + ", description=" + description);
+                        Log.e(TAG, "jsonObj: mytodo.tostring=" + caller.mytodo.toString());
+
+                    } catch (final JSONException e) {
+                        Log.e(TAG, "Json parsing error: " + e.getMessage());
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(),
+                                        "Json parsing error: " + e.getMessage(),
+                                        Toast.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
+
                     }
-                    caller.mytodo.setDuedateAsString(duedate);
-
-                    Log.e(TAG, "jsonObj: id="+id+", name="+name+", description="+description);
-                    Log.e(TAG, "jsonObj: mytodo.tostring="+caller.mytodo.toString());
-
-                } catch (final JSONException e) {
-                    Log.e(TAG, "Json parsing error: " + e.getMessage());
+                } else { // if no Json was returned from the Server, output an error message.
+                    Log.e(TAG, "Couldn't get json from server.");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(),
-                                    "Json parsing error: " + e.getMessage(),
+                                    "Couldn't get json from server. Check LogCat for possible errors!",
                                     Toast.LENGTH_LONG)
                                     .show();
                         }
                     });
 
-                }
-            } else { // if no Json was returned from the Server, output an error message.
-                Log.e(TAG, "Couldn't get json from server.");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
-                                Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
+                } // end if
+            } else // ansonsten, wenn keine Internetverbindung besteht, dann Daten aus Lokaler DB auslesen:
+            {
+                // leeren des httpResponse:
+                httpResponse = null;
 
-            } // end if
+                // Laden des ToDos aus der Lokalen DB:
+                try {
+                    caller.mytodo = localDb.getTodoById(sessionid, todoid);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
             return null;
         } // end doInBackground
 
