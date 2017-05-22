@@ -7,11 +7,13 @@ package com.example.campus02.webserviceexample3.model;
 public class SyncTodoEntry {
     private int id;
     private String url;
+    // mögliche Http-Cmds sind GET, POST, DELETE...
     private String cmd;
     private String headers;
     private String params;
     private String jsonPostStr;
 
+    // Konstruktor ohne Id, da diese in der lokalen Datenbank automatisch vergeben wird
     public SyncTodoEntry(String url, String cmd, String headers, String params, String jsonPostStr) {
         this.url = url;
         this.cmd = cmd;

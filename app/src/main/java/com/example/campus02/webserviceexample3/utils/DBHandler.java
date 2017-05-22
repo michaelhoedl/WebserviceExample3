@@ -18,15 +18,15 @@ import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
  */
 
 public class DBHandler extends SQLiteOpenHelper {
-    // Database Version
+    // Datenbank Version - bei Datenbankänderung (Spalten oder Tabellen) muss die Version geändert werden, damit diese Änderungen erzeugt werden
     private static final int DATABASE_VERSION = 3;
-    // Database Name
+    // Datenbanktabellen
     private static final String DATABASE_NAME = "dbLocal";
     // Contacts table name
     private static final String TABLE_TODOS = "todos";
     private static final String TABLE_USER = "user";
     private static final String TABLE_SYNCTODO = "synctodos";
-    // Todo Table Columns names
+    // Spalten für die Todos-Tabelle
     private static final String KEY_TODO_ID = "id";
     private static final String KEY_TODO_TITLE = "title";
     private static final String KEY_TODO_DESC = "tododesc";
@@ -36,11 +36,11 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String KEY_TODO_CREATE = "createdate";
     private static final String KEY_TODO_DUE = "duedate";
     private static final String KEY_TODO_SESSIONKEY = "sessionkey";
-    // User Table Columns names
+    // Spalten für die User-Tabelle
     private static final String KEY_USER_MAIL = "mail";
     private static final String KEY_USER_PDW = "pwd";
     private static final String KEY_USER_SESSIONKEY = "sessionKey";
-    // Sync Todo Table
+    // Spalten für die SyncTodos-Tabelle
     private static final String KEY_SYNCTODO_ID = "id";
     private static final String KEY_SYNCTODO_URL = "url";
     private static final String KEY_SYNCTODO_CMD = "cmd";
@@ -53,6 +53,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     @Override
+    // Erzeugen der Datenbanktabellen, wenn sich die Datenbankversion geändert hat
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TODO_TABLE =
                 "CREATE TABLE IF NOT EXISTS " + TABLE_TODOS + "("
@@ -90,14 +91,16 @@ public class DBHandler extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
+        // Löschen der alten Tabellen, wenn sich die Datenbankversion ändert
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TODOS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
-        // Creating tables again
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SYNCTODO);
+        // Erzeugen der Tabellen
         onCreate(db);
     }
 
-    // Adding new shop
+    // Todos einfügen oder Updaten (bspw. beim Hinzufügen von Todos, wenn keine Internetverbindung
+    // besteht oder sobald man wieder online ist die Todos abgleichen in die Lokale Datenbank)
     public void addTodo(TodoEntry todo) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -110,11 +113,12 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_TODO_CREATE, String.valueOf(todo.getCreatedate()));
         values.put(KEY_TODO_DUE, String.valueOf(todo.getDuedate()));
         values.put(KEY_TODO_SESSIONKEY, todo.getSessionKey());
-        // Inserting Row
+        // Insert oder Update
         db.insertWithOnConflict(TABLE_TODOS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close();
     }
 
+    // Auslesen aller Todos von einem User / Session Key
     public ArrayList<TodoEntry> getTodos (String session) throws ParseException {
         String selectQuery = "SELECT * FROM " + TABLE_TODOS
                 + " WHERE " + KEY_TODO_SESSIONKEY + " = '" + session + "'";
@@ -123,6 +127,8 @@ public class DBHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
         ArrayList<TodoEntry> todos = new ArrayList<>();
 
+        // Erstellen der TodoEntrys anhand der gelesen Daten
+        // diese Funktion wird solang durchgeführt bis es keine Daten mehr gibt (moveToNext = false)
         if (cursor.moveToFirst()) {
             do {
                 TodoEntry todo = new TodoEntry();
@@ -136,26 +142,26 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setCreatedate(todo.string2date(cursor.getString(7), "yyyy-MM-dd'T'HH:mm:ss"));
                 todo.setSessionKey(cursor.getString(8));
 
+                // zu Liste von Todos hinzufügen, welche zurückgegeben wird
                 todos.add(todo);
             } while (cursor.moveToNext());
-
         }
-
         return todos;
     }
 
-
+    // Einfügen oder Update des Benutzers (Mail, PWD und Session Key)
     public void addUser(UserEntry user) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_USER_MAIL, user.getMail());
         values.put(KEY_USER_PDW, user.getPwd());
         values.put(KEY_USER_SESSIONKEY, user.getSessionKey());
-        // Inserting Row
+        // Insert oder Update
         db.insertWithOnConflict(TABLE_USER, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close();
     }
 
+    // Auslesen des Benutzers zum prüfen
     public UserEntry getUser(String mail, String pwd) {
         String selectQuery = "SELECT * FROM " + TABLE_USER
                 + " WHERE " + KEY_USER_MAIL + " = '" + mail
@@ -164,6 +170,8 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
+        // Erstellen der User Entry anhand der gelesen Daten
+        // diese Funktion wird solang durchgeführt bis der Benutzer null ist
         UserEntry user = new UserEntry();
         if(cursor.moveToFirst()) {
             user.setMail(cursor.getString(0));
@@ -176,6 +184,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return user;
     }
 
+    // Löschen des Todos mit der Übergebenen Id, sofern der Session Key korrekt ist
     public void deleteTodo(String id, String session) {
         SQLiteDatabase db = this.getWritableDatabase();
         String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
@@ -206,6 +215,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.update(TABLE_TODOS, values , where, null);
     }
 
+    // Hinzufügen eine SyncTodoEntries für die nachträgliche Synchronisation mit der APII
     public void addSyncTodoEntry(SyncTodoEntry syncEntry) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -214,6 +224,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_SYNCTODO_HEADERS, syncEntry.getHeaders());
         values.put(KEY_SYNCTODO_PARAMS, syncEntry.getParams());
         values.put(KEY_SYNCTODO_JSONPOSTSTR, syncEntry.getJsonPostStr());
+        // Insert oder Update
         db.insertWithOnConflict(TABLE_SYNCTODO, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close();
     }

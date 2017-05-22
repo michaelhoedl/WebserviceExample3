@@ -16,13 +16,18 @@ import java.util.ArrayList;
 
 public class DeleteTodoAction {
 
+    // wird für Logging genutzt
     private String TAG = DeleteTodoAction.class.getSimpleName();
     private ProgressDialog pDialog;
+    // Dialog von dem die Delete Action aufgerufen wird
     private AllTodosActivity mainDialog;
+    // Attribute welche für das Löschen gebraucht werden
     private String todoId;
     private String sessionId;
     private String httpResponse = null;
     private String url;
+    // Instanz des Datenbank-Handlers für die lokale Datenbank
+    private DBHandler localDb = new DBHandler(mainDialog);
 
     // Konstruktor mit den Parametern, welche gebraucht werden, um die delete action im AllTodosActivity auszuführen
     public DeleteTodoAction(AllTodosActivity mainDialog, String todoId, String sessionId) {
@@ -36,10 +41,9 @@ public class DeleteTodoAction {
     }
 
     private void runDelete() {
-        // execute the asyn task to get the json from the server by making a HTTP call.
+        // AsyncTask starten um Todo vom Webservice oder aus der Lokalen DB zu Löschen.
         runAsync();
 
-        // TODO: Das Delay muss noch ins Utils übernommen werden und in allen Stellen von dort augerufen werden
         // bissl primitiver ansatz, um die problematik zu loesen
         //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
         // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
@@ -70,6 +74,7 @@ public class DeleteTodoAction {
         AsyncCaller(DeleteTodoAction caller){
             this.caller = caller;
             sh = new HttpHandler();
+            //Prüfen ob eine Internetverbindung besteht
             isInternetConnected = sh.isNetworkAvailable(mainDialog.getApplicationContext());
         }
 
@@ -80,7 +85,7 @@ public class DeleteTodoAction {
 
 
 
-            // Showing progress dialog
+            // Progress Dialog wird angezeigt
             pDialog = new ProgressDialog(mainDialog);
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
@@ -92,41 +97,53 @@ public class DeleteTodoAction {
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
 
-            // add the todo id to the path from the url
+            // die todoId zur URL hinzufügen, da diese auf in der API benötigt wird
             url = "http://campus02win14mobapp.azurewebsites.net/Todo/" + todoId;
 
+            // wenn eine Internetverbindung besteht wird das Löschen in der API ausgeführt
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
-                // headers - at delete action only the session key is necessary, the todo id will be added to the path of the url
+                // headers, welche für das Löschen in der API nötig sind - nur der Session Key und das Datentyp-Accept, zusammenbauen
                 ArrayList<NameValuePair> headers = new ArrayList<>();
+                // header für die Session Key
                 NameValuePair h1 = new NameValuePair();
                 h1.setName("session");
                 h1.setValue(sessionId);
+                // header für Datentyp-Accept
                 NameValuePair h2 = new NameValuePair();
                 h2.setName("Accept");
                 h2.setValue("text/plain");
                 headers.add(h1);
                 headers.add(h2);
 
-                // Making a delete request to url and getting response
-                String jsonStr = sh.makeMyServiceCall(url, "DELETE", headers, null, null);//sh.makeServiceCall(url);
-                // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
+                // Delete Request an die API mit der URL (TodoId) und den Headers
+                String jsonStr = sh.makeMyServiceCall(url, "DELETE", headers, null, null);
+
+                 // httpResponse wird gefürt mit den response (JSON) von der API. Ist der httpRespone null gab es einen Fehler am Server; leer ist ok
                 caller.setHttpResponse(jsonStr);
 
+                // Logging für Json-String und httpResponse
                 Log.e(TAG, "Response from url (jsonStr) delete action: " + jsonStr);
                 Log.e(TAG, "Response from url (httpResponse) delete action: " + httpResponse);
                 return null;
-            } // else: if no internet connection is available
+            } // zweiter Fall - keine Internetverbindung besteht
             else {
-                DBHandler localDb = new DBHandler(mainDialog);
+
                 try {
+                    // Headers als String für das Speichern des SycnTodoEntry, welcher für die nachträgliche Synchronisation nötig ist
                     String headersForLocalDb = "session:"+sessionId+";"+"Accept:text/plain;";
+                    // Object eines SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist (Id wird von Datenbank automatisch vergeben, dadurch nicht im Konstruktor)
+                    // params und jsonString sind beim Delete nicht nötig, dadurch wird ein Leerstring übergeben
                     SyncTodoEntry syncEntry = new SyncTodoEntry(url, "DELETE", headersForLocalDb, "", "");
 
+                    // Datenbankfunktion für das Insert der SyncTodoEntry
                     localDb.addSyncTodoEntry(syncEntry);
+                    // Datenbankfunktion für das Delete des Todos
                     localDb.deleteTodo(todoId, sessionId);
+                    // Datenbankfunktion für das Select der Todos nach dem Löschen
                     localDb.getTodos(sessionId);
                 } catch (ParseException e) {
+                    // Parse Exception kann bei den Datenbankfunktionen geworfen werden
                     e.printStackTrace();
                 }
                 return null;

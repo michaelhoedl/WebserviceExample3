@@ -45,6 +45,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     private ArrayList<TodoEntry> alltodos;
     private TodoListAdapter      adapter;
+    // Instanz des Datenbank-Handlers für die lokale Datenbank
     private DBHandler localDb = new DBHandler(this);
 
 
@@ -172,6 +173,7 @@ public class AllTodosActivity extends AppCompatActivity {
             //1 = delete action
             case 1:
                 Log.d(TAG, "delete item pos=" + info.position+" = todo_id: " + selectedFromList);
+                // Instanz der DeleteTodoAction mit dem gewählten Todo und der SessionId
                 final DeleteTodoAction delaction =  new DeleteTodoAction(this, selectedFromList, sessionid);
 
                 // eine Alert-Message, damit der Benutzer bestaetigen kann, dass er wirklich den Eintrag loeschen will.
