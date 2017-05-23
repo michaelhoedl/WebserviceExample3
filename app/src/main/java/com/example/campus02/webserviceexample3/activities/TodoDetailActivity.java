@@ -1,7 +1,10 @@
 package com.example.campus02.webserviceexample3.activities;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +12,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +32,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -58,6 +63,9 @@ public class TodoDetailActivity extends AppCompatActivity {
 
     // Instanz des Datenbank-Handlers für die lokale Datenbank
     private DBHandler localDb = new DBHandler(this);
+
+    EditText eduedate;
+    Calendar mcurrentDate;
 
 
     @Override
@@ -103,7 +111,7 @@ public class TodoDetailActivity extends AppCompatActivity {
         EditText etdesc = (EditText) findViewById(R.id.txtDescription);
         EditText etestimatedeffort = (EditText) findViewById(R.id.txtEstimatedEffort);
         EditText etactualeffort = (EditText) findViewById(R.id.txtActualEffort);
-        EditText eduedate = (EditText) findViewById(R.id.txtDeadline);
+        eduedate = (EditText) findViewById(R.id.txtDeadline);
         CheckBox cErledigt = (CheckBox) findViewById(R.id.cbCompleted);
 
         // die Felder der Detail-Ansicht nur befüllen, wenn das mytodo Objekt nicht null ist:
@@ -117,6 +125,53 @@ public class TodoDetailActivity extends AppCompatActivity {
             cErledigt.setChecked(mytodo.getDoneBoolean());
         }
 
+
+        // Datum (DueDate) via DatePicker auswählen:
+        mcurrentDate = Calendar.getInstance();
+        eduedate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int mYear;
+                int mMonth;
+                int mDay;
+                mYear=mcurrentDate.get(Calendar.YEAR);
+                mMonth=mcurrentDate.get(Calendar.MONTH);
+                mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog mDatePicker=new DatePickerDialog(TodoDetailActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    // wenn ein Datum via DatePicker ausgewählt wurde, dann zeige das Datum im EditText-Feld an:
+                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                        mcurrentDate.set(Calendar.YEAR, selectedyear);
+                        mcurrentDate.set(Calendar.MONTH, selectedmonth);
+                        mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
+                        updateFieldWithDate();
+                    }
+                },mYear, mMonth, mDay);
+                mDatePicker.setTitle("Select date");
+                mDatePicker.show();  }
+        });
+
+
+    }
+
+    /**
+     * Setzt das via DatePicker ausgewählte Datum ins EditText-Feld.
+     */
+    private void updateFieldWithDate() {
+        String myFormat = "dd.MM.yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
+        eduedate.setText(sdf.format(mcurrentDate.getTime()));
+
+        // wenn ausgewähltes Datum (DueDate) vor dem aktuellen Datum liegt, dann setze roten Hintergrund fürs Feld.
+        try {
+            if (sdf.parse(eduedate.getText().toString()).before(new Date()) ) {
+                eduedate.setBackgroundColor(Color.rgb(255, 77, 77));
+            } else {
+                eduedate.setBackgroundColor(Color.TRANSPARENT);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

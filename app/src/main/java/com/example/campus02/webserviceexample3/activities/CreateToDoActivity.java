@@ -1,13 +1,16 @@
 package com.example.campus02.webserviceexample3.activities;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 
 import com.example.campus02.webserviceexample3.model.TodoEntry;
@@ -19,8 +22,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -51,6 +56,8 @@ public class CreateToDoActivity extends AppCompatActivity {
 
     private CreateToDoActivity dma;
     //public static final String EXTRA_MESSAGE4 = "com.example.campus02.webserviceexample3.MESSAGESESSION";
+
+    Calendar mcurrentDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +134,33 @@ public class CreateToDoActivity extends AppCompatActivity {
             txtVActualEffort = Float.valueOf(float2string);
         }
 
+
+
+        // Datum (DueDate) via DatePicker auswählen:  ... geht hier aber irgendwie noch nicht ?!? ...
+        mcurrentDate = Calendar.getInstance();
+        txtEDeadline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int mYear;
+                int mMonth;
+                int mDay;
+                mYear=mcurrentDate.get(Calendar.YEAR);
+                mMonth=mcurrentDate.get(Calendar.MONTH);
+                mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog mDatePicker=new DatePickerDialog(CreateToDoActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    // wenn ein Datum via DatePicker ausgewählt wurde, dann zeige das Datum im EditText-Feld an:
+                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                        mcurrentDate.set(Calendar.YEAR, selectedyear);
+                        mcurrentDate.set(Calendar.MONTH, selectedmonth);
+                        mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
+                        updateFieldWithDate();
+                    }
+                },mYear, mMonth, mDay);
+                mDatePicker.setTitle("Select date");
+                mDatePicker.show();  }
+        });
+
         // check whether name and description fields are filled
         if(txtVName != null && !txtVName.isEmpty() && txtVDescription != null && !txtVDescription.isEmpty()){
             // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
@@ -141,19 +175,11 @@ public class CreateToDoActivity extends AppCompatActivity {
             Log.e(TAG, "Save Button was clicked");
             Log.e(TAG, "mytodo="+mytodo.toString());
 
-            // call the webservice via HTTP POST to create a new To Do.
+            // Aufruf des AsyncTask (Webservice via HTTP POST oder Lokale DB) um ein neues ToDo zu erstellen
             runAsync();
 
-
-            /*// funktioniert noch nicht, dass es wieder zur AllTodosActivity wechselt...
-            // open the AllTodosActivity view to display all list items.
-            // send the session_id.
-            Intent intentdetail = new Intent(dma, AllTodosActivity.class);
-            intentdetail.putExtra(EXTRA_MESSAGE4, sessionid); // we have to send the session_id.
-            startActivity(intentdetail);
-            */
-
-            // mit finish() wird die aktuelle Activity geschlossen und wieder die Activity angezeigt, von der man gekommen ist.
+            // Nachdem ein neuer ToDo-Eintrag angelegt wurde, wird die Create-Ansicht geschlossen und wieder die Übersicht mit allen Einträgen angezeigt.
+            // Mit finish() wird die aktuelle Activity geschlossen und wieder die Activity angezeigt, von der man gekommen ist.
             // (Im Hintergrund arbeitet hier ein Stack)
             finish();
 
@@ -163,6 +189,26 @@ public class CreateToDoActivity extends AppCompatActivity {
 
     }
 
+
+    /**
+     * Setzt das via DatePicker ausgewählte Datum ins EditText-Feld.
+     */
+    private void updateFieldWithDate() {
+        String myFormat = "dd.MM.yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
+        txtEDeadline.setText(sdf.format(mcurrentDate.getTime()));
+
+        // wenn ausgewähltes Datum (DueDate) vor dem aktuellen Datum liegt, dann setze roten Hintergrund fürs Feld.
+        try {
+            if (sdf.parse(txtEDeadline.getText().toString()).before(new Date()) ) {
+                txtEDeadline.setBackgroundColor(Color.rgb(255, 77, 77));
+            } else {
+                txtEDeadline.setBackgroundColor(Color.TRANSPARENT);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
     // ---------------------------------------------------------------------------------------------
 
