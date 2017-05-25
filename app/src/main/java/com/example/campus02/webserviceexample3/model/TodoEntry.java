@@ -126,7 +126,7 @@ public class TodoEntry {
 
 
     /**
-     * get the createdate as a string with a given dateformat ("dd.MM.yyyy")
+     * get the createdate as a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
      * @return
      */
     public String getCreatedateFormatted() {
@@ -138,7 +138,24 @@ public class TodoEntry {
     }
 
     /**
-     * get the duedate as a string with a given dateformat ("dd.MM.yyyy")
+     * set the createdate from a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
+     * for example, we get a date like "2017-04-23T16:05:07.3" from the webservice.
+     * @param createdateAsString
+     */
+    public void setCreatedateAsString(String createdateAsString) {
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        if(!TextUtils.isEmpty(createdateAsString)) {
+            try {
+                this.createdate = dt1.parse(createdateAsString);
+            } catch (java.text.ParseException e){
+                e.printStackTrace();
+            }
+        }
+        Log.e(null, "setCreatedateAsString: createdate="+createdate+", id="+this.id);
+    }
+
+    /**
+     * get the duedate as a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
      * @return
      */
     public String getDuedateFormatted() {

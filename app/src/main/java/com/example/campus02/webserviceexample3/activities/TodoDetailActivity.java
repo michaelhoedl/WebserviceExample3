@@ -350,6 +350,7 @@ public class TodoDetailActivity extends AppCompatActivity {
                         float usedTime = (float) jsonObj.getDouble("usedTime");
                         boolean done = jsonObj.getBoolean("done");
                         String duedate = jsonObj.getString("dueDate");
+                        String createdate = jsonObj.getString("createDate");
 
 
                         // create a TodoEntry object and set the data.
@@ -365,6 +366,7 @@ public class TodoDetailActivity extends AppCompatActivity {
                             caller.mytodo.setDone(0);
                         }
                         caller.mytodo.setDuedateAsString(duedate);
+                        caller.mytodo.setCreatedateAsString(createdate);
 
                         Log.e(TAG, "jsonObj: id=" + id + ", name=" + name + ", description=" + description);
                         Log.e(TAG, "jsonObj: mytodo.tostring=" + caller.mytodo.toString());

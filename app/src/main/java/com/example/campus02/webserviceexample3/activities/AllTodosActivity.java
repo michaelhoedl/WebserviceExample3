@@ -318,6 +318,8 @@ public class AllTodosActivity extends AppCompatActivity {
                             float   _usedTime           = (float) c.getDouble("usedTime");
                             boolean _done               = c.getBoolean("done");
                             String  _duedate            = c.getString("dueDate"); // das liefert ein Datum wie z.B. dieses: "2017-04-23T16:05:07.3"
+                            String  _createdate         = c.getString("createDate"); // das liefert ein Datum wie z.B. dieses: "2017-04-23T16:05:07.3"
+
 
                             // Erstelle ein TodoEntry Objekt und befuelle es mit den Daten aus dem Json Object:
                             TodoEntry mytodo = new TodoEntry();
@@ -331,7 +333,8 @@ public class AllTodosActivity extends AppCompatActivity {
                             } else {
                                 mytodo.setDone(0);
                             }
-                            mytodo.setDuedateAsString(_duedate);
+                            mytodo.setDuedateAsString(_duedate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
+                            mytodo.setCreatedateAsString(_createdate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
                             mytodo.setSessionKey(sessionid);
 
                             // Hinzufuegen des TodoEntry Objektes zur ArrayList:
