@@ -219,10 +219,12 @@ public class DBHandler extends SQLiteOpenHelper {
     public ArrayList<TodoEntry> getSearchedTodos (String session, String searchStr) throws ParseException {
         String selectQuery = "SELECT * FROM " + TABLE_TODOS
                 + " WHERE " + KEY_TODO_SESSIONKEY + " = '" + session + "' AND ("
-                + "CHARINDEX('" + searchStr + "'," + KEY_TODO_TITLE + ") > 0 OR "
-                + "CHARINDEX('" + searchStr + "'," + KEY_TODO_DESC + ") > 0 OR "
-                + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_ESTIMATED + ")) > 0 OR "
-                + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_USED + ")) > 0 )";
+                + "instr("+KEY_TODO_TITLE+",'" + searchStr + "') > 0 OR "
+                + "instr("+KEY_TODO_DESC+",'" + searchStr + "') > 0 "
+                        //+"OR "
+                        //+ "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_ESTIMATED + ")) > 0 OR "
+                        //+ "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_USED + ")) > 0
+                 +" )";
 
                     /* noch ergänzen
                     + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_CREATE + ")) > 0 OR "
