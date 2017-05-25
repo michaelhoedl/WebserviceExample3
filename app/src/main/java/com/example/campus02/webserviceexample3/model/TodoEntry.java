@@ -1,5 +1,6 @@
 package com.example.campus02.webserviceexample3.model;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.text.ParseException;
@@ -129,7 +130,7 @@ public class TodoEntry {
      * @return
      */
     public String getCreatedateFormatted() {
-        SimpleDateFormat dt1 = new SimpleDateFormat("dd.MM.yyyy"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        SimpleDateFormat dt1 = new SimpleDateFormat(/*"dd.MM.yyyy"*/ "yyyy-MM-dd'T'HH:mm:ss.SSS"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
         if(createdate != null)
             return dt1.format(createdate);
         else
@@ -141,7 +142,7 @@ public class TodoEntry {
      * @return
      */
     public String getDuedateFormatted() {
-        SimpleDateFormat dt1 = new SimpleDateFormat("dd.MM.yyyy"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        SimpleDateFormat dt1 = new SimpleDateFormat(/*"dd.MM.yyyy"*/ "yyyy-MM-dd'T'HH:mm:ss.SSS"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
         if(duedate != null)
             return dt1.format(duedate);
         else
@@ -155,7 +156,7 @@ public class TodoEntry {
      */
     public void setDuedateAsString(String duedateAsString) {
         SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        if(duedateAsString != null && !duedateAsString.isEmpty() && duedateAsString != "") {
+        if(!TextUtils.isEmpty(duedateAsString)) {
             try {
                 this.duedate = dt1.parse(duedateAsString);
             } catch (java.text.ParseException e){
@@ -163,11 +164,6 @@ public class TodoEntry {
             }
         }
         Log.e(null, "setDuedateAsString: duedate="+duedate+", id="+this.id);
-        try {
-            Log.e(null, "setDuedateAsString: date2string(duedate,dd.MM.yyyy)="+date2string(duedate,"dd.MM.yyyy")+", id="+this.id);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -181,11 +177,13 @@ public class TodoEntry {
     public Date string2date (String date, String format) throws ParseException
     {
         Date d = new Date();
-        try {
-            SimpleDateFormat formatter = new SimpleDateFormat(format);
-            d = formatter.parse(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (!TextUtils.isEmpty(date)) {
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat(format);
+                d = formatter.parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
         return d;
     }
@@ -201,11 +199,13 @@ public class TodoEntry {
     private String date2string (Date date, String format) throws ParseException
     {
         String d = "";
-        try {
-            SimpleDateFormat formatter = new SimpleDateFormat(format);
-            d = formatter.format(date);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(date != null ) {
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat(format);
+                d = formatter.format(date);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return d;
     }
