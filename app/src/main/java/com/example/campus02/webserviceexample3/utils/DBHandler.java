@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -163,6 +164,54 @@ public class DBHandler extends SQLiteOpenHelper {
         cursor.close(); // schliessen des Cursors
         db.close();
         return todos;
+    }
+
+    /**
+     * Suche von Todos anhand eines übergebenen Suchstrings
+     * Auslesen der gefundenen Todos welche den Suchstring zumindest in 1 Spalte enthalten
+     * @param session, searchStr
+     * @return ArrayList<TodoEntry>
+     * @throws ParseException
+     */
+    public ArrayList<TodoEntry> getSearchedTodos (String session, String searchStr) throws ParseException {
+        String selectQuery = "SELECT * FROM " + TABLE_TODOS
+                + " WHERE " + KEY_TODO_SESSIONKEY + " = '" + session + "' AND ("
+                    + "CHARINDEX('" + searchStr + "'," + KEY_TODO_TITLE + ") > 0 OR "
+                    + "CHARINDEX('" + searchStr + "'," + KEY_TODO_DESC + ") > 0 OR "
+                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_ESTIMATED + ")) > 0 OR "
+                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_USED + ")) > 0 )";
+
+                    /* noch ergänzen
+                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_CREATE + ")) > 0 OR "
+                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_DUE + ")) > 0 OR "
+                    */
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        ArrayList<TodoEntry> foundTodos = new ArrayList<>();
+
+        // Erstellen der TodoEntrys anhand der gelesen Daten
+        // diese Funktion wird solang durchgeführt bis es keine Daten mehr gibt (moveToNext = false)
+        if (cursor.moveToFirst()) {
+            do {
+                TodoEntry todo = new TodoEntry();
+                todo.setId(cursor.getInt(0));
+                todo.setTitle(cursor.getString(1));
+                todo.setTododesc(cursor.getString(2));
+                todo.setEstimatedeffort(cursor.getFloat(3));
+                todo.setUsedtime(cursor.getFloat(4));
+                todo.setDone(cursor.getInt(5));
+                todo.setCreatedate( todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
+                todo.setDuedate( todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
+                todo.setSessionKey(cursor.getString(8));
+
+                // zu Liste von Todos hinzufügen, welche zurückgegeben wird
+                foundTodos.add(todo);
+            } while (cursor.moveToNext());
+        }
+        cursor.close(); // schliessen des Cursors
+        db.close();
+        return foundTodos;
     }
 
     /**

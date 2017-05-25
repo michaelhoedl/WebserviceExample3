@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.campus02.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.utils.DBHandler;
 import com.example.campus02.webserviceexample3.utils.HttpHandler;
 import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
@@ -22,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class TodoSearchActivity extends AppCompatActivity {
@@ -30,20 +32,21 @@ public class TodoSearchActivity extends AppCompatActivity {
     private String sessionid = null;
     private String httpResponse = null;
     private ProgressDialog pDialog;
+    private DBHandler localDb;
 
     private EditText txtESearch;
     private String searchStr = null;
     private ArrayList<TodoEntry> foundTodos;
 
-    private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/search/";
-
-
+    private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo/search/";
+    private String requestUrl = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo_search);
         this.foundTodos = new ArrayList<TodoEntry>();
+        this.localDb = new DBHandler(this);
 
         // Anzeigen eines Zurück-Buttons in der Statusleiste der App.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -78,7 +81,7 @@ public class TodoSearchActivity extends AppCompatActivity {
         // Save SearchString
         this.searchStr = ((EditText) findViewById(R.id.editTextSearch)).getText().toString();
         Log.e(TAG, "SearchString: " + searchStr);
-        url = url + searchStr;
+        this.requestUrl = TodoSearchActivity.url + searchStr;
 
         if(searchStr.isEmpty()) {
             showMyAlert("No Data entered", "Please enter a Search-Text");
@@ -180,7 +183,7 @@ public class TodoSearchActivity extends AppCompatActivity {
                 headers.add(h3);
 
                 // Sende eine GET Anfrage an den Webservice an die URl mit den definierten Headern und erhalte einen Json String als Response.
-                String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
+                String jsonStr = sh.makeMyServiceCall(requestUrl, "GET", headers, null, null);
                 caller.setHttpResponse(jsonStr);
                 Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
                 Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
@@ -227,9 +230,6 @@ public class TodoSearchActivity extends AppCompatActivity {
                             // Hinzufuegen des TodoEntry Objektes zur ArrayList:
                             foundTodos.add(mytodo);
 
-                            // Hinzufuegen des TodoEntry Objectes zur lokalen DB:
-                            // localDb.addTodo(mytodo);
-
                             Log.e(TAG, "i="+i+", todo="+mytodo.toString());
                         }
                     } catch (final JSONException e) {
@@ -260,6 +260,21 @@ public class TodoSearchActivity extends AppCompatActivity {
             } // else: wenn keine Internetverbindung verfuegbar ist, dann aus lokaler DB auslesen:
             else {
                 Log.e(TAG, "--- no internet connection! ---");
+
+                // httpResponse und Liste foundTodos leeren
+                httpResponse = null;
+                foundTodos.clear();
+
+                // Die Suche auf die lokale DB ausführen und die gefunden ToDos laden
+                try {
+                    foundTodos = localDb.getSearchedTodos(sessionid, searchStr);
+
+                    Log.e(TAG, "foundTodo = "+foundTodos.get(0).toString());
+                    Log.e(TAG, "foundTodo = "+foundTodos.get(1).toString());
+                    Log.e(TAG, "foundTodo = "+foundTodos.get(2).toString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
             return null;
         }
