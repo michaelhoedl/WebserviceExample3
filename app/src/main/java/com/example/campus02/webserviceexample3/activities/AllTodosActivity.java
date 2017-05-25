@@ -454,14 +454,26 @@ public class AllTodosActivity extends AppCompatActivity {
      * Diese Methode wird bei Klick auf den Suchen-Button aufgerufen.
      * @param view
      */
-    public void addButtonSearchClicked(View view){
-        Log.e(TAG, "Add Button Search (FloatingActionButton) was clicked!");
+    public void searchButtonClicked(View view){
+        Log.e(TAG, "Search Button (FloatingActionButton2) was clicked!");
 
         // Neue Ansicht (TodoSearchActivity) oeffnen um eine Suche ueber die TodoEintraege zu machen.
         // Es wird die session_id (die aus Login Ansicht MainActivity kommt) an die neue Activity uebergeben.
         Intent intentdetail = new Intent(dma, TodoSearchActivity.class);
-        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der the session_id.
+        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der session_id.
         startActivity(intentdetail);
+
+
+        /*
+        this.alltodos.clear();
+        TodoEntry e = new TodoEntry();
+        e.setTitle("Test");
+        this.alltodos.add(e);
+
+        adapter = new TodoListAdapter(this.getApplicationContext(), alltodos);
+        lv.setAdapter(adapter);
+        */
+
     }
 
 }
