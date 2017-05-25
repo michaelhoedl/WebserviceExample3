@@ -5,7 +5,6 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  *
@@ -126,11 +125,23 @@ public class TodoEntry {
 
 
     /**
-     * get the duedate as a string with a given dateformat
+     * get the createdate as a string with a given dateformat ("dd.MM.yyyy")
+     * @return
+     */
+    public String getCreatedateFormatted() {
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd.MM.yyyy"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        if(createdate != null)
+            return dt1.format(createdate);
+        else
+            return null;
+    }
+
+    /**
+     * get the duedate as a string with a given dateformat ("dd.MM.yyyy")
      * @return
      */
     public String getDuedateFormatted() {
-        SimpleDateFormat dt1 = new SimpleDateFormat("dd.mm.yyyy", Locale.GERMANY); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd.MM.yyyy"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
         if(duedate != null)
             return dt1.format(duedate);
         else
@@ -138,19 +149,25 @@ public class TodoEntry {
     }
 
     /**
-     * set the duedate from a string with a given dateformat
+     * set the duedate from a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
+     * for example, we get a date like "2017-04-23T16:05:07.3" from the webservice.
      * @param duedateAsString
      */
     public void setDuedateAsString(String duedateAsString) {
-        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.GERMAN);
-        if(duedateAsString != null && !duedateAsString.isEmpty()) {
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        if(duedateAsString != null && !duedateAsString.isEmpty() && duedateAsString != "") {
             try {
                 this.duedate = dt1.parse(duedateAsString);
             } catch (java.text.ParseException e){
                 e.printStackTrace();
             }
         }
-        Log.e(null, "duedate="+duedate+", id="+this.id);
+        Log.e(null, "setDuedateAsString: duedate="+duedate+", id="+this.id);
+        try {
+            Log.e(null, "setDuedateAsString: date2string(duedate,dd.MM.yyyy)="+date2string(duedate,"dd.MM.yyyy")+", id="+this.id);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -163,9 +180,9 @@ public class TodoEntry {
      */
     public Date string2date (String date, String format) throws ParseException
     {
-        Date d = null;
+        Date d = new Date();
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.GERMAN);
+            SimpleDateFormat formatter = new SimpleDateFormat(format);
             d = formatter.parse(date);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -183,9 +200,9 @@ public class TodoEntry {
      */
     private String date2string (Date date, String format) throws ParseException
     {
-        String d = null;
+        String d = "";
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.GERMAN);
+            SimpleDateFormat formatter = new SimpleDateFormat(format);
             d = formatter.format(date);
         } catch (Exception e) {
             e.printStackTrace();

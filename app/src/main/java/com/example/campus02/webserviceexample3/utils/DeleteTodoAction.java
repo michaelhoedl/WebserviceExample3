@@ -120,8 +120,8 @@ public class DeleteTodoAction {
             else {
 
                 try {
-                    // Headers als String für das Speichern des SycnTodoEntry, welcher für die nachträgliche Synchronisation nötig ist
-                    String headersForLocalDb = ""; //;= "session:"+sessionId+";"+"Accept:text/plain;";
+                    // Headers als String für das Speichern des SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist
+                    String headersForLocalDb = "";
                     for (NameValuePair nvp : headers){
                         headersForLocalDb +=  nvp.getName()+":"+(String)nvp.getValue()+";";
                     }

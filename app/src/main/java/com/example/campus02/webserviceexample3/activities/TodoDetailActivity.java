@@ -62,11 +62,17 @@ public class TodoDetailActivity extends AppCompatActivity {
     private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/";
 
     // Instanz des Datenbank-Handlers für die lokale Datenbank
-    private DBHandler localDb = new DBHandler(this);
+    private DBHandler localDb;
 
     EditText eduedate;
     Calendar mcurrentDate;
 
+    /**
+     * Konstruktor
+     */
+    public TodoDetailActivity() {
+        localDb = new DBHandler(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +144,6 @@ public class TodoDetailActivity extends AppCompatActivity {
                 mDatePicker.show();  }
         });
 
-
     }
 
     /**
@@ -198,7 +203,7 @@ public class TodoDetailActivity extends AppCompatActivity {
         // Datum aus dem Text extrahieren:
         txtEDeadline = (EditText)
                 this.findViewById(R.id.txtDeadline);
-        DateFormat dformat = new SimpleDateFormat("dd.mm.yyyy", Locale.getDefault());
+        DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String datumstring = txtEDeadline.getText().toString();
         if(datumstring != null && !datumstring.isEmpty()) {
             try {
@@ -235,6 +240,11 @@ public class TodoDetailActivity extends AppCompatActivity {
         updateaction = new UpdateTodoAction(this, sessionid, mytodo);
         updateaction.runUpdateAction();
 
+        // Nachdem ein neuer ToDo-Eintrag angelegt wurde, wird die Create-Ansicht geschlossen und wieder die Übersicht mit allen Einträgen angezeigt.
+        // Mit finish() wird die aktuelle Activity geschlossen und wieder die Activity angezeigt, von der man gekommen ist.
+        // (Im Hintergrund arbeitet hier ein Stack)
+        finish();
+
         // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
         Log.e(TAG, "Save Button was clicked");
         Log.e(TAG, "mytodo="+mytodo.toString());
@@ -260,7 +270,6 @@ public class TodoDetailActivity extends AppCompatActivity {
     public void setSessionid(String sessionid) {
         this.sessionid = sessionid;
     }
-
 
 
     // ---------------------------------------------------------------------------------------------
@@ -301,18 +310,20 @@ public class TodoDetailActivity extends AppCompatActivity {
          * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
          */
         protected Void doInBackground(Void... arg0) {
+
+            // set headers
+            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("session");
+            h2.setValue(caller.getSessionid());
+            NameValuePair h3 = new NameValuePair();
+            h3.setName("Accept");
+            h3.setValue("application/json");
+            headers.add(h2);
+            headers.add(h3);
+
             // wenn eine Internetverbindung besteht wird das Löschen in der API ausgeführt
             if(isInternetConnected) {
-                // set headers
-                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-                NameValuePair h2 = new NameValuePair();
-                h2.setName("session");
-                h2.setValue(caller.getSessionid());
-                NameValuePair h3 = new NameValuePair();
-                h3.setName("Accept");
-                h3.setValue("application/json");
-                headers.add(h2);
-                headers.add(h3);
 
                 // Making a request to url and getting response as a string
                 String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);

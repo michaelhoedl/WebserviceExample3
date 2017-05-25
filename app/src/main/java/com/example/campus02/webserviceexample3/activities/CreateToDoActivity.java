@@ -108,7 +108,7 @@ public class CreateToDoActivity extends AppCompatActivity {
         // Datum aus dem Text extrahieren:
         txtEDeadline = (EditText)
                 this.findViewById(R.id.txtDeadline);
-        DateFormat dformat = new SimpleDateFormat("dd.mm.yyyy", Locale.getDefault());
+        DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String datumstring = txtEDeadline.getText().toString();
         if(datumstring != null && !datumstring.isEmpty()) {
             try {

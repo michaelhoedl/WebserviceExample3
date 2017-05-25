@@ -77,9 +77,8 @@ public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
         return (tl != null) ? tl.indexOf(tl.get(position)) : 0;
     }
 
-
-
-
-
-
+    @Override
+    public void clear() {
+        tl.clear();
+    }
 }

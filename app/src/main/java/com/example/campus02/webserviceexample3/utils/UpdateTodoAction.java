@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.campus02.webserviceexample3.activities.TodoDetailActivity;
+import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 import com.example.campus02.webserviceexample3.model.TodoEntry;
 
 import org.json.JSONException;
@@ -27,12 +28,14 @@ public class UpdateTodoAction {
     private String httpResponse = null;
     private String url;
     private TodoEntry mytodo;
+    private DBHandler localDb;
 
     public UpdateTodoAction(TodoDetailActivity mainDialog, String mysession, TodoEntry e) {
         this.mainDialog = mainDialog;
         this.todoId = e.getId()+"";
         this.sessionId = mysession;
         this.mytodo = e;
+        localDb = new DBHandler(mainDialog);
     }
 
 
@@ -99,27 +102,26 @@ public class UpdateTodoAction {
 
             url = "http://campus02win14mobapp.azurewebsites.net/Todo";
 
+            // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
+            JSONObject jsonObject = new JSONObject();
+
+            try {
+                jsonObject.put("id",todoId);
+                jsonObject.put("name",caller.mytodo.getTitle());
+                jsonObject.put("description",caller.mytodo.getTododesc());
+                jsonObject.put("estimatedEffort",caller.mytodo.getEstimatedeffort());
+                jsonObject.put("usedTime",caller.mytodo.getUsedtime());
+                jsonObject.put("dueDate",caller.mytodo.getDuedateFormatted());
+                jsonObject.put("done",caller.mytodo.getDone());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            String str = jsonObject.toString();
+            Log.e(TAG, "--- str= "+str);
+
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
-
-                // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
-                JSONObject jsonObject = new JSONObject();
-
-                try {
-                    jsonObject.put("id",todoId);
-                    jsonObject.put("name",caller.mytodo.getTitle());
-                    jsonObject.put("description",caller.mytodo.getTododesc());
-                    jsonObject.put("estimatedEffort",caller.mytodo.getEstimatedeffort());
-                    jsonObject.put("usedTime",caller.mytodo.getUsedtime());
-                    jsonObject.put("dueDate",caller.mytodo.getDuedateFormatted());
-                    jsonObject.put("done",caller.mytodo.getDone());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                String str = jsonObject.toString();
-                Log.e(TAG, "--- str= "+str);
-
 
                 // Making a complete request to url and getting response
                 // Aufruf um Daten an Datenbank zu übergeben
@@ -127,16 +129,33 @@ public class UpdateTodoAction {
                 // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
 
 
-                Log.e(TAG, "Complete Response from url (jsonStr) complete action: " + jsonStr);
-                Log.e(TAG, "Complete Response from url (httpResponse) complete action: " + httpResponse);
+                Log.e(TAG, "Update Response from url (jsonStr) update action: " + jsonStr);
+                Log.e(TAG, "Update Response from url (httpResponse) update action: " + httpResponse);
                 return null;
             } // else: if no internet connection is available
             else {
-                DBHandler localDb = new DBHandler(mainDialog);
+
                 try {
-                    localDb.completeTodo(todoId, sessionId);
+                    // Headers als String für das Speichern des SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist
+                    String headersForLocalDb = "";
+                    for (NameValuePair nvp : headers){
+                        headersForLocalDb +=  nvp.getName()+":"+(String)nvp.getValue()+";";
+                    }
+
+                    // Object eines SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist (Id wird von Datenbank automatisch vergeben, dadurch nicht im Konstruktor)
+                    // params und jsonString sind beim Delete nicht nötig, dadurch wird ein Leerstring übergeben
+                    SyncTodoEntry syncEntry = new SyncTodoEntry(url, "POST", headersForLocalDb, "", str);
+
+                    Log.e(TAG, "syncEntry= " + syncEntry.toString());
+
+                    // Datenbankfunktion für das Insert der SyncTodoEntry
+                    localDb.addSyncTodoEntry(syncEntry);
+                    // Datenbankfunktion für das Update des Todos
+                    localDb.updateTodo(todoId, sessionId, mytodo);
+                    // Datenbankfunktion für das Select der Todos nach dem Updaten
                     localDb.getTodos(sessionId);
                 } catch (ParseException e) {
+                    // Parse Exception kann bei den Datenbankfunktionen geworfen werden
                     e.printStackTrace();
                 }
                 return null;

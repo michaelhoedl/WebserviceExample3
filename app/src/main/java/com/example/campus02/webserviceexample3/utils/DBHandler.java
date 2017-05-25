@@ -118,8 +118,8 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_TODO_ESTIMATED, todo.getEstimatedeffort());
         values.put(KEY_TODO_USED, todo.getUsedtime());
         values.put(KEY_TODO_DONE, todo.getDone());
-        values.put(KEY_TODO_CREATE, String.valueOf(todo.getCreatedate()));
-        values.put(KEY_TODO_DUE, String.valueOf(todo.getDuedate()));
+        values.put(KEY_TODO_CREATE, todo.getCreatedateFormatted());
+        values.put(KEY_TODO_DUE, todo.getDuedateFormatted());
         values.put(KEY_TODO_SESSIONKEY, todo.getSessionKey());
         // Insert oder Update
         db.insertWithOnConflict(TABLE_TODOS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -152,8 +152,8 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setEstimatedeffort(cursor.getFloat(3));
                 todo.setUsedtime(cursor.getFloat(4));
                 todo.setDone(cursor.getInt(5));
-                todo.setCreatedate(todo.string2date(cursor.getString(6), "yyyy-MM-dd'T'HH:mm:ss"));
-                todo.setCreatedate(todo.string2date(cursor.getString(7), "yyyy-MM-dd'T'HH:mm:ss"));
+                todo.setCreatedate( todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
+                todo.setDuedate( todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
                 todo.setSessionKey(cursor.getString(8));
 
                 // zu Liste von Todos hinzufügen, welche zurückgegeben wird
@@ -161,6 +161,7 @@ public class DBHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close(); // schliessen des Cursors
+        db.close();
         return todos;
     }
 
@@ -188,8 +189,8 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setEstimatedeffort(cursor.getFloat(3));
                 todo.setUsedtime(cursor.getFloat(4));
                 todo.setDone(cursor.getInt(5));
-                todo.setCreatedate(todo.string2date(cursor.getString(6), "yyyy-MM-dd'T'HH:mm:ss"));
-                todo.setCreatedate(todo.string2date(cursor.getString(7), "yyyy-MM-dd'T'HH:mm:ss"));
+                todo.setCreatedate(todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/));
+                todo.setDuedate(todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/));
                 todo.setSessionKey(cursor.getString(8));
         }
         cursor.close(); // schliessen des Cursors

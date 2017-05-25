@@ -107,7 +107,6 @@ public class AllTodosActivity extends AppCompatActivity {
 
         // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
         runAsync();
-
     }
 
 
@@ -187,16 +186,19 @@ public class AllTodosActivity extends AppCompatActivity {
                 return true;
             // 2 = complete action
             case 2:
-                Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
-                final CompleteTodoAction complete =  new CompleteTodoAction(this,e);
+                // nur ausführen wenn es nicht eh schon erledigt ist:
+                if(e.getDone() != 1) {
+                    Log.d(TAG, "complete item pos=" + info.position+" = todo_id: " + selectedFromList);
+                    final CompleteTodoAction complete = new CompleteTodoAction(this, e);
 
-                // aufrufen der complete action, wo ein Http Service Call zur API durchgefuehrt wird oder der Eintrag in der lokalen DB erledigt wird.
-                complete.runCompleteTodoAction();
+                    // aufrufen der complete action, wo ein Http Service Call zur API durchgefuehrt wird oder der Eintrag in der lokalen DB erledigt wird.
+                    complete.runCompleteTodoAction();
 
-                // Liste leeren, dann neu laden der Daten und Liste befuellen.
-                adapter.clear();
-                runAsync();
-
+                    // Liste leeren, dann neu laden der Daten und Liste befuellen.
+                    adapter.clear();
+                    runAsync();
+                }else
+                    Log.d(TAG, "todo ist bereits erledigt! complete item pos=" + info.position+" = todo_id: " + selectedFromList);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -337,7 +339,7 @@ public class AllTodosActivity extends AppCompatActivity {
                             // Hinzufuegen des TodoEntry Objectes zur lokalen DB:
                             localDb.addTodo(mytodo);
 
-                            Log.e(TAG, "i="+i+", todo="+mytodo.toString());
+                            //Log.e(TAG, "i="+i+", todo="+mytodo.toString());
                         }
                     } catch (final JSONException e) {
                         Log.e(TAG, "Json parsing error: " + e.getMessage());
@@ -404,7 +406,6 @@ public class AllTodosActivity extends AppCompatActivity {
             // Den Custom List Adapter fuer die Liste setzen:
             adapter = new TodoListAdapter(caller.getApplicationContext(), alltodos);
             lv.setAdapter(adapter);
-            lv.requestLayout();
             Log.e(TAG,"lv.getAdapter().getCount()="+lv.getAdapter().getCount());
         }
 
@@ -433,8 +434,6 @@ public class AllTodosActivity extends AppCompatActivity {
             x += 1;
         }
 
-        // neu laden der Listen Ansicht:
-        lv.requestLayout();
 
         // testweise ein paar daten ausgeben
         Log.e(TAG, "x= "+x);
