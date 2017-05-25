@@ -19,10 +19,12 @@ import java.util.ArrayList;
  */
 
 public class CompleteTodoAction {
-
+    // Wird für Logging verwendet
     private String TAG = CompleteTodoAction.class.getSimpleName();
     private ProgressDialog pDialog;
+    //Dialog, von dem CompleteTodoAction aufgerufen wird
     private AllTodosActivity mainDialog;
+    //Attribute, die für Done Setzen benötigt wrden
     private String todoId;
     private String sessionId;
     private String httpResponse = null;
@@ -32,14 +34,17 @@ public class CompleteTodoAction {
     // Instanz des Datenbank-Handlers für die lokale Datenbank
     private DBHandler localDb;
 
+
+    //Konstruktor, Parameter für das Ausführen der CompleteTodoAction werden gesetzt
+    // Parameter werden aus der übergebenen ToDo von AllTodosActivity, ausgelesen
+
     public CompleteTodoAction(AllTodosActivity mainDialog, TodoEntry e) {
         this.mainDialog = mainDialog;
         this.todoId = e.getId()+"";
         this.sessionId = e.getSessionKey();
         this.todoName = e.getTitle();
         this.todoDescription = e.getTododesc();
-
-        localDb = new DBHandler(mainDialog);
+        this.localDb = new DBHandler(mainDialog);
     }
 
     public boolean runCompleteTodoAction() {
@@ -47,6 +52,8 @@ public class CompleteTodoAction {
     }
 
     private boolean runComplete() {
+
+        // AsyncTask starten um Todo vom Webservice oder aus der Lokalen DB auf Erledigt zu setzen.
         runAsync();
         return httpResponse != null;
     }
@@ -73,6 +80,7 @@ public class CompleteTodoAction {
         AsyncCaller(CompleteTodoAction caller){
             this.caller = caller;
             sh = new HttpHandler();
+            //Prüfen ob eine Internetverbindung besteht
             isInternetConnected = sh.isNetworkAvailable(mainDialog.getApplicationContext());
         }
 
@@ -93,8 +101,8 @@ public class CompleteTodoAction {
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
 
-            // headers - at complete action only the session key is necessary, the todo id will be added to the path of the url
-            // set headers
+            // headers - für das Erledigt setzten wird nur der Session Key und der Datentyp benötigt
+            // --------- folgend wird der header zusammengebau
             ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
             NameValuePair h1 = new NameValuePair();
             h1.setName("Content-Type");
@@ -109,7 +117,7 @@ public class CompleteTodoAction {
             headers.add(h2);
             headers.add(h3);
 
-            // add the todo id to the path from the url
+            // URL von Todo hinzufügen, wird auf der API benötigt
             url = "http://campus02win14mobapp.azurewebsites.net/Todo";
 
             // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
@@ -144,7 +152,8 @@ public class CompleteTodoAction {
                 Log.e(TAG, "Complete Response from url (jsonStr) complete action: " + jsonStr);
                 Log.e(TAG, "Complete Response from url (httpResponse) complete action: " + httpResponse);
                 return null;
-            } // else: if no internet connection is available
+            }
+            // Wenn keine Internetverbindung besteht, wird Erledigt setzten auf der lokalen DB durchgeführt
             else {
 
                 try {
