@@ -82,32 +82,30 @@ public class UpdateTodoAction {
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
 
+            // set headers
+            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+            NameValuePair h1 = new NameValuePair();
+            h1.setName("Content-Type");
+            h1.setValue("application/json");
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("session");
+            h2.setValue(sessionId);
+            NameValuePair h3 = new NameValuePair();
+            h3.setName("Accept");
+            h3.setValue("application/json");
+            headers.add(h1);
+            headers.add(h2);
+            headers.add(h3);
+
+            url = "http://campus02win14mobapp.azurewebsites.net/Todo";
+
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
-
-                // set headers
-                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-                NameValuePair h1 = new NameValuePair();
-                h1.setName("Content-Type");
-                h1.setValue("application/json");
-                NameValuePair h2 = new NameValuePair();
-                h2.setName("session");
-                h2.setValue(sessionId);
-                NameValuePair h3 = new NameValuePair();
-                h3.setName("Accept");
-                h3.setValue("application/json");
-                headers.add(h1);
-                headers.add(h2);
-                headers.add(h3);
-
-
-                url = "http://campus02win14mobapp.azurewebsites.net/Todo";
 
                 // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
                 JSONObject jsonObject = new JSONObject();
 
                 try {
-
                     jsonObject.put("id",todoId);
                     jsonObject.put("name",caller.mytodo.getTitle());
                     jsonObject.put("description",caller.mytodo.getTododesc());
@@ -115,7 +113,6 @@ public class UpdateTodoAction {
                     jsonObject.put("usedTime",caller.mytodo.getUsedtime());
                     jsonObject.put("dueDate",caller.mytodo.getDuedateFormatted());
                     jsonObject.put("done",caller.mytodo.getDone());
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -128,7 +125,6 @@ public class UpdateTodoAction {
                 // Aufruf um Daten an Datenbank zu übergeben
                 String jsonStr = sh.makeMyServiceCall(url, "POST", headers, null, str);//sh.makeServiceCall(url);
                 // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
-
 
 
                 Log.e(TAG, "Complete Response from url (jsonStr) complete action: " + jsonStr);

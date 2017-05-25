@@ -18,16 +18,24 @@ import java.util.ArrayList;
  */
 
 public class CompleteTodoAction {
-
+    // Wird für Logging verwendet
     private String TAG = CompleteTodoAction.class.getSimpleName();
     private ProgressDialog pDialog;
+    //Dialog, von dem CompleteTodoAction aufgerufen wird
     private AllTodosActivity mainDialog;
+    //Attribute, die für Done Setzen benötigt wrden
     private String todoId;
     private String sessionId;
     private String httpResponse = null;
     private String url;
     private String todoName;
     private String todoDescription;
+    // Instanz des Datenbank-Handlers für die lokale Datenbank
+    private DBHandler localDb;
+
+
+    //Konstruktor, Parameter für das Ausführen der CompleteTodoAction werden gesetzt
+    // Parameter werden aus der übergebenen ToDo von AllTodosActivity, ausgelesen
 
     public CompleteTodoAction(AllTodosActivity mainDialog, TodoEntry e) {
         this.mainDialog = mainDialog;
@@ -35,6 +43,7 @@ public class CompleteTodoAction {
         this.sessionId = e.getSessionKey();
         this.todoName = e.getTitle();
         this.todoDescription = e.getTododesc();
+        this.localDb = new DBHandler(mainDialog);
     }
 
     public boolean runCompleteTodoAction() {
@@ -42,6 +51,8 @@ public class CompleteTodoAction {
     }
 
     private boolean runComplete() {
+
+        // AsyncTask starten um Todo vom Webservice oder aus der Lokalen DB auf Erledigt zu setzen.
         runAsync();
         return httpResponse != null;
     }
@@ -68,6 +79,7 @@ public class CompleteTodoAction {
         AsyncCaller(CompleteTodoAction caller){
             this.caller = caller;
             sh = new HttpHandler();
+            //Prüfen ob eine Internetverbindung besteht
             isInternetConnected = sh.isNetworkAvailable(mainDialog.getApplicationContext());
         }
 
@@ -88,26 +100,28 @@ public class CompleteTodoAction {
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
 
+            // headers - für das Erledigt setzten wird nur der Session Key und der Datentyp benötigt
+            // --------- folgend wird der header zusammengebau
+            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+            NameValuePair h1 = new NameValuePair();
+            h1.setName("Content-Type");
+            h1.setValue("application/json");
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("session");
+            h2.setValue(sessionId);
+            NameValuePair h3 = new NameValuePair();
+            h3.setName("Accept");
+            h3.setValue("application/json");
+            headers.add(h1);
+            headers.add(h2);
+            headers.add(h3);
+
+            // URL von Todo hinzufügen, wird auf der API benötigt
+            url = "http://campus02win14mobapp.azurewebsites.net/Todo";
+
+            // Prüft ob Internetverbindung besteht, wenn ja - Complete setzen wird auf der API durchgeführt
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
-                // headers - at complete action only the session key is necessary, the todo id will be added to the path of the url
-                // set headers
-                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-                NameValuePair h1 = new NameValuePair();
-                h1.setName("Content-Type");
-                h1.setValue("application/json");
-                NameValuePair h2 = new NameValuePair();
-                h2.setName("session");
-                h2.setValue(sessionId);
-                NameValuePair h3 = new NameValuePair();
-                h3.setName("Accept");
-                h3.setValue("application/json");
-                headers.add(h1);
-                headers.add(h2);
-                headers.add(h3);
-
-                // add the todo id to the path from the url
-                url = "http://campus02win14mobapp.azurewebsites.net/Todo";
 
                     // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
                     JSONObject jsonObject = new JSONObject();
@@ -117,11 +131,10 @@ public class CompleteTodoAction {
                     // mit "done",1 wird die ToDo als erledigt an die DB übergeben
                    // Hintergrundfarbe für erledigte ToDo's wird in der Klasse model/TodoListAdapter.java ab Zeile 57- 59 gesetzt
                     try {
-                            jsonObject.put("id",todoId);
-                             jsonObject.put("name",todoName);
-                             jsonObject.put("description",todoDescription);
-                            jsonObject.put("done",1);
-
+                        jsonObject.put("id",todoId);
+                        jsonObject.put("name",todoName);
+                        jsonObject.put("description",todoDescription);
+                        jsonObject.put("done",1);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -135,14 +148,13 @@ public class CompleteTodoAction {
                 String jsonStr = sh.makeMyServiceCall(url, "POST", headers, null, str);//sh.makeServiceCall(url);
                 // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
 
-
-
                 Log.e(TAG, "Complete Response from url (jsonStr) complete action: " + jsonStr);
                 Log.e(TAG, "Complete Response from url (httpResponse) complete action: " + httpResponse);
                 return null;
-            } // else: if no internet connection is available
+            }
+            // Wenn keine Internetverbindung besteht, wird Erledigt setzten auf der lokalen DB durchgeführt
             else {
-                DBHandler localDb = new DBHandler(mainDialog);
+
                 try {
                     localDb.completeTodo(todoId, sessionId);
                     localDb.getTodos(sessionId);

@@ -55,7 +55,6 @@ public class CreateToDoActivity extends AppCompatActivity {
     private String url = "http://campus02win14mobapp.azurewebsites.net/Todo/";
 
     private CreateToDoActivity dma;
-    //public static final String EXTRA_MESSAGE4 = "com.example.campus02.webserviceexample3.MESSAGESESSION";
 
     Calendar mcurrentDate;
 
