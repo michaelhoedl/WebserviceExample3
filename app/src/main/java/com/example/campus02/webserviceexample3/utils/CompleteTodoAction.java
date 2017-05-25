@@ -88,26 +88,27 @@ public class CompleteTodoAction {
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
 
+            // headers - at complete action only the session key is necessary, the todo id will be added to the path of the url
+            // set headers
+            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+            NameValuePair h1 = new NameValuePair();
+            h1.setName("Content-Type");
+            h1.setValue("application/json");
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("session");
+            h2.setValue(sessionId);
+            NameValuePair h3 = new NameValuePair();
+            h3.setName("Accept");
+            h3.setValue("application/json");
+            headers.add(h1);
+            headers.add(h2);
+            headers.add(h3);
+
+            // add the todo id to the path from the url
+            url = "http://campus02win14mobapp.azurewebsites.net/Todo";
+
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
-                // headers - at complete action only the session key is necessary, the todo id will be added to the path of the url
-                // set headers
-                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-                NameValuePair h1 = new NameValuePair();
-                h1.setName("Content-Type");
-                h1.setValue("application/json");
-                NameValuePair h2 = new NameValuePair();
-                h2.setName("session");
-                h2.setValue(sessionId);
-                NameValuePair h3 = new NameValuePair();
-                h3.setName("Accept");
-                h3.setValue("application/json");
-                headers.add(h1);
-                headers.add(h2);
-                headers.add(h3);
-
-                // add the todo id to the path from the url
-                url = "http://campus02win14mobapp.azurewebsites.net/Todo";
 
                     // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
                     JSONObject jsonObject = new JSONObject();
@@ -117,11 +118,10 @@ public class CompleteTodoAction {
                     // mit "done",1 wird die ToDo als erledigt an die DB übergeben
                    // Hintergrundfarbe für erledigte ToDo's wird in der Klasse model/TodoListAdapter.java ab Zeile 57- 59 gesetzt
                     try {
-                            jsonObject.put("id",todoId);
-                             jsonObject.put("name",todoName);
-                             jsonObject.put("description",todoDescription);
-                            jsonObject.put("done",1);
-
+                        jsonObject.put("id",todoId);
+                        jsonObject.put("name",todoName);
+                        jsonObject.put("description",todoDescription);
+                        jsonObject.put("done",1);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -134,8 +134,6 @@ public class CompleteTodoAction {
                 // Aufruf um Daten an Datenbank zu übergeben
                 String jsonStr = sh.makeMyServiceCall(url, "POST", headers, null, str);//sh.makeServiceCall(url);
                 // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
-
-
 
                 Log.e(TAG, "Complete Response from url (jsonStr) complete action: " + jsonStr);
                 Log.e(TAG, "Complete Response from url (httpResponse) complete action: " + httpResponse);

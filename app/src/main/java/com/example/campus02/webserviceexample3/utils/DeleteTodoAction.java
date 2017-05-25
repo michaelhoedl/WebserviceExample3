@@ -27,13 +27,20 @@ public class DeleteTodoAction {
     private String httpResponse = null;
     private String url;
     // Instanz des Datenbank-Handlers für die lokale Datenbank
-    private DBHandler localDb = new DBHandler(mainDialog);
+    private DBHandler localDb;
 
-    // Konstruktor mit den Parametern, welche gebraucht werden, um die delete action im AllTodosActivity auszuführen
+    /**
+     * Konstruktor mit den Parametern, welche gebraucht werden, um die delete action im AllTodosActivity auszuführen
+     * @param mainDialog
+     * @param todoId
+     * @param sessionId
+     */
     public DeleteTodoAction(AllTodosActivity mainDialog, String todoId, String sessionId) {
         this.mainDialog = mainDialog;
         this.todoId = todoId;
         this.sessionId = sessionId;
+
+        localDb = new DBHandler(mainDialog);
     }
 
     public void runDeleteAction() {
@@ -44,22 +51,6 @@ public class DeleteTodoAction {
         // AsyncTask starten um Todo vom Webservice oder aus der Lokalen DB zu Löschen.
         runAsync();
 
-        // bissl primitiver ansatz, um die problematik zu loesen
-        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
-        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
-        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
-        int x = 0;
-        while(httpResponse == null && x < 4000) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            x += 1;
-        }
-
-        Log.e(TAG, "x= " + x);
-        Log.e(TAG, "httpResponse: " + httpResponse);
     }
 
     /**
@@ -83,8 +74,6 @@ public class DeleteTodoAction {
         protected void onPreExecute() {
             super.onPreExecute();
 
-
-
             // Progress Dialog wird angezeigt
             pDialog = new ProgressDialog(mainDialog);
             pDialog.setMessage("Please wait...");
@@ -97,24 +86,25 @@ public class DeleteTodoAction {
         //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
         protected Void doInBackground(Void... arg0) {
 
+            // headers, welche für das Löschen in der API nötig sind - nur der Session Key und das Datentyp-Accept, zusammenbauen
+            ArrayList<NameValuePair> headers = new ArrayList<>();
+            // header für die Session Key
+            NameValuePair h1 = new NameValuePair();
+            h1.setName("session");
+            h1.setValue(sessionId);
+            // header für Datentyp-Accept
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("Accept");
+            h2.setValue("text/plain");
+            headers.add(h1);
+            headers.add(h2);
+
             // die todoId zur URL hinzufügen, da diese auf in der API benötigt wird
             url = "http://campus02win14mobapp.azurewebsites.net/Todo/" + todoId;
 
             // wenn eine Internetverbindung besteht wird das Löschen in der API ausgeführt
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
-                // headers, welche für das Löschen in der API nötig sind - nur der Session Key und das Datentyp-Accept, zusammenbauen
-                ArrayList<NameValuePair> headers = new ArrayList<>();
-                // header für die Session Key
-                NameValuePair h1 = new NameValuePair();
-                h1.setName("session");
-                h1.setValue(sessionId);
-                // header für Datentyp-Accept
-                NameValuePair h2 = new NameValuePair();
-                h2.setName("Accept");
-                h2.setValue("text/plain");
-                headers.add(h1);
-                headers.add(h2);
 
                 // Delete Request an die API mit der URL (TodoId) und den Headers
                 String jsonStr = sh.makeMyServiceCall(url, "DELETE", headers, null, null);
@@ -131,10 +121,16 @@ public class DeleteTodoAction {
 
                 try {
                     // Headers als String für das Speichern des SycnTodoEntry, welcher für die nachträgliche Synchronisation nötig ist
-                    String headersForLocalDb = "session:"+sessionId+";"+"Accept:text/plain;";
+                    String headersForLocalDb = ""; //;= "session:"+sessionId+";"+"Accept:text/plain;";
+                    for (NameValuePair nvp : headers){
+                        headersForLocalDb +=  nvp.getName()+":"+(String)nvp.getValue()+";";
+                    }
+
                     // Object eines SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist (Id wird von Datenbank automatisch vergeben, dadurch nicht im Konstruktor)
                     // params und jsonString sind beim Delete nicht nötig, dadurch wird ein Leerstring übergeben
                     SyncTodoEntry syncEntry = new SyncTodoEntry(url, "DELETE", headersForLocalDb, "", "");
+
+                    Log.e(TAG, "syncEntry= " + syncEntry.toString());
 
                     // Datenbankfunktion für das Insert der SyncTodoEntry
                     localDb.addSyncTodoEntry(syncEntry);
@@ -170,5 +166,22 @@ public class DeleteTodoAction {
     private void runAsync()
     {
         new AsyncCaller(this).execute();
+
+        // bissl primitiver ansatz, um die problematik zu loesen
+        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
+        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
+        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
+        int x = 0;
+        while(httpResponse == null && x < 4000) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            x += 1;
+        }
+
+        Log.e(TAG, "x= " + x);
+        Log.e(TAG, "httpResponse: " + httpResponse);
     }
 }

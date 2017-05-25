@@ -78,4 +78,16 @@ public class SyncTodoEntry {
     public void setJsonPostStr(String jsonPostStr) {
         this.jsonPostStr = jsonPostStr;
     }
+
+    @Override
+    public String toString() {
+        return "SyncTodoEntry{" +
+                "id=" + id +
+                ", url='" + url + '\'' +
+                ", cmd='" + cmd + '\'' +
+                ", headers='" + headers + '\'' +
+                ", params='" + params + '\'' +
+                ", jsonPostStr='" + jsonPostStr + '\'' +
+                '}';
+    }
 }

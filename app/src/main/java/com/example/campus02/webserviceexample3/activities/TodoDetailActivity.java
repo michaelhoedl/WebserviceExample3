@@ -92,19 +92,6 @@ public class TodoDetailActivity extends AppCompatActivity {
         // AsyncTask starten um Details eines Todos vom Webservice oder aus der Lokalen DB anzuzeigen.
         runAsync();
 
-        // wait a little bit ... just to ensure that the HTTP request was processed completely.
-        int x = 0;
-        while(mytodo == null && x < 4000) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            x += 1;
-        }
-        Log.e(TAG, "x= " + x);
-        Log.d(TAG, "mytodo.tostring="+ ((mytodo != null) ? mytodo.toString() : "(mytodo is null)"));
-
         // Die Felder der Detailansicht ermitteln:
         TextView tvid = (TextView) findViewById(R.id.tvTodoId);
         EditText etname = (EditText) findViewById(R.id.txtName);
@@ -435,6 +422,19 @@ public class TodoDetailActivity extends AppCompatActivity {
     private void runAsync()
     {
         new TodoDetailActivity.AsyncCaller(this).execute();
+
+        // wait a little bit ... just to ensure that the HTTP request was processed completely.
+        int x = 0;
+        while(mytodo == null && x < 4000) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            x += 1;
+        }
+        Log.e(TAG, "x= " + x);
+        Log.d(TAG, "mytodo.tostring="+ ((mytodo != null) ? mytodo.toString() : "(mytodo is null)"));
     }
 
 

@@ -193,6 +193,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setSessionKey(cursor.getString(8));
         }
         cursor.close(); // schliessen des Cursors
+        db.close();
         return todo;
     }
 
@@ -236,6 +237,7 @@ public class DBHandler extends SQLiteOpenHelper {
             user = null;
         }
         cursor.close(); // schliessen des Cursors.
+        db.close();
         return user;
     }
 
@@ -248,6 +250,7 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
         db.delete(TABLE_TODOS, where, null);
+        db.close();
     }
 
     /**
@@ -261,6 +264,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_TODO_DONE,1);
         String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
         db.update(TABLE_TODOS, values , where, null);
+        db.close();
     }
 
     /**
@@ -282,6 +286,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
         db.update(TABLE_TODOS, values , where, null);
+        db.close();
     }
 
     /**
@@ -293,9 +298,14 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_SYNCTODO_URL, syncEntry.getUrl());
         values.put(KEY_SYNCTODO_CMD, syncEntry.getCmd());
-        values.put(KEY_SYNCTODO_HEADERS, syncEntry.getHeaders());
-        values.put(KEY_SYNCTODO_PARAMS, syncEntry.getParams());
-        values.put(KEY_SYNCTODO_JSONPOSTSTR, syncEntry.getJsonPostStr());
+
+        if (!syncEntry.getHeaders().isEmpty() && syncEntry.getHeaders() != null)
+            values.put(KEY_SYNCTODO_HEADERS, syncEntry.getHeaders());
+        if (!syncEntry.getParams().isEmpty() && syncEntry.getParams() != null)
+            values.put(KEY_SYNCTODO_PARAMS, syncEntry.getParams());
+        if (!syncEntry.getJsonPostStr().isEmpty() && syncEntry.getJsonPostStr() != null)
+            values.put(KEY_SYNCTODO_JSONPOSTSTR, syncEntry.getJsonPostStr());
+
         // Insert oder Update
         db.insertWithOnConflict(TABLE_SYNCTODO, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close();

@@ -46,7 +46,7 @@ public class AllTodosActivity extends AppCompatActivity {
     private ArrayList<TodoEntry> alltodos;
     private TodoListAdapter      adapter;
     // Instanz des Datenbank-Handlers für die lokale Datenbank
-    private DBHandler localDb = new DBHandler(this);
+    private DBHandler localDb;
 
 
     @Override
@@ -59,6 +59,7 @@ public class AllTodosActivity extends AppCompatActivity {
         setContentView(R.layout.activity_all_todos);
 
         dma = this;
+        localDb = new DBHandler(this);
         alltodos = new ArrayList<TodoEntry>();
 
         // Das GUI Element "list" ermitteln und die ListView lv damit initialisieren.
@@ -107,28 +108,6 @@ public class AllTodosActivity extends AppCompatActivity {
         // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
         runAsync();
 
-        // bissl primitiver ansatz, um die problematik zu loesen
-        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
-        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
-        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
-        // UPDATE: solange die Liste alltodos noch leer ist, warten. (weil: Liste kann entweder aus HTTP Request befuellt worden sein,
-        //   oder via Lokaler SQLite DB.
-        int x = 0;
-        while(alltodos.size() == 0 /*httpResponse == null*/ && x <= 4000) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            x += 1;
-        }
-
-        // testweise ein paar daten ausgeben
-        Log.e(TAG, "x= "+x);
-        Log.e(TAG, "alltodos.size= "+alltodos.size());
-        for(TodoEntry t : alltodos){
-            Log.e(TAG, "--- t= "+t.toString());
-        }
     }
 
 
@@ -287,20 +266,22 @@ public class AllTodosActivity extends AppCompatActivity {
          * Laenger laufende Tasks (http) sollten hier passieren.
          */
         protected Void doInBackground(Void... arg0) {
+
+            // HTTP Header setzen:
+            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("session");
+            h2.setValue(caller.getSessionid());
+            NameValuePair h3 = new NameValuePair();
+            h3.setName("Accept");
+            h3.setValue("application/json");
+            headers.add(h2);
+            headers.add(h3);
+
             // Wenn eine Internetverbindung besteht, dann lade Daten vom Webservice.
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
 
-                // HTTP Header setzen:
-                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-                NameValuePair h2 = new NameValuePair();
-                h2.setName("session");
-                h2.setValue(caller.getSessionid());
-                NameValuePair h3 = new NameValuePair();
-                h3.setName("Accept");
-                h3.setValue("application/json");
-                headers.add(h2);
-                headers.add(h3);
 
                 // Sende eine GET Anfrage an den Webservice an die URl mit den definierten Headern und erhalte einen Json String als Response.
                 String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
@@ -423,17 +404,44 @@ public class AllTodosActivity extends AppCompatActivity {
             // Den Custom List Adapter fuer die Liste setzen:
             adapter = new TodoListAdapter(caller.getApplicationContext(), alltodos);
             lv.setAdapter(adapter);
+            lv.requestLayout();
             Log.e(TAG,"lv.getAdapter().getCount()="+lv.getAdapter().getCount());
         }
 
     } // end private class AsyncCaller
 
     /**
-     * Diese Methode ruft den AsyncTask auf
+     * Diese Methode ruft den AsyncTask auf.
      */
     private void runAsync()
     {
         new AllTodosActivity.AsyncCaller(this).execute();
+
+        // bissl primitiver ansatz, um die problematik zu loesen
+        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
+        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
+        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
+        // UPDATE: solange die Liste alltodos noch leer ist, warten. (weil: Liste kann entweder aus HTTP Request befuellt worden sein,
+        //   oder via Lokaler SQLite DB.
+        int x = 0;
+        while(alltodos.size() == 0 /*httpResponse == null*/ && x <= 4000) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            x += 1;
+        }
+
+        // neu laden der Listen Ansicht:
+        lv.requestLayout();
+
+        // testweise ein paar daten ausgeben
+        Log.e(TAG, "x= "+x);
+        Log.e(TAG, "alltodos.size= "+alltodos.size());
+        for(TodoEntry t : alltodos){
+            Log.e(TAG, "--- t= "+t.toString());
+        }
     }
 
     /**
