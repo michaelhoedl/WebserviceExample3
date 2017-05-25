@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -284,6 +285,8 @@ public class AllTodosActivity extends AppCompatActivity {
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
 
+                // Inhalte aus lokaler DB loeschen, weil diese Tabelle jetzt sowieso neu befuellt wird da Internetverbindung vorhanden ist.
+                localDb.deleteTableBeforeInserting("todos");
 
                 // Sende eine GET Anfrage an den Webservice an die URl mit den definierten Headern und erhalte einen Json String als Response.
                 String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
@@ -295,7 +298,7 @@ public class AllTodosActivity extends AppCompatActivity {
                 Log.e(TAG, "jsonStr.length: " + jsonStr.length());
 
                 // Wenn der Json String aus der HTTP Anfrage nicht leer ist, dann passiert folgendes:
-                if (jsonStr != null && !jsonStr.isEmpty() && !jsonStr.equals("")) {
+                if (!TextUtils.isEmpty(jsonStr)) {
                     try {
 
                         // Wandle den Json String in ein JSON Array um.
@@ -316,7 +319,9 @@ public class AllTodosActivity extends AppCompatActivity {
                             float   _estimatedEffort    = (float) c.getDouble("estimatedEffort");
                             float   _usedTime           = (float) c.getDouble("usedTime");
                             boolean _done               = c.getBoolean("done");
-                            String  _duedate            = c.getString("dueDate");
+                            String  _duedate            = c.getString("dueDate"); // das liefert ein Datum wie z.B. dieses: "2017-04-23T16:05:07.3"
+                            String  _createdate         = c.getString("createDate"); // das liefert ein Datum wie z.B. dieses: "2017-04-23T16:05:07.3"
+
 
                             // Erstelle ein TodoEntry Objekt und befuelle es mit den Daten aus dem Json Object:
                             TodoEntry mytodo = new TodoEntry();
@@ -330,7 +335,8 @@ public class AllTodosActivity extends AppCompatActivity {
                             } else {
                                 mytodo.setDone(0);
                             }
-                            mytodo.setDuedateAsString(_duedate);
+                            mytodo.setDuedateAsString(_duedate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
+                            mytodo.setCreatedateAsString(_createdate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
                             mytodo.setSessionKey(sessionid);
 
                             // Hinzufuegen des TodoEntry Objektes zur ArrayList:
@@ -413,6 +419,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     /**
      * Diese Methode ruft den AsyncTask auf.
+     * und wartet bis das mytodo Objekt befüllt ist oder bis ca. 4 Sekunden vergangen sind.
      */
     private void runAsync()
     {

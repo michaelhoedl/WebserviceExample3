@@ -35,9 +35,12 @@ public class CompleteTodoAction {
     private DBHandler localDb;
 
 
-    //Konstruktor, Parameter für das Ausführen der CompleteTodoAction werden gesetzt
-    // Parameter werden aus der übergebenen ToDo von AllTodosActivity, ausgelesen
-
+    /**
+     * Konstruktor, Parameter für das Ausführen der CompleteTodoAction werden gesetzt
+     * Parameter werden aus der übergebenen ToDo von AllTodosActivity, ausgelesen
+     * @param mainDialog
+     * @param e
+     */
     public CompleteTodoAction(AllTodosActivity mainDialog, TodoEntry e) {
         this.mainDialog = mainDialog;
         this.todoId = e.getId()+"";
@@ -62,7 +65,9 @@ public class CompleteTodoAction {
         this.httpResponse = httpResponse;
     }
 
-
+    /**
+     * Diese Methode ruft den AsyncTask auf
+     */
     private void runAsync()
     {
         new AsyncCaller(this).execute();

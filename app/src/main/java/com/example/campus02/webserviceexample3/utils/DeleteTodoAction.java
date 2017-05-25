@@ -163,6 +163,10 @@ public class DeleteTodoAction {
         this.httpResponse = httpResponse;
     }
 
+    /**
+     * Diese Methode ruft den AsyncTask auf
+     * und wartet bis das mytodo Objekt befüllt ist oder bis ca. 4 Sekunden vergangen sind.
+     */
     private void runAsync()
     {
         new AsyncCaller(this).execute();

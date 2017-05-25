@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -114,7 +115,7 @@ public class TodoDetailActivity extends AppCompatActivity {
             etdesc.setText(mytodo.getTododesc());
             etestimatedeffort.setText(mytodo.getEstimatedeffort() + "");
             etactualeffort.setText(mytodo.getUsedtime() + "");
-            eduedate.setText(mytodo.getDuedateFormatted());
+            eduedate.setText(mytodo.getDuedateFormattedForTextfield());  // passendes Datumsformat fürs Textfeld: dd.MM.yyyy
             cErledigt.setChecked(mytodo.getDoneBoolean());
         }
 
@@ -137,6 +138,8 @@ public class TodoDetailActivity extends AppCompatActivity {
                         mcurrentDate.set(Calendar.YEAR, selectedyear);
                         mcurrentDate.set(Calendar.MONTH, selectedmonth);
                         mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
+
+                        // diese Methode setzt das via DatePicker ausgewählte Datum ins EditText-Feld.
                         updateFieldWithDate();
                     }
                 },mYear, mMonth, mDay);
@@ -191,42 +194,43 @@ public class TodoDetailActivity extends AppCompatActivity {
 
         final UpdateTodoAction updateaction;
 
-        txtEName = (EditText)
-                this.findViewById(R.id.txtName);
+        txtEName = (EditText) this.findViewById(R.id.txtName);
         txtVName = txtEName.getText().toString();
-
-        txtEDescription = (EditText)
-                this.findViewById(R.id.txtDescription);
+        txtEDescription = (EditText) this.findViewById(R.id.txtDescription);
         txtVDescription = txtEDescription.getText().toString();
 
-
-        // Datum aus dem Text extrahieren:
-        txtEDeadline = (EditText)
-                this.findViewById(R.id.txtDeadline);
+        // Datum aus dem Text-Feld extrahieren, im Format dd.MM.yyyy:
+        txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
         DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String datumstring = txtEDeadline.getText().toString();
-        if(datumstring != null && !datumstring.isEmpty()) {
+        // wenn es nicht leer ist, dann den Text zu einem Datum umwandeln:
+        if(!TextUtils.isEmpty(datumstring)) {
             try {
                 txtVDeadline = dformat.parse(datumstring);
             }catch(java.text.ParseException e){
-                datumstring = null; // falls das parsen nicht funktioniert...ins log schreiben
+                datumstring = null; // falls das parsen nicht funktioniert hat...ins log schreiben
                 Log.e(TAG, "Date parsing error: "+datumstring);
             }
         }
 
-        txtEEstimatedEffort = (EditText)
-                this.findViewById(R.id.txtEstimatedEffort);
+        txtEEstimatedEffort = (EditText) this.findViewById(R.id.txtEstimatedEffort);
         String float1string = txtEEstimatedEffort.getText().toString();
         if(float1string != null && !float1string.isEmpty()) {
             txtVEstimatedEffort = Float.valueOf(float1string);
         }
 
-        txtEActualEffort = (EditText)
-                this.findViewById(R.id.txtActualEffort);
+        txtEActualEffort = (EditText) this.findViewById(R.id.txtActualEffort);
         String float2string = txtEActualEffort.getText().toString();
         if(float2string != null && !float2string.isEmpty()) {
             txtVActualEffort = Float.valueOf(float2string);
         }
+
+        CheckBox cbErledigt = (CheckBox) findViewById(R.id.cbCompleted);
+        int erledigt;
+        if(cbErledigt.isChecked())
+            erledigt = 1;
+        else
+            erledigt = 0;
 
         // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
         //mytodo = new TodoEntry();
@@ -235,6 +239,7 @@ public class TodoDetailActivity extends AppCompatActivity {
         mytodo.setEstimatedeffort(txtVEstimatedEffort);
         mytodo.setUsedtime(txtVActualEffort);
         mytodo.setDuedate(txtVDeadline);
+        mytodo.setDone(erledigt);
 
         // Durchführen des Updates
         updateaction = new UpdateTodoAction(this, sessionid, mytodo);
@@ -327,7 +332,6 @@ public class TodoDetailActivity extends AppCompatActivity {
 
                 // Making a request to url and getting response as a string
                 String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
-
                 caller.setHttpResponse(jsonStr);
 
                 //just some logging
@@ -335,8 +339,8 @@ public class TodoDetailActivity extends AppCompatActivity {
                 Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
                 Log.e(TAG, "jsonStr.length: " + jsonStr.length());
 
-
-                if (jsonStr != null) {
+                // Wenn der Json String aus der HTTP Anfrage nicht leer ist, dann passiert folgendes:
+                if (!TextUtils.isEmpty(jsonStr)) {
                     try {
 
                         JSONObject jsonObj = new JSONObject(jsonStr);
@@ -350,9 +354,9 @@ public class TodoDetailActivity extends AppCompatActivity {
                         float usedTime = (float) jsonObj.getDouble("usedTime");
                         boolean done = jsonObj.getBoolean("done");
                         String duedate = jsonObj.getString("dueDate");
+                        String createdate = jsonObj.getString("createDate");
 
-
-                        // create a TodoEntry object and set the data.
+                        // Estelle ein TodoEntry Objekt und befülle es mit den Daten aus dem Json Object.
                         caller.mytodo = new TodoEntry();
                         caller.mytodo.setId(id);
                         caller.mytodo.setTitle(name);
@@ -364,7 +368,8 @@ public class TodoDetailActivity extends AppCompatActivity {
                         } else {
                             caller.mytodo.setDone(0);
                         }
-                        caller.mytodo.setDuedateAsString(duedate);
+                        caller.mytodo.setDuedateAsString(duedate); // Datum als String setzen (wird über die set-Methode zu einem Datum umgewandelt)
+                        caller.mytodo.setCreatedateAsString(createdate); // Datum als String setzen (wird über die set-Methode zu einem Datum umgewandelt)
 
                         Log.e(TAG, "jsonObj: id=" + id + ", name=" + name + ", description=" + description);
                         Log.e(TAG, "jsonObj: mytodo.tostring=" + caller.mytodo.toString());
@@ -429,6 +434,7 @@ public class TodoDetailActivity extends AppCompatActivity {
 
     /**
      * Diese Methode ruft den AsyncTask auf
+     * und wartet bis das mytodo Objekt befüllt ist oder bis ca. 4 Sekunden vergangen sind.
      */
     private void runAsync()
     {

@@ -63,7 +63,7 @@ public class HttpHandler {
 
     /**
      *
-     * Ein Webservice aufrufen, wobei man dynamisch die Url, die Methode, die Header und die Parameter angeben kann.
+     * Ein Webservice aufrufen, wobei man dynamisch die Url, die Methode (GET, POST, ...), die Header und die Parameter angeben kann.
      * Wenn POST Request, dann kann auch der POST Inhalt als String (im JSON Format) uebergeben werden.
      *
      * @param reqUrl: the URL of the webservice
@@ -117,7 +117,8 @@ public class HttpHandler {
                 os.write(outputBytes);
 
                 int responseCode = conn.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
+                if (responseCode == HttpURLConnection.HTTP_OK)  // HTTP_OK entpricht dem HTTP-Statuscode 200
+                {
                     Log.e(TAG, "HTTP_OK, "+responseCode);
 
                     String line;
@@ -129,7 +130,7 @@ public class HttpHandler {
                     Log.e(TAG, "False - responseCode="+responseCode);
                     response = "";
                 }
-            }
+            } // ansonsten: wenn alle anderen HTTP Request Methoden ausser POST, dann:
             else if (!reqMethod.equals("POST")) {
                 // read the response if it is not a POST request
                 InputStream in = new BufferedInputStream(conn.getInputStream());

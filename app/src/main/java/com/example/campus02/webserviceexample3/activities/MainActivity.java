@@ -37,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    /** Called when the user taps the Login button, a Message is sent to the Webservice */
+    /**
+     * Called when the user taps the Login button, a Message is sent to the Webservice
+     * @param view
+     */
     public void sendMessage(View view) {
 
         String emymail = ((EditText) findViewById(R.id.editTextMail)).getText().toString();
@@ -203,7 +206,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        //this method will be running on UI thread
+        /**
+         * this method will be running on UI thread
+         */
         protected void onPreExecute() {
             super.onPreExecute();
             // Showing progress dialog
@@ -214,8 +219,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        //this method will be running on background thread so dont update UI from here
-        //do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
+        /**
+         * this method will be running on background thread so dont update UI from here
+         * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
+         */
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
@@ -247,7 +254,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        //this method will be running on UI thread
+        /**
+         * this method will be running on UI thread
+         */
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Dismiss the progress dialog

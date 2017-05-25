@@ -5,10 +5,13 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.example.campus02.webserviceexample3.model.TodoEntry;
 import com.example.campus02.webserviceexample3.model.UserEntry;
@@ -20,34 +23,34 @@ import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 
 public class DBHandler extends SQLiteOpenHelper {
     // Datenbank Version - bei Datenbankänderung (Spalten oder Tabellen) muss die Version geändert werden, damit diese Änderungen erzeugt werden
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION               = 3;
     // Datenbanktabellen
-    private static final String DATABASE_NAME = "dbLocal";
-    // Contacts table name
-    private static final String TABLE_TODOS = "todos";
-    private static final String TABLE_USER = "user";
-    private static final String TABLE_SYNCTODO = "synctodos";
+    private static final String DATABASE_NAME               = "dbLocal";
+    // Tabellen
+    private static final String TABLE_TODOS                 = "todos";
+    private static final String TABLE_USER                  = "user";
+    private static final String TABLE_SYNCTODO              = "synctodos";
     // Spalten für die Todos-Tabelle
-    private static final String KEY_TODO_ID = "id";
-    private static final String KEY_TODO_TITLE = "title";
-    private static final String KEY_TODO_DESC = "tododesc";
-    private static final String KEY_TODO_ESTIMATED = "estimatedeffort";
-    private static final String KEY_TODO_USED = "usedtime";
-    private static final String KEY_TODO_DONE = "done";
-    private static final String KEY_TODO_CREATE = "createdate";
-    private static final String KEY_TODO_DUE = "duedate";
-    private static final String KEY_TODO_SESSIONKEY = "sessionkey";
+    private static final String KEY_TODO_ID                 = "id";
+    private static final String KEY_TODO_TITLE              = "title";
+    private static final String KEY_TODO_DESC               = "tododesc";
+    private static final String KEY_TODO_ESTIMATED          = "estimatedeffort";
+    private static final String KEY_TODO_USED               = "usedtime";
+    private static final String KEY_TODO_DONE               = "done";
+    private static final String KEY_TODO_CREATE             = "createdate";
+    private static final String KEY_TODO_DUE                = "duedate";
+    private static final String KEY_TODO_SESSIONKEY         = "sessionkey";
     // Spalten für die User-Tabelle
-    private static final String KEY_USER_MAIL = "mail";
-    private static final String KEY_USER_PDW = "pwd";
-    private static final String KEY_USER_SESSIONKEY = "sessionKey";
+    private static final String KEY_USER_MAIL               = "mail";
+    private static final String KEY_USER_PDW                = "pwd";
+    private static final String KEY_USER_SESSIONKEY         = "sessionKey";
     // Spalten für die SyncTodos-Tabelle
-    private static final String KEY_SYNCTODO_ID = "id";
-    private static final String KEY_SYNCTODO_URL = "url";
-    private static final String KEY_SYNCTODO_CMD = "cmd";
-    private static final String KEY_SYNCTODO_HEADERS = "headers";
-    private static final String KEY_SYNCTODO_PARAMS = "params";
-    private static final String KEY_SYNCTODO_JSONPOSTSTR = "jsonpoststr";
+    private static final String KEY_SYNCTODO_ID             = "id";
+    private static final String KEY_SYNCTODO_URL            = "url";
+    private static final String KEY_SYNCTODO_CMD            = "cmd";
+    private static final String KEY_SYNCTODO_HEADERS        = "headers";
+    private static final String KEY_SYNCTODO_PARAMS         = "params";
+    private static final String KEY_SYNCTODO_JSONPOSTSTR    = "jsonpoststr";
 
     public DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -59,7 +62,7 @@ public class DBHandler extends SQLiteOpenHelper {
      */
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TODO_TABLE =
-                "CREATE TABLE IF NOT EXISTS " + TABLE_TODOS + "("
+                "CREATE TABLE IF NOT EXISTS " + TABLE_TODOS + " ( "
                         + KEY_TODO_ID + " INTEGER PRIMARY KEY, "
                         + KEY_TODO_TITLE + " TEXT, "
                         + KEY_TODO_DESC + " TEXT, "
@@ -69,26 +72,26 @@ public class DBHandler extends SQLiteOpenHelper {
                         + KEY_TODO_CREATE + " TEXT, "
                         + KEY_TODO_DUE + " TEXT, "
                         + KEY_TODO_SESSIONKEY + " TEXT"
-                        + ")";
+                        + " )";
         db.execSQL(CREATE_TODO_TABLE);
 
         String CREATE_USER_TABLE =
-                "CREATE TABLE IF NOT EXISTS " + TABLE_USER + "("
+                "CREATE TABLE IF NOT EXISTS " + TABLE_USER + " ( "
                         + KEY_USER_MAIL + " TEXT PRIMARY KEY ,"
                         + KEY_USER_PDW + " TEXT, "
                         + KEY_USER_SESSIONKEY + " TEXT "
-                        + ")";
+                        + " )";
         db.execSQL(CREATE_USER_TABLE);
 
         String CREATE_SYNCTODO_TABLE =
-                "CREATE TABLE IF NOT EXISTS " + TABLE_SYNCTODO + "("
+                "CREATE TABLE IF NOT EXISTS " + TABLE_SYNCTODO + " ( "
                         + KEY_SYNCTODO_ID + " INTEGER PRIMARY KEY autoincrement,"
                         + KEY_SYNCTODO_URL + " TEXT, "
                         + KEY_SYNCTODO_CMD + " TEXT, "
                         + KEY_SYNCTODO_HEADERS + " TEXT, "
                         + KEY_SYNCTODO_PARAMS + " TEXT, "
                         + KEY_SYNCTODO_JSONPOSTSTR + " TEXT "
-                        + ")";
+                        + " )";
         db.execSQL(CREATE_SYNCTODO_TABLE);
     }
 
@@ -104,6 +107,17 @@ public class DBHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * Loeschen der Inhalte der jeweiligen Tabelle.
+     * Danach werden die Inhalte in die jeweilige Tabelle eingefuegt.
+     * Das passiert jedoch nur wenn die App eine Internetverbindung hat.
+     * @param tablename
+     */
+    public void deleteTableBeforeInserting(String tablename){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(tablename, null, null);
+        db.close();
+    }
 
     /**
      * Todos einfügen oder updaten (bspw. beim Hinzufügen von Todos, wenn keine Internetverbindung
@@ -153,8 +167,35 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setEstimatedeffort(cursor.getFloat(3));
                 todo.setUsedtime(cursor.getFloat(4));
                 todo.setDone(cursor.getInt(5));
-                todo.setCreatedate( todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
-                todo.setDuedate( todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
+
+                // Datumswerte:
+                SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                Date d1 = null;
+                Date d2 = null;
+                String s1 = cursor.getString(6);
+                String s2 = cursor.getString(7);
+                if(!TextUtils.isEmpty(s1)) {
+                    try {
+                        d1 = dt1.parse(s1);
+                    } catch (ParseException p) {
+                        p.printStackTrace();
+                        Log.e("DBHandler", "ParseException: " + p.getMessage());
+                    }
+                }
+                if(!TextUtils.isEmpty(s2)) {
+                    try {
+                        d2 = dt1.parse(s2);
+                    } catch (ParseException p) {
+                        p.printStackTrace();
+                        Log.e("DBHandler", "ParseException: " + p.getMessage());
+                    }
+                }
+
+                if (d1 != null)
+                    todo.setCreatedate(d1);
+                if(d2 != null)
+                    todo.setDuedate(d2);
+
                 todo.setSessionKey(cursor.getString(8));
 
                 // zu Liste von Todos hinzufügen, welche zurückgegeben wird
@@ -164,54 +205,6 @@ public class DBHandler extends SQLiteOpenHelper {
         cursor.close(); // schliessen des Cursors
         db.close();
         return todos;
-    }
-
-    /**
-     * Suche von Todos anhand eines übergebenen Suchstrings
-     * Auslesen der gefundenen Todos welche den Suchstring zumindest in 1 Spalte enthalten
-     * @param session, searchStr
-     * @return ArrayList<TodoEntry>
-     * @throws ParseException
-     */
-    public ArrayList<TodoEntry> getSearchedTodos (String session, String searchStr) throws ParseException {
-        String selectQuery = "SELECT * FROM " + TABLE_TODOS
-                + " WHERE " + KEY_TODO_SESSIONKEY + " = '" + session + "' AND ("
-                    + "CHARINDEX('" + searchStr + "'," + KEY_TODO_TITLE + ") > 0 OR "
-                    + "CHARINDEX('" + searchStr + "'," + KEY_TODO_DESC + ") > 0 OR "
-                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_ESTIMATED + ")) > 0 OR "
-                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_USED + ")) > 0 )";
-
-                    /* noch ergänzen
-                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_CREATE + ")) > 0 OR "
-                    + "CHARINDEX('" + searchStr + "'," + "CONVERT(VARCHAR(10)," + KEY_TODO_DUE + ")) > 0 OR "
-                    */
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        ArrayList<TodoEntry> foundTodos = new ArrayList<>();
-
-        // Erstellen der TodoEntrys anhand der gelesen Daten
-        // diese Funktion wird solang durchgeführt bis es keine Daten mehr gibt (moveToNext = false)
-        if (cursor.moveToFirst()) {
-            do {
-                TodoEntry todo = new TodoEntry();
-                todo.setId(cursor.getInt(0));
-                todo.setTitle(cursor.getString(1));
-                todo.setTododesc(cursor.getString(2));
-                todo.setEstimatedeffort(cursor.getFloat(3));
-                todo.setUsedtime(cursor.getFloat(4));
-                todo.setDone(cursor.getInt(5));
-                todo.setCreatedate( todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
-                todo.setDuedate( todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
-                todo.setSessionKey(cursor.getString(8));
-
-                // zu Liste von Todos hinzufügen, welche zurückgegeben wird
-                foundTodos.add(todo);
-            } while (cursor.moveToNext());
-        }
-        cursor.close(); // schliessen des Cursors
-        db.close();
-        return foundTodos;
     }
 
     /**
@@ -238,8 +231,35 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setEstimatedeffort(cursor.getFloat(3));
                 todo.setUsedtime(cursor.getFloat(4));
                 todo.setDone(cursor.getInt(5));
-                todo.setCreatedate(todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/));
-                todo.setDuedate(todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/));
+
+            // Datumswerte:
+                SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                Date d1 = null;
+                Date d2 = null;
+                String s1 = cursor.getString(6);
+                String s2 = cursor.getString(7);
+                if(!TextUtils.isEmpty(s1)) {
+                    try {
+                        d1 = dt1.parse(s1);
+                    } catch (ParseException p) {
+                        p.printStackTrace();
+                        Log.e("DBHandler", "ParseException: " + p.getMessage());
+                    }
+                }
+                if(!TextUtils.isEmpty(s2)) {
+                    try {
+                        d2 = dt1.parse(s2);
+                    } catch (ParseException p) {
+                        p.printStackTrace();
+                        Log.e("DBHandler", "ParseException: " + p.getMessage());
+                    }
+                }
+
+                if (d1 != null)
+                    todo.setCreatedate(d1);
+                if(d2 != null)
+                    todo.setDuedate(d2);
+
                 todo.setSessionKey(cursor.getString(8));
         }
         cursor.close(); // schliessen des Cursors

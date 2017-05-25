@@ -97,17 +97,14 @@ public class CreateToDoActivity extends AppCompatActivity {
     public void readDataFromFields(View view){
         // Objektzuweisung, Anzeigen und Auslesen Text
 
-        txtEName = (EditText)
-                this.findViewById(R.id.txtName);
+        txtEName = (EditText) this.findViewById(R.id.txtName);
         txtVName = txtEName.getText().toString();
 
-        txtEDescription = (EditText)
-                this.findViewById(R.id.txtDescription);
+        txtEDescription = (EditText) this.findViewById(R.id.txtDescription);
         txtVDescription = txtEDescription.getText().toString();
 
         // Datum aus dem Text extrahieren:
-        txtEDeadline = (EditText)
-                this.findViewById(R.id.txtDeadline);
+        txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
         DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String datumstring = txtEDeadline.getText().toString();
         if(datumstring != null && !datumstring.isEmpty()) {
@@ -119,20 +116,17 @@ public class CreateToDoActivity extends AppCompatActivity {
             }
         }
 
-        txtEEstimatedEffort = (EditText)
-                this.findViewById(R.id.txtEstimatedEffort);
+        txtEEstimatedEffort = (EditText) this.findViewById(R.id.txtEstimatedEffort);
         String float1string = txtEEstimatedEffort.getText().toString();
         if(float1string != null && !float1string.isEmpty()) {
             txtVEstimatedEffort = Float.valueOf(float1string);
         }
 
-        txtEActualEffort = (EditText)
-                this.findViewById(R.id.txtActualEffort);
+        txtEActualEffort = (EditText) this.findViewById(R.id.txtActualEffort);
         String float2string = txtEActualEffort.getText().toString();
         if(float2string != null && !float2string.isEmpty()) {
             txtVActualEffort = Float.valueOf(float2string);
         }
-
 
 
         // Datum (DueDate) via DatePicker auswählen:  ... geht hier aber irgendwie noch nicht ?!? ...
@@ -147,7 +141,7 @@ public class CreateToDoActivity extends AppCompatActivity {
                 mMonth=mcurrentDate.get(Calendar.MONTH);
                 mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog mDatePicker=new DatePickerDialog(CreateToDoActivity.this, new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog mDatePicker=new DatePickerDialog(dma.getApplicationContext(), new DatePickerDialog.OnDateSetListener() {
                     // wenn ein Datum via DatePicker ausgewählt wurde, dann zeige das Datum im EditText-Feld an:
                     public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                         mcurrentDate.set(Calendar.YEAR, selectedyear);
