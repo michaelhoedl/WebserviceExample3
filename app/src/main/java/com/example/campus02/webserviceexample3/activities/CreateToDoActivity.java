@@ -13,7 +13,9 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
+import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 import com.example.campus02.webserviceexample3.model.TodoEntry;
+import com.example.campus02.webserviceexample3.utils.DBHandler;
 import com.example.campus02.webserviceexample3.utils.HttpHandler;
 import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
@@ -58,6 +60,8 @@ public class CreateToDoActivity extends AppCompatActivity {
 
     Calendar mcurrentDate;
 
+    private DBHandler localDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +71,7 @@ public class CreateToDoActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         dma = this;
+        localDb = new DBHandler(dma);
 
         // Get the Intent that started this activity and extract the string (which is the session id)
         Intent intent = getIntent();
@@ -320,6 +325,12 @@ public class CreateToDoActivity extends AppCompatActivity {
             String response = "";
             HttpHandler sh = new HttpHandler();
 
+            // ermitteln ob die App eine Internetverbindung hat:
+            boolean isInternetConnected = sh.isNetworkAvailable(dma.getApplicationContext());
+
+            // die SessionID setzen:
+            mytodo.setSessionKey(sessionid);
+
             try {
 
                 // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
@@ -342,11 +353,41 @@ public class CreateToDoActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
+                //
                 String str = jsonObject.toString();
                 Log.e(TAG, "jsonObject.toString()="+str);
 
-                // make the webservice-call (HTTP POST).
-                response = sh.makeMyServiceCall(requestURL, "POST", postDataParams, null, str);
+                // wenn Internetverbindung vorhanden ist:
+                if(isInternetConnected) {
+                    // make the webservice-call (HTTP POST).
+                    response = sh.makeMyServiceCall(requestURL, "POST", postDataParams, null, str);
+                    caller.setHttpResponse(response);
+                } else { // sonst: wenn keine Internetverbindung vorhanden ist:
+
+                    try {
+                        // Headers als String für das Speichern des SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist
+                        String headersForLocalDb = "";
+                        for (NameValuePair nvp : postDataParams){
+                            headersForLocalDb +=  nvp.getName()+":"+(String)nvp.getValue()+";";
+                        }
+
+                        // Object eines SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist (Id wird von Datenbank automatisch vergeben, dadurch nicht im Konstruktor)
+                        // params und jsonString sind beim Delete nicht nötig, dadurch wird ein Leerstring übergeben
+                        SyncTodoEntry syncEntry = new SyncTodoEntry(url, "POST", headersForLocalDb, "", str);
+
+                        Log.e(TAG, "syncEntry= " + syncEntry.toString());
+
+                        // Datenbankfunktion für das Insert der SyncTodoEntry
+                        localDb.addSyncTodoEntry(syncEntry);
+                        // Datenbankfunktion für das Erstellen eines Todos
+                        localDb.addTodo(mytodo);
+                        // Datenbankfunktion für das Select der Todos nach dem Updaten
+                        localDb.getTodos(sessionid);
+                    } catch (ParseException e) {
+                        // Parse Exception kann bei den Datenbankfunktionen geworfen werden
+                        e.printStackTrace();
+                    }
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();

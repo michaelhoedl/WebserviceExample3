@@ -273,9 +273,10 @@ public class TodoSearchActivity extends AppCompatActivity {
                 try {
                     foundTodos = localDb.getSearchedTodos(sessionid, searchStr);
 
-                    Log.e(TAG, "foundTodo = "+foundTodos.get(0).toString());
-                    Log.e(TAG, "foundTodo = "+foundTodos.get(1).toString());
-                    Log.e(TAG, "foundTodo = "+foundTodos.get(2).toString());
+                    for(TodoEntry te : foundTodos){
+                        Log.e(TAG, "foundTodos te = "+te.toString());
+                    }
+
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
