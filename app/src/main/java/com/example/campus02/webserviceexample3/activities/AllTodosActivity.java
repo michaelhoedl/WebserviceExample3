@@ -477,7 +477,6 @@ public class AllTodosActivity extends AppCompatActivity {
         intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der session_id.
         startActivity(intentdetail);
 
-
         /*
         this.alltodos.clear();
         TodoEntry e = new TodoEntry();

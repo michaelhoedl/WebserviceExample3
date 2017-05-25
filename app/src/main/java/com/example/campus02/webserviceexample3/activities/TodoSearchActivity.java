@@ -109,6 +109,8 @@ public class TodoSearchActivity extends AppCompatActivity {
 
             Log.e(TAG, "x= " + x);
             Log.e(TAG, "httpResponse: " + httpResponse);
+
+            // finish();    // zur AllTodosActivity zurückkehren und foundTodos anzeigen
         }
 
     }
