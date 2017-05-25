@@ -65,7 +65,9 @@ public class CompleteTodoAction {
         this.httpResponse = httpResponse;
     }
 
-
+    /**
+     * Diese Methode ruft den AsyncTask auf
+     */
     private void runAsync()
     {
         new AsyncCaller(this).execute();

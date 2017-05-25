@@ -167,6 +167,19 @@ public class TodoEntry {
     }
 
     /**
+     * das Datum im Format "dd.MM.yyyy" ausgeben,
+     * damit es gut im EditText-Feld angezeigt werden kann.
+     * @return
+     */
+    public String getDuedateFormattedForTextfield() {
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd.MM.yyyy");
+        if(duedate != null)
+            return dt1.format(duedate);
+        else
+            return null;
+    }
+
+    /**
      * set the duedate from a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
      * for example, we get a date like "2017-04-23T16:05:07.3" from the webservice.
      * @param duedateAsString

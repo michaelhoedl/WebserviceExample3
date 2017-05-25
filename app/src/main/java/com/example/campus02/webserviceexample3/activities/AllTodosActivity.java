@@ -285,6 +285,8 @@ public class AllTodosActivity extends AppCompatActivity {
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
 
+                // Inhalte aus lokaler DB loeschen, weil diese Tabelle jetzt sowieso neu befuellt wird da Internetverbindung vorhanden ist.
+                localDb.deleteTableBeforeInserting("todos");
 
                 // Sende eine GET Anfrage an den Webservice an die URl mit den definierten Headern und erhalte einen Json String als Response.
                 String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
@@ -417,6 +419,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     /**
      * Diese Methode ruft den AsyncTask auf.
+     * und wartet bis das mytodo Objekt befüllt ist oder bis ca. 4 Sekunden vergangen sind.
      */
     private void runAsync()
     {

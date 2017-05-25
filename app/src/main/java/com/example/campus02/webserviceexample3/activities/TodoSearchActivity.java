@@ -164,24 +164,26 @@ public class TodoSearchActivity extends AppCompatActivity {
          * Laenger laufende Tasks (http) sollten hier passieren.
          */
         protected Void doInBackground(Void... arg0) {
+
+            // HTTP Header setzen
+            ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+            NameValuePair h2 = new NameValuePair();
+            h2.setName("session");
+            h2.setValue(caller.getSessionid());
+            NameValuePair h3 = new NameValuePair();
+            h3.setName("Accept");
+            h3.setValue("application/json");
+            headers.add(h2);
+            headers.add(h3);
+
             // Wenn eine Internetverbindung besteht, dann lade Daten vom Webservice.
             if(isInternetConnected) {
                 Log.e(TAG, "--- internet connection! ---");
 
-                // HTTP Header setzen
-                ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-                NameValuePair h2 = new NameValuePair();
-                h2.setName("session");
-                h2.setValue(caller.getSessionid());
-                NameValuePair h3 = new NameValuePair();
-                h3.setName("Accept");
-                h3.setValue("application/json");
-                headers.add(h2);
-                headers.add(h3);
-
                 // Sende eine GET Anfrage an den Webservice an die URl mit den definierten Headern und erhalte einen Json String als Response.
                 String jsonStr = sh.makeMyServiceCall(url, "GET", headers, null, null);
                 caller.setHttpResponse(jsonStr);
+
                 Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
                 Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
                 Log.e(TAG, "jsonStr.length: " + jsonStr.length());

@@ -107,6 +107,17 @@ public class DBHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * Loeschen der Inhalte der jeweiligen Tabelle.
+     * Danach werden die Inhalte in die jeweilige Tabelle eingefuegt.
+     * Das passiert jedoch nur wenn die App eine Internetverbindung hat.
+     * @param tablename
+     */
+    public void deleteTableBeforeInserting(String tablename){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(tablename, null, null);
+        db.close();
+    }
 
     /**
      * Todos einfügen oder updaten (bspw. beim Hinzufügen von Todos, wenn keine Internetverbindung
@@ -157,7 +168,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setUsedtime(cursor.getFloat(4));
                 todo.setDone(cursor.getInt(5));
 
-
+                // Datumswerte:
                 SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                 Date d1 = null;
                 Date d2 = null;
@@ -221,6 +232,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setUsedtime(cursor.getFloat(4));
                 todo.setDone(cursor.getInt(5));
 
+            // Datumswerte:
                 SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                 Date d1 = null;
                 Date d2 = null;
