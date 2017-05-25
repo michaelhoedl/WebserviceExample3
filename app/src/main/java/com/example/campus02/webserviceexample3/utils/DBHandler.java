@@ -127,7 +127,9 @@ public class DBHandler extends SQLiteOpenHelper {
     public void addTodo(TodoEntry todo) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_TODO_ID, todo.getId());
+
+        if(!TextUtils.isEmpty(todo.getId()+""))  // die ID nur setzen wenn sie vorhanden ist
+            values.put(KEY_TODO_ID, todo.getId());
         values.put(KEY_TODO_TITLE, todo.getTitle());
         values.put(KEY_TODO_DESC, todo.getTododesc());
         values.put(KEY_TODO_ESTIMATED, todo.getEstimatedeffort());
@@ -358,6 +360,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.update(TABLE_TODOS, values , where, null);
         db.close();
     }
+
 
     /**
      * Hinzufügen eines SyncTodoEntries für die nachträgliche Synchronisation mit der API.

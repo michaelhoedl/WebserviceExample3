@@ -128,9 +128,9 @@ public class UpdateTodoAction {
 
                 // Making a complete request to url and getting response
                 // Aufruf um Daten an Datenbank zu übergeben
-                String jsonStr = sh.makeMyServiceCall(url, "POST", headers, null, str);//sh.makeServiceCall(url);
+                String jsonStr = sh.makeMyServiceCall(url, "POST", headers, null, str);
                 // fill the httpResponse with the json string. If the response is null there was a problem at the server, if it is empty the request was successful
-
+                httpResponse = jsonStr;
 
                 Log.e(TAG, "Update Response from url (jsonStr) update action: " + jsonStr);
                 Log.e(TAG, "Update Response from url (httpResponse) update action: " + httpResponse);
