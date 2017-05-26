@@ -1,5 +1,6 @@
 package com.example.campus02.webserviceexample3.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -40,6 +41,7 @@ public class TodoSearchActivity extends AppCompatActivity {
 
     private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo/search/";
     private String requestUrl = null;
+    public static final String RETVAL_KEY = "RETURN STRING";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,11 @@ public class TodoSearchActivity extends AppCompatActivity {
             Log.e(TAG, "httpResponse: " + httpResponse);
 
             // finish();    // zur AllTodosActivity zurückkehren und foundTodos anzeigen
+            Intent resultData = new Intent();
+            resultData.putExtra(RETVAL_KEY, "retValData: " + "Return String");
+            setResult(Activity.RESULT_OK, resultData);
+            Log.e(TAG, "Activity.RESULT_OK: " + Activity.RESULT_OK);
+            finish();
         }
 
     }

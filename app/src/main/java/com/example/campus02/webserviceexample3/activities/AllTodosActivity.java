@@ -39,6 +39,7 @@ public class AllTodosActivity extends AppCompatActivity {
     private ListView            lv;
     public static final String  EXTRA_MESSAGE2 = "com.example.campus02.webserviceexample3.MESSAGETODO";
     public static final String  EXTRA_MESSAGE3 = "com.example.campus02.webserviceexample3.MESSAGESESSION";
+    public static final int     REQUEST_ID = 1;
     private static String       url = "http://campus02win14mobapp.azurewebsites.net/Todo";
     private String              sessionid = null;
     private String              httpResponse = null;
@@ -473,9 +474,9 @@ public class AllTodosActivity extends AppCompatActivity {
 
         // Neue Ansicht (TodoSearchActivity) oeffnen um eine Suche ueber die TodoEintraege zu machen.
         // Es wird die session_id (die aus Login Ansicht MainActivity kommt) an die neue Activity uebergeben.
-        Intent intentdetail = new Intent(dma, TodoSearchActivity.class);
-        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der session_id.
-        startActivity(intentdetail);
+        Intent intentSearch = new Intent(dma, TodoSearchActivity.class);
+        intentSearch.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der session_id.
+        startActivityForResult(intentSearch, REQUEST_ID);
 
         /*
         this.alltodos.clear();
@@ -487,6 +488,31 @@ public class AllTodosActivity extends AppCompatActivity {
         lv.setAdapter(adapter);
         */
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e(TAG, "onActivityResult: " + requestCode + resultCode);
+
+        this.alltodos.clear();
+        TodoEntry e = new TodoEntry();
+        e.setTitle("Test");
+        this.alltodos.add(e);
+
+        adapter = new TodoListAdapter(this.getApplicationContext(), alltodos);
+        lv.setAdapter(adapter);
+
+        if (requestCode == REQUEST_ID) {
+            if (resultCode == RESULT_OK) {
+
+
+                /*
+                String retValue = data.getStringExtra(ZweitesActivity.RETVAL_KEY);
+                EditText edit = (EditText) findViewById(R.id.editText1);
+                edit.setText(retValue);
+                */
+            }
+        }
     }
 
 }
