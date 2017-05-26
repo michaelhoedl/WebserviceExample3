@@ -492,25 +492,28 @@ public class AllTodosActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e(TAG, "onActivityResult: " + requestCode + resultCode);
-
-        this.alltodos.clear();
-        TodoEntry e = new TodoEntry();
-        e.setTitle("Test");
-        this.alltodos.add(e);
-
-        adapter = new TodoListAdapter(this.getApplicationContext(), alltodos);
-        lv.setAdapter(adapter);
 
         if (requestCode == REQUEST_ID) {
             if (resultCode == RESULT_OK) {
 
+                Log.e(TAG, "onActivityResult: " + requestCode + resultCode);
+
+                Bundle intent = data.getExtras();
+                Log.e(TAG, "Returned Intent Content: " + intent.get("Return Testdata1"));
+                // ArrayList<TodoEntry> foundTodos = intent.get("Return foundTodos");
+
 
                 /*
-                String retValue = data.getStringExtra(ZweitesActivity.RETVAL_KEY);
-                EditText edit = (EditText) findViewById(R.id.editText1);
-                edit.setText(retValue);
+                this.alltodos.clear();
+                TodoEntry e = new TodoEntry();
+                e.setTitle("Test");
+                this.alltodos.add(e);
+
+                adapter = new TodoListAdapter(this.getApplicationContext(), alltodos);
+                lv.setAdapter(adapter);
                 */
+
+
             }
         }
     }

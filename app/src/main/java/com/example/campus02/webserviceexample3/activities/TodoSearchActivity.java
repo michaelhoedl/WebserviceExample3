@@ -41,7 +41,6 @@ public class TodoSearchActivity extends AppCompatActivity {
 
     private static String url = "http://campus02win14mobapp.azurewebsites.net/Todo/search/";
     private String requestUrl = null;
-    public static final String RETVAL_KEY = "RETURN STRING";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,10 +111,12 @@ public class TodoSearchActivity extends AppCompatActivity {
             Log.e(TAG, "x= " + x);
             Log.e(TAG, "httpResponse: " + httpResponse);
 
-            // finish();    // zur AllTodosActivity zurückkehren und foundTodos anzeigen
-            Intent resultData = new Intent();
-            resultData.putExtra(RETVAL_KEY, "retValData: " + "Return String");
-            setResult(Activity.RESULT_OK, resultData);
+            // finish();    // zur AllTodosActivity zurückkehren und foundTodos zurückliefern
+            Intent resultData = new Intent(TodoSearchActivity.this, AllTodosActivity.class);
+            resultData.putExtra("Return Testdata1", "Return String");
+            // resultData.putExtra("Return foundTodos", this.foundTodos);
+            // resultData.putParcelableArrayListExtra("Return foundTodos", foundTodos);
+            setResult(RESULT_OK, resultData);
             Log.e(TAG, "Activity.RESULT_OK: " + Activity.RESULT_OK);
             finish();
         }
