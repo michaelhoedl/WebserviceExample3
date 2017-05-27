@@ -44,6 +44,7 @@ public class AllTodosActivity extends AppCompatActivity {
     private String              sessionid = null;
     private String              httpResponse = null;
     private AllTodosActivity    dma;
+    private TodoSearchDialog    searchDialog;
 
     private ArrayList<TodoEntry> alltodos;
     private TodoListAdapter      adapter;
@@ -491,13 +492,17 @@ public class AllTodosActivity extends AppCompatActivity {
         */
 
         // AlertDialog für die Suche von Todos:
-        TodoSearchDialog searchDialog = new TodoSearchDialog(dma);
-        searchDialog.show();
+        this.searchDialog = new TodoSearchDialog(dma);
+        this.searchDialog.show();
 
     }
 
     public void searchTodos(String searchStr) {
-
+        url = url + "/search/" + searchStr;
+        adapter.clear();
+        runAsync();
+        this.searchDialog.cancel();
+        url = "http://campus02win14mobapp.azurewebsites.net/Todo";
     }
 
     /* Intent Result von TodoSearchActivity vorübergehend deaktiviert
