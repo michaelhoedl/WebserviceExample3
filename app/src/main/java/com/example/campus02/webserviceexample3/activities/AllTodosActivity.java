@@ -472,6 +472,8 @@ public class AllTodosActivity extends AppCompatActivity {
     public void searchButtonClicked(View view){
         Log.e(TAG, "Search Button (FloatingActionButton2) was clicked!");
 
+        /* Intent für TodoSearchActivity vorübergehend deaktiviert
+
         // Neue Ansicht (TodoSearchActivity) oeffnen um eine Suche ueber die TodoEintraege zu machen.
         // Es wird die session_id (die aus Login Ansicht MainActivity kommt) an die neue Activity uebergeben.
         Intent intentSearch = new Intent(dma, TodoSearchActivity.class);
@@ -488,8 +490,17 @@ public class AllTodosActivity extends AppCompatActivity {
         lv.setAdapter(adapter);
         */
 
+        // AlertDialog für die Suche von Todos:
+        TodoSearchDialog searchDialog = new TodoSearchDialog(dma);
+        searchDialog.show();
+
     }
 
+    public void searchTodos(String searchStr) {
+
+    }
+
+    /* Intent Result von TodoSearchActivity vorübergehend deaktiviert
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -511,11 +522,10 @@ public class AllTodosActivity extends AppCompatActivity {
 
                 adapter = new TodoListAdapter(this.getApplicationContext(), alltodos);
                 lv.setAdapter(adapter);
-                */
-
 
             }
         }
     }
+    */
 
 }
