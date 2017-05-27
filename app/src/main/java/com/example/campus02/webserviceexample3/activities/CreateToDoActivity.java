@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -112,7 +113,7 @@ public class CreateToDoActivity extends AppCompatActivity {
         txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
         DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String datumstring = txtEDeadline.getText().toString();
-        if(datumstring != null && !datumstring.isEmpty()) {
+        if(!TextUtils.isEmpty(datumstring)) {
             try {
                 txtVDeadline = dformat.parse(datumstring);
             }catch(java.text.ParseException e){
@@ -123,13 +124,13 @@ public class CreateToDoActivity extends AppCompatActivity {
 
         txtEEstimatedEffort = (EditText) this.findViewById(R.id.txtEstimatedEffort);
         String float1string = txtEEstimatedEffort.getText().toString();
-        if(float1string != null && !float1string.isEmpty()) {
+        if(!TextUtils.isEmpty(float1string)) {
             txtVEstimatedEffort = Float.valueOf(float1string);
         }
 
         txtEActualEffort = (EditText) this.findViewById(R.id.txtActualEffort);
         String float2string = txtEActualEffort.getText().toString();
-        if(float2string != null && !float2string.isEmpty()) {
+        if(!TextUtils.isEmpty(float2string)) {
             txtVActualEffort = Float.valueOf(float2string);
         }
 
@@ -160,7 +161,7 @@ public class CreateToDoActivity extends AppCompatActivity {
         });
 
         // check whether name and description fields are filled
-        if(txtVName != null && !txtVName.isEmpty() && txtVDescription != null && !txtVDescription.isEmpty()){
+        if(!TextUtils.isEmpty(txtVName) &&  !TextUtils.isEmpty(txtVDescription)){
             // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
             mytodo = new TodoEntry();
             mytodo.setTitle(txtVName);
@@ -336,15 +337,15 @@ public class CreateToDoActivity extends AppCompatActivity {
                 // Create a JSON Object out of the TodoEntry Object which was created from input data from the EditText-Fields.
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    if(caller.mytodo.getTitle() != null && !caller.mytodo.getTitle().isEmpty())
+                    if(!TextUtils.isEmpty(caller.mytodo.getTitle()))
                         jsonObject.put("name",caller.mytodo.getTitle());
-                    if(caller.mytodo.getTododesc() != null && !caller.mytodo.getTododesc().isEmpty())
+                    if(!TextUtils.isEmpty(caller.mytodo.getTododesc()))
                         jsonObject.put("description", caller.mytodo.getTododesc());
                     if(caller.mytodo.getEstimatedeffort() != 0.0f)
                         jsonObject.put("estimatedEffort", caller.mytodo.getEstimatedeffort());
                     if(caller.mytodo.getUsedtime() != 0.0f)
                         jsonObject.put("usedTime", caller.mytodo.getUsedtime());
-                    if(caller.mytodo.getDuedateFormatted() != null && !caller.mytodo.getDuedateFormatted().isEmpty())
+                    if(!TextUtils.isEmpty(caller.mytodo.getDuedateFormatted()))
                         jsonObject.put("dueDate", caller.mytodo.getDuedateFormatted());
                     if(caller.mytodo.getDone() == 0 || caller.mytodo.getDone() == 1)
                         jsonObject.put("done",caller.mytodo.getDone());

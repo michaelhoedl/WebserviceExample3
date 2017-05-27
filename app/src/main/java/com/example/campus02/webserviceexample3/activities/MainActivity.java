@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         // some simple input validation:
         // if nothing was input into the text fields, then show message, otherwise continue with login process
-        if(emymail.isEmpty() || emypwd.isEmpty() || emymail.equals("") || emypwd.equals("")) {
+        if(TextUtils.isEmpty(emymail) || TextUtils.isEmpty(emypwd)) {
             showMyAlert("No Data entered", "Your Username and/or Password is empty. Both fields must be filled!");
         } else {
 
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
             // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
             int x = 0;
-            while (httpResponse == null && x <= 4000) {
+            while (TextUtils.isEmpty(httpResponse) && x <= 4000) {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             UserEntry myuser = null;
 
             // if server did not return any response, then show a message dialog saying that no session was found.
-            if (httpResponse == null || httpResponse.equals("")) {
+            if (TextUtils.isEmpty(httpResponse)) {
                 try {
                     //verschlüsselt das Passwort bevor es in der lokalen Datenbank geprüft wird
                     emypwd = encrypt(emypwd);

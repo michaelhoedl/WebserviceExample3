@@ -372,7 +372,7 @@ public class AllTodosActivity extends AppCompatActivity {
                                     .show();
                         }
                     });
-                } // end if (jsonStr != null && jsonStr != "")
+                } // end if (!TextUtils.isEmpty(jsonStr))
             } // else: wenn keine Internetverbindung verfuegbar ist, dann aus lokaler DB auslesen:
             else {
                 Log.e(TAG, "--- no internet connection! ---");
