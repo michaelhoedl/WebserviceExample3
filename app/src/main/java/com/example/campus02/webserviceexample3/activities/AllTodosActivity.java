@@ -482,7 +482,7 @@ public class AllTodosActivity extends AppCompatActivity {
     public void searchButtonClicked(View view){
         Log.e(TAG, "Search Button (FloatingActionButton2) was clicked!");
 
-        // AlertDialog für die Suche von Todos:
+        // AlertDialog für die Suche von Todos wird angezeigt
         this.searchDialog = new TodoSearchDialog(dma);
         this.searchDialog.show();
     }
