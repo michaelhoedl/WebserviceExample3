@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 import com.example.campus02.webserviceexample3.utils.CompleteTodoAction;
 import com.example.campus02.webserviceexample3.utils.DBHandler;
 import com.example.campus02.webserviceexample3.utils.DeleteTodoAction;
@@ -24,6 +25,7 @@ import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
 import com.example.campus02.webserviceexample3.model.TodoEntry;
 import com.example.campus02.webserviceexample3.model.TodoListAdapter;
+import com.example.campus02.webserviceexample3.utils.SyncHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,6 +53,7 @@ public class AllTodosActivity extends AppCompatActivity {
     private DBHandler localDb;
 
     private String suchbegriff;
+    private SyncHelper shelper;
 
 
     @Override
@@ -95,6 +98,8 @@ public class AllTodosActivity extends AppCompatActivity {
         Intent intent = getIntent();
         sessionid = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
+        shelper = new SyncHelper(dma, sessionid);
+
     }
 
     @Override
@@ -110,6 +115,22 @@ public class AllTodosActivity extends AppCompatActivity {
      */
     protected void onResume() {
         super.onResume();
+
+        // bevor die Liste neu geladen wird (via runAsync()),
+        // werden etwaige lokale Änderungen an den Webservice gesynct, sofern Internetverbindung vorhanden.
+        try {
+            for(SyncTodoEntry se : localDb.getSyncTodoEntries(sessionid)){
+                Log.d(TAG,"syncEntry onResume = "+se.toString());
+                shelper.setSynctodo(se); // das SyncTodoEntry Object an den SyncHelper übergeben.
+                shelper.runSyncAction(); // die lokalen Änderungen an den Webservice syncen.
+                if(!TextUtils.isEmpty(shelper.getHttpResponse())) {
+                    // den gerade bearbeiteten SyncTodoEntry lokal löschen, falls das syncen erfolgreich war.
+                    localDb.deleteSyncTodoEntry(se.getId(), sessionid);
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
         runAsync();

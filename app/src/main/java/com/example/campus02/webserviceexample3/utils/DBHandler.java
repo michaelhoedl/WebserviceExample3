@@ -347,7 +347,7 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // Erstellen der User Entry anhand der gelesen Daten
+        // Erstellen der User Entry anhand der gelesenen Daten
         // diese Funktion wird solang durchgeführt bis der Benutzer null ist
         UserEntry user = new UserEntry();
         if(cursor.moveToFirst()) {
@@ -460,7 +460,7 @@ public class DBHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
         ArrayList<SyncTodoEntry> syncentries = new ArrayList<>();
 
-        // Erstellen der SyncTodoEntry anhand der gelesen Daten
+        // Erstellen der SyncTodoEntry anhand der gelesenen Daten
         // diese Funktion wird solang durchgeführt bis es keine Daten mehr gibt (moveToNext = false)
         if (cursor.moveToFirst()) {
             do {
