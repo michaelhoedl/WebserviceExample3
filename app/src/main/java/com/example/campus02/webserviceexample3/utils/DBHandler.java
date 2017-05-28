@@ -23,8 +23,8 @@ import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 
 public class DBHandler extends SQLiteOpenHelper {
     // Datenbank Version - bei Datenbankänderung (Spalten oder Tabellen) muss die Version geändert werden, damit diese Änderungen erzeugt werden
-    private static final int DATABASE_VERSION               = 3;
-    // Datenbanktabellen
+    private static final int DATABASE_VERSION               = 6;
+    // Datenbank
     private static final String DATABASE_NAME               = "dbLocal";
     // Tabellen
     private static final String TABLE_TODOS                 = "todos";
@@ -91,11 +91,11 @@ public class DBHandler extends SQLiteOpenHelper {
                         + KEY_SYNCTODO_CMD + " TEXT, "
                         + KEY_SYNCTODO_HEADERS + " TEXT, "
                         + KEY_SYNCTODO_PARAMS + " TEXT, "
-                        + KEY_SYNCTODO_JSONPOSTSTR + " TEXT "
+                        + KEY_SYNCTODO_JSONPOSTSTR + " TEXT, "
                         + KEY_SYNCTODO_SESSIONKEY + " TEXT "
                         + " )";
         db.execSQL(CREATE_SYNCTODO_TABLE);
-        db.close();
+        //db.close();
     }
 
     @Override
