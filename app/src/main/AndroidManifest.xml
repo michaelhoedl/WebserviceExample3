@@ -36,8 +36,6 @@
 
         <activity android:name="com.example.campus02.webserviceexample3.activities.TodoDetailActivity" />
 
-        <activity android:name="com.example.campus02.webserviceexample3.activities.TodoSearchActivity" />
-
         <activity android:name="com.example.campus02.webserviceexample3.activities.CreateToDoActivity" />
 
     </application>

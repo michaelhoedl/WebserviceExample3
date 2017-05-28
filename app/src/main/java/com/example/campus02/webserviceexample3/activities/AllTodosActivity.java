@@ -39,7 +39,6 @@ public class AllTodosActivity extends AppCompatActivity {
     private ListView            lv;
     public static final String  EXTRA_MESSAGE2 = "com.example.campus02.webserviceexample3.MESSAGETODO";
     public static final String  EXTRA_MESSAGE3 = "com.example.campus02.webserviceexample3.MESSAGESESSION";
-    public static final int     REQUEST_ID = 1;
     private static String       url = "http://campus02win14mobapp.azurewebsites.net/Todo";
     private String              sessionid = null;
     private String              httpResponse = null;
@@ -50,6 +49,8 @@ public class AllTodosActivity extends AppCompatActivity {
     private TodoListAdapter      adapter;
     // Instanz des Datenbank-Handlers für die lokale Datenbank
     private DBHandler localDb;
+
+    private String suchbegriff;
 
 
     @Override
@@ -64,6 +65,8 @@ public class AllTodosActivity extends AppCompatActivity {
         dma = this;
         localDb = new DBHandler(this);
         alltodos = new ArrayList<TodoEntry>();
+
+        suchbegriff = null;
 
         // Das GUI Element "list" ermitteln und die ListView lv damit initialisieren.
         lv = (ListView) findViewById(R.id.list);
@@ -228,6 +231,10 @@ public class AllTodosActivity extends AppCompatActivity {
         this.sessionid = sessionid;
     }
 
+    public void setSuchbegriff(String suchbegriff) {
+        this.suchbegriff = suchbegriff;
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     /**
@@ -347,7 +354,6 @@ public class AllTodosActivity extends AppCompatActivity {
                             // Hinzufuegen des TodoEntry Objectes zur lokalen DB:
                             localDb.addTodo(mytodo);
 
-                            //Log.e(TAG, "i="+i+", todo="+mytodo.toString());
                         }
                     } catch (final JSONException e) {
                         Log.e(TAG, "Json parsing error: " + e.getMessage());
@@ -384,7 +390,12 @@ public class AllTodosActivity extends AppCompatActivity {
 
                 // Die ToDos aus der Lokalen DB laden:
                 try {
-                    alltodos = localDb.getTodos(sessionid);
+                    // wenn kein Suchbegriff gesetzt ist, dann alle laden:
+                    if(TextUtils.isEmpty(suchbegriff)) {
+                        alltodos = localDb.getTodos(sessionid);
+                    } else { // sonst: Suchbegriff lokal suchen und die Suchergebnisse laden:
+                        alltodos = localDb.getSearchedTodos(sessionid, suchbegriff);
+                    }
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -407,9 +418,6 @@ public class AllTodosActivity extends AppCompatActivity {
             // testweise logging...
             Log.e(TAG, "status: (im onPostExecute): " + this.getStatus());
             Log.e(TAG, " (onPostExecute) alltodos.size= "+alltodos.size());
-            //for(TodoEntry t : alltodos){
-            //    Log.e(TAG, "(onPostExecute) --- t= "+t.toString());
-            //}
 
             // Den Custom List Adapter fuer die Liste setzen:
             adapter = new TodoListAdapter(caller.getApplicationContext(), alltodos);
@@ -421,7 +429,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     /**
      * Diese Methode ruft den AsyncTask auf.
-     * und wartet bis das mytodo Objekt befüllt ist oder bis ca. 4 Sekunden vergangen sind.
+     * und wartet bis die ArrayList befüllt ist oder bis ca. 4 Sekunden vergangen sind.
      */
     private void runAsync()
     {
@@ -443,7 +451,6 @@ public class AllTodosActivity extends AppCompatActivity {
             x += 1;
         }
 
-
         // testweise ein paar daten ausgeben
         Log.e(TAG, "x= "+x);
         Log.e(TAG, "alltodos.size= "+alltodos.size());
@@ -454,6 +461,7 @@ public class AllTodosActivity extends AppCompatActivity {
 
     /**
      * Diese Methode wird bei Klick auf den Hinzufuegen-Button (+) aufgerufen.
+     * Die CreateToDoActivity wird dann angezeigt.
      * @param view
      */
     public void addButtonClicked(View view){
@@ -462,75 +470,41 @@ public class AllTodosActivity extends AppCompatActivity {
         // Neue Ansicht (CreateToDoActivity) oeffnen um einen neuen TodoEintrages zu erstellen.
         // Es wird die session_id (die aus Login Ansicht MainActivity kommt) an die neue Activity uebergeben.
         Intent intentdetail = new Intent(dma, CreateToDoActivity.class);
-        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der the session_id.
+        intentdetail.putExtra(EXTRA_MESSAGE3, sessionid); // uebermitteln der the session_id.
         startActivity(intentdetail);
     }
 
     /**
      * Diese Methode wird bei Klick auf den Suchen-Button aufgerufen.
+     * Ein AlertDialog mit einem Eingabefeld wird angezeigt.
      * @param view
      */
     public void searchButtonClicked(View view){
         Log.e(TAG, "Search Button (FloatingActionButton2) was clicked!");
 
-        /* Intent für TodoSearchActivity vorübergehend deaktiviert
-
-        // Neue Ansicht (TodoSearchActivity) oeffnen um eine Suche ueber die TodoEintraege zu machen.
-        // Es wird die session_id (die aus Login Ansicht MainActivity kommt) an die neue Activity uebergeben.
-        Intent intentSearch = new Intent(dma, TodoSearchActivity.class);
-        intentSearch.putExtra(EXTRA_MESSAGE3, sessionid); // Uebermitteln der session_id.
-        startActivityForResult(intentSearch, REQUEST_ID);
-
-        /*
-        this.alltodos.clear();
-        TodoEntry e = new TodoEntry();
-        e.setTitle("Test");
-        this.alltodos.add(e);
-
-        adapter = new TodoListAdapter(this.getApplicationContext(), alltodos);
-        lv.setAdapter(adapter);
-        */
-
         // AlertDialog für die Suche von Todos:
         this.searchDialog = new TodoSearchDialog(dma);
         this.searchDialog.show();
-
     }
 
+    /**
+     * Suchen, indem die URL für den Webservice-Request angepasst wird und der Suchbegriff übergeben wird.
+     * Lokale Suche passiert, indem der Suchbegriff gesetzt wird und dies dann im AsyncTask abgefragt wird.
+     * @param searchStr
+     */
     public void searchTodos(String searchStr) {
-        url = url + "/search/" + searchStr;
+        // URL für Webservice-Request anpassen:
+        url = "http://campus02win14mobapp.azurewebsites.net/Todo/search/" + searchStr;
+        setSuchbegriff(searchStr);
         adapter.clear();
+        // neuen Request an den Webservice senden:
         runAsync();
         this.searchDialog.cancel();
+        // URL wieder zurücksetzen, sodass beim nächsten Aufruf der AllTodosActivity wieder alle geladen werden.
         url = "http://campus02win14mobapp.azurewebsites.net/Todo";
+        // Suchbegriff wieder entfernen
+        setSuchbegriff(null);
     }
 
-    /* Intent Result von TodoSearchActivity vorübergehend deaktiviert
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == REQUEST_ID) {
-            if (resultCode == RESULT_OK) {
-
-                Log.e(TAG, "onActivityResult: " + requestCode + resultCode);
-
-                Bundle intent = data.getExtras();
-                Log.e(TAG, "Returned Intent Content: " + intent.get("Return Testdata1"));
-                // ArrayList<TodoEntry> foundTodos = intent.get("Return foundTodos");
-
-
-                /*
-                this.alltodos.clear();
-                TodoEntry e = new TodoEntry();
-                e.setTitle("Test");
-                this.alltodos.add(e);
-
-                adapter = new TodoListAdapter(this.getApplicationContext(), alltodos);
-                lv.setAdapter(adapter);
-
-            }
-        }
-    }
-    */
 
 }
