@@ -14,6 +14,8 @@ public class SyncTodoEntry {
     private String jsonPostStr;
     private String sessionId;
 
+    public SyncTodoEntry() {
+    }
 
     /**
      * Konstruktor ohne Id, da diese in der lokalen Datenbank automatisch vergeben wird.

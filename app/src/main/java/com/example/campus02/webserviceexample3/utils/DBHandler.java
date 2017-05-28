@@ -450,7 +450,40 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * Auslesen aller SyncTodoEntry mit einer SessionId
+     * @param session
+     * @return
+     * @throws ParseException
+     */
+    public ArrayList<SyncTodoEntry> getSyncTodoEntries (String session) throws ParseException {
+        String selectQuery = "SELECT * FROM " + TABLE_SYNCTODO
+                + " WHERE " + KEY_SYNCTODO_SESSIONKEY + " = '" + session + "'";
 
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        ArrayList<SyncTodoEntry> syncentries = new ArrayList<>();
+
+        // Erstellen der SyncTodoEntry anhand der gelesen Daten
+        // diese Funktion wird solang durchgeführt bis es keine Daten mehr gibt (moveToNext = false)
+        if (cursor.moveToFirst()) {
+            do {
+                SyncTodoEntry synctodo = new SyncTodoEntry();
+                synctodo.setId(cursor.getInt(0));
+                synctodo.setUrl(cursor.getString(1));
+                synctodo.setCmd(cursor.getString(2));
+                synctodo.setHeaders(cursor.getString(3));
+                synctodo.setParams(cursor.getString(4));
+                synctodo.setJsonPostStr(cursor.getString(5));
+                synctodo.setSession(cursor.getString(6));
+                // zu Liste von Todos hinzufügen, welche zurückgegeben wird
+                syncentries.add(synctodo);
+            } while (cursor.moveToNext());
+        }
+        cursor.close(); // schliessen des Cursors
+        db.close();
+        return syncentries;
+    }
 
 
 }
