@@ -13,6 +13,7 @@ import com.example.campus02.webserviceexample3.R;
 
 class TodoSearchDialog extends Dialog {
 
+    // TodoSearchDialog wird im AllTodosActivity bei Klick auf den Suchen-Button angezeigt
     private AllTodosActivity activity;
     private Button search, cancel;
     private EditText text;
@@ -27,6 +28,8 @@ class TodoSearchDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Setzen des Layouts vom Dialog
         setContentView(R.layout.todo_search);
         getWindow().setLayout(android.view.ViewGroup.LayoutParams.FILL_PARENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -40,6 +43,7 @@ class TodoSearchDialog extends Dialog {
         cancel.setOnClickListener(new View.OnClickListener() {
 
             @Override
+            // Beim Klick auf den Button Cancel wird der Dialog geschlossen
             public void onClick(View v) {
                 thisDialog.cancel();
             }
@@ -47,6 +51,7 @@ class TodoSearchDialog extends Dialog {
         search.setOnClickListener(new View.OnClickListener() {
 
             @Override
+            // Beim Klick auf den Button Search wird der Suchstring an die Methode seachTodos vom AllTodosAdcitity übergeben
             public void onClick(View v) {
                 String searchStr = text.getText().toString();
                 activity.searchTodos(searchStr);
