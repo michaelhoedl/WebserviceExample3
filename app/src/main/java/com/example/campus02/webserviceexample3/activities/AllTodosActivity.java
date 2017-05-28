@@ -108,7 +108,10 @@ public class AllTodosActivity extends AppCompatActivity {
      * dann wechselt die Ansicht wieder zurueck zu derjenigen Activity, von der aus die CreateToDoActivity gestartet wurde,
      * also diese Activity (AllTodosActivity).
      * Und dann wird automatisch diese Methode onResume() aufgerufen.
-     * Diese Methode macht ladet die Liste neu, da ein neues To Do erstellt wurde.
+     * Diese Methode ladet die Liste neu, da ein neues To Do erstellt wurde.
+     *
+     * Falls Jedoch Änderungen nur in der Lokalen DB durchgeführt wurden (weil keine Internetverbindung bestand),
+     * dann werden diese lokalen Änderungen zuvor mit dem Webservice gesynct. Erst dann wird die Liste neu geladen.
      *
      * Laut Android Workflow-Status wird zuerst die onCreate(), dann onStart(), dann onResume() aufgerufen.
      * Somit reicht es, wenn die runAsync() nur in der onResume() aufgerufen wird (und nicht auch in der onCreate).

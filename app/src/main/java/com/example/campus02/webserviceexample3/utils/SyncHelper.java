@@ -98,7 +98,7 @@ public class SyncHelper {
                 Log.e(TAG, "--- internet connection! ---");
 
                 // Extrahieren der NameValuePairs für die Header aus dem String.
-                // Die Headers sind im String so vorhanden: "'Content-Type:application/json;session:xxxx';Accept:application/json;'"
+                // Die Headers sind im String so vorhanden: "'Content-Type:application/json;session:xxxx;Accept:application/json;'"
                 ArrayList<NameValuePair> a1 = new ArrayList<NameValuePair>();
                 String headers = caller.getSynctodo().getHeaders();
                 if (!TextUtils.isEmpty(headers)) {
