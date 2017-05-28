@@ -12,6 +12,7 @@ public class SyncTodoEntry {
     private String headers;
     private String params;
     private String jsonPostStr;
+    private String sessionId;
 
 
     /**
@@ -88,6 +89,14 @@ public class SyncTodoEntry {
                 ", headers='" + headers + '\'' +
                 ", params='" + params + '\'' +
                 ", jsonPostStr='" + jsonPostStr + '\'' +
+                ", sessionId='" + sessionId + '\'' +
                 '}';
+    }
+
+    public void setSession(String session) {
+        this.sessionId = session;
+    }
+    public String getSession() {
+        return sessionId;
     }
 }

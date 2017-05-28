@@ -51,6 +51,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String KEY_SYNCTODO_HEADERS        = "headers";
     private static final String KEY_SYNCTODO_PARAMS         = "params";
     private static final String KEY_SYNCTODO_JSONPOSTSTR    = "jsonpoststr";
+    private static final String KEY_SYNCTODO_SESSIONKEY     = "sessionkey";
 
     public DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -91,8 +92,10 @@ public class DBHandler extends SQLiteOpenHelper {
                         + KEY_SYNCTODO_HEADERS + " TEXT, "
                         + KEY_SYNCTODO_PARAMS + " TEXT, "
                         + KEY_SYNCTODO_JSONPOSTSTR + " TEXT "
+                        + KEY_SYNCTODO_SESSIONKEY + " TEXT "
                         + " )";
         db.execSQL(CREATE_SYNCTODO_TABLE);
+        db.close();
     }
 
     @Override
@@ -421,16 +424,29 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_SYNCTODO_URL, syncEntry.getUrl());
         values.put(KEY_SYNCTODO_CMD, syncEntry.getCmd());
+        values.put(KEY_SYNCTODO_SESSIONKEY, syncEntry.getSession());
 
-        if (!syncEntry.getHeaders().isEmpty() && syncEntry.getHeaders() != null)
+        if (!TextUtils.isEmpty(syncEntry.getHeaders()))
             values.put(KEY_SYNCTODO_HEADERS, syncEntry.getHeaders());
-        if (!syncEntry.getParams().isEmpty() && syncEntry.getParams() != null)
+        if (!TextUtils.isEmpty(syncEntry.getParams()))
             values.put(KEY_SYNCTODO_PARAMS, syncEntry.getParams());
-        if (!syncEntry.getJsonPostStr().isEmpty() && syncEntry.getJsonPostStr() != null)
+        if (!TextUtils.isEmpty(syncEntry.getJsonPostStr()))
             values.put(KEY_SYNCTODO_JSONPOSTSTR, syncEntry.getJsonPostStr());
 
         // Insert oder Update
         db.insertWithOnConflict(TABLE_SYNCTODO, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
+    }
+
+    /**
+     * Löschen des SyncTodoEntry mit bestimmter ID und bestimmter Session.
+     * @param id
+     * @param session
+     */
+    public void deleteSyncTodoEntry(int id, String session) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String where = KEY_SYNCTODO_ID+" = '"+id+"' AND "+KEY_SYNCTODO_SESSIONKEY+" = '"+session+"'";
+        db.delete(TABLE_SYNCTODO, where, null);
         db.close();
     }
 

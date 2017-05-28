@@ -240,6 +240,7 @@ public class TodoDetailActivity extends AppCompatActivity {
         mytodo.setUsedtime(txtVActualEffort);
         mytodo.setDuedate(txtVDeadline);
         mytodo.setDone(erledigt);
+        mytodo.setSessionKey(sessionid);
 
         // Durchführen des Updates
         updateaction = new UpdateTodoAction(this, sessionid, mytodo);

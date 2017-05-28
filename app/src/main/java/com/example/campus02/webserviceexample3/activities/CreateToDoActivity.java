@@ -109,6 +109,31 @@ public class CreateToDoActivity extends AppCompatActivity {
         txtEDescription = (EditText) this.findViewById(R.id.txtDescription);
         txtVDescription = txtEDescription.getText().toString();
 
+        // Datum (DueDate) via DatePicker auswählen:  ... geht hier aber irgendwie noch nicht ?!? ...
+        mcurrentDate = Calendar.getInstance();
+        txtEDeadline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int mYear;
+                int mMonth;
+                int mDay;
+                mYear=mcurrentDate.get(Calendar.YEAR);
+                mMonth=mcurrentDate.get(Calendar.MONTH);
+                mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog mDatePicker=new DatePickerDialog(dma.getApplicationContext(), new DatePickerDialog.OnDateSetListener() {
+                    // wenn ein Datum via DatePicker ausgewählt wurde, dann zeige das Datum im EditText-Feld an:
+                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                        mcurrentDate.set(Calendar.YEAR, selectedyear);
+                        mcurrentDate.set(Calendar.MONTH, selectedmonth);
+                        mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
+                        updateFieldWithDate();
+                    }
+                },mYear, mMonth, mDay);
+                mDatePicker.setTitle("Select date");
+                mDatePicker.show();  }
+        });
+
         // Datum aus dem Text extrahieren:
         txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
         DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
@@ -135,31 +160,6 @@ public class CreateToDoActivity extends AppCompatActivity {
         }
 
 
-        // Datum (DueDate) via DatePicker auswählen:  ... geht hier aber irgendwie noch nicht ?!? ...
-        mcurrentDate = Calendar.getInstance();
-        txtEDeadline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int mYear;
-                int mMonth;
-                int mDay;
-                mYear=mcurrentDate.get(Calendar.YEAR);
-                mMonth=mcurrentDate.get(Calendar.MONTH);
-                mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
-
-                DatePickerDialog mDatePicker=new DatePickerDialog(dma.getApplicationContext(), new DatePickerDialog.OnDateSetListener() {
-                    // wenn ein Datum via DatePicker ausgewählt wurde, dann zeige das Datum im EditText-Feld an:
-                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                        mcurrentDate.set(Calendar.YEAR, selectedyear);
-                        mcurrentDate.set(Calendar.MONTH, selectedmonth);
-                        mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
-                        updateFieldWithDate();
-                    }
-                },mYear, mMonth, mDay);
-                mDatePicker.setTitle("Select date");
-                mDatePicker.show();  }
-        });
-
         // check whether name and description fields are filled
         if(!TextUtils.isEmpty(txtVName) &&  !TextUtils.isEmpty(txtVDescription)){
             // neues TodoEntry Objekt mit den Daten aus den EditText-Feldern erstellen:
@@ -169,6 +169,7 @@ public class CreateToDoActivity extends AppCompatActivity {
             mytodo.setEstimatedeffort(txtVEstimatedEffort);
             mytodo.setUsedtime(txtVActualEffort);
             mytodo.setDuedate(txtVDeadline);
+            mytodo.setSessionKey(sessionid);
 
             // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
             Log.e(TAG, "Save Button was clicked");
@@ -373,15 +374,15 @@ public class CreateToDoActivity extends AppCompatActivity {
                         }
 
                         // Object eines SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist (Id wird von Datenbank automatisch vergeben, dadurch nicht im Konstruktor)
-                        // params und jsonString sind beim Delete nicht nötig, dadurch wird ein Leerstring übergeben
                         SyncTodoEntry syncEntry = new SyncTodoEntry(url, "POST", headersForLocalDb, "", str);
+                        syncEntry.setSession(sessionid);
 
                         Log.e(TAG, "syncEntry= " + syncEntry.toString());
 
-                        // Datenbankfunktion für das Insert der SyncTodoEntry
-                        localDb.addSyncTodoEntry(syncEntry);
                         // Datenbankfunktion für das Erstellen eines Todos
                         localDb.addTodo(mytodo);
+                        // Datenbankfunktion für das Insert der SyncTodoEntry
+                        localDb.addSyncTodoEntry(syncEntry);
                         // Datenbankfunktion für das Select der Todos nach dem Updaten
                         localDb.getTodos(sessionid);
                     } catch (ParseException e) {

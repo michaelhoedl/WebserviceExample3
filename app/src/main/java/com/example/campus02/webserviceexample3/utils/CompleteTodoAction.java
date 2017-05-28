@@ -171,6 +171,7 @@ public class CompleteTodoAction {
                     // Object eines SyncTodoEntry, welcher für die nachträgliche Synchronisation nötig ist (Id wird von Datenbank automatisch vergeben, dadurch nicht im Konstruktor)
                     // params und jsonString sind beim Delete nicht nötig, dadurch wird ein Leerstring übergeben
                     SyncTodoEntry syncEntry = new SyncTodoEntry(url, "POST", headersForLocalDb, "", str);
+                    syncEntry.setSession(sessionId);
 
                     Log.e(TAG, "syncEntry= " + syncEntry.toString());
 
