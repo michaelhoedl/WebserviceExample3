@@ -23,7 +23,7 @@ import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 
 public class DBHandler extends SQLiteOpenHelper {
     // Datenbank Version - bei Datenbankänderung (Spalten oder Tabellen) muss die Version geändert werden, damit diese Änderungen erzeugt werden
-    private static final int DATABASE_VERSION               = 6;
+    private static final int DATABASE_VERSION               = 9;
     // Datenbank
     private static final String DATABASE_NAME               = "dbLocal";
     // Tabellen
@@ -138,8 +138,8 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_TODO_ESTIMATED, todo.getEstimatedeffort());
         values.put(KEY_TODO_USED, todo.getUsedtime());
         values.put(KEY_TODO_DONE, todo.getDone());
-        values.put(KEY_TODO_CREATE, todo.getCreatedateFormatted());
-        values.put(KEY_TODO_DUE, todo.getDuedateFormatted());
+        values.put(KEY_TODO_CREATE, DateHelper.date2string(todo.getCreatedate()));
+        values.put(KEY_TODO_DUE, DateHelper.date2string(todo.getDuedate()));
         values.put(KEY_TODO_SESSIONKEY, todo.getSessionKey());
         // Insert oder Update
         db.insertWithOnConflict(TABLE_TODOS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -174,11 +174,16 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setDone(cursor.getInt(5));
 
                 // Datumswerte:
-                SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+                //SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                 Date d1 = null;
                 Date d2 = null;
                 String s1 = cursor.getString(6);
                 String s2 = cursor.getString(7);
+
+                d1 = DateHelper.string2date(s1);
+                d2 = DateHelper.string2date(s2);
+                /*
                 if(!TextUtils.isEmpty(s1)) {
                     try {
                         d1 = dt1.parse(s1);
@@ -195,6 +200,7 @@ public class DBHandler extends SQLiteOpenHelper {
                         Log.e("DBHandler", "ParseException: " + p.getMessage());
                     }
                 }
+                */
 
                 if (d1 != null)
                     todo.setCreatedate(d1);
@@ -245,8 +251,10 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setEstimatedeffort(cursor.getFloat(3));
                 todo.setUsedtime(cursor.getFloat(4));
                 todo.setDone(cursor.getInt(5));
-                todo.setCreatedate( todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
-                todo.setDuedate( todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
+                //todo.setCreatedate( todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
+                //todo.setDuedate( todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
+                todo.setCreatedate(DateHelper.string2dateSimple(cursor.getString(6)));
+                todo.setDuedate(DateHelper.string2dateSimple(cursor.getString(7)));
                 todo.setSessionKey(cursor.getString(8));
 
                 // zu Liste von Todos hinzufügen, welche zurückgegeben wird
@@ -284,11 +292,15 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setDone(cursor.getInt(5));
 
             // Datumswerte:
-                SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                //SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                 Date d1 = null;
                 Date d2 = null;
                 String s1 = cursor.getString(6);
                 String s2 = cursor.getString(7);
+
+                d1 = DateHelper.string2date(s1);
+                d2 = DateHelper.string2date(s2);
+            /*
                 if(!TextUtils.isEmpty(s1)) {
                     try {
                         d1 = dt1.parse(s1);
@@ -305,7 +317,7 @@ public class DBHandler extends SQLiteOpenHelper {
                         Log.e("DBHandler", "ParseException: " + p.getMessage());
                     }
                 }
-
+            */
                 if (d1 != null)
                     todo.setCreatedate(d1);
                 if(d2 != null)
@@ -402,7 +414,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_TODO_DESC, mytodo.getTododesc());
         values.put(KEY_TODO_ESTIMATED, mytodo.getEstimatedeffort());
         values.put(KEY_TODO_USED,mytodo.getUsedtime());
-        values.put(KEY_TODO_DUE,mytodo.getDuedateFormatted());
+        values.put(KEY_TODO_DUE, DateHelper.date2string(mytodo.getDuedate()));
         values.put(KEY_TODO_DONE,mytodo.getDone());
 
         String where = KEY_TODO_ID+" = '"+id+"' AND "+KEY_TODO_SESSIONKEY+" = '"+session+"'";
@@ -453,8 +465,10 @@ public class DBHandler extends SQLiteOpenHelper {
      * @throws ParseException
      */
     public ArrayList<SyncTodoEntry> getSyncTodoEntries (String session) throws ParseException {
-        String selectQuery = "SELECT * FROM " + TABLE_SYNCTODO
-                + " WHERE " + KEY_SYNCTODO_SESSIONKEY + " = '" + session + "'";
+        String selectQuery = "SELECT min(id) id, url, cmd, headers, params, jsonpoststr, sessionkey " +
+                "FROM " + TABLE_SYNCTODO
+                + " WHERE " + KEY_SYNCTODO_SESSIONKEY + " = '" + session + "'" +
+                " GROUP BY url, cmd, headers, params, jsonpoststr, sessionkey";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);

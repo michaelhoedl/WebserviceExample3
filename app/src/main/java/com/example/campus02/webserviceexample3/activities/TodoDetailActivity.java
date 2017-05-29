@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 import com.example.campus02.webserviceexample3.model.TodoEntry;
 import com.example.campus02.webserviceexample3.utils.DBHandler;
+import com.example.campus02.webserviceexample3.utils.DateHelper;
 import com.example.campus02.webserviceexample3.utils.HttpHandler;
 import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
@@ -115,7 +116,8 @@ public class TodoDetailActivity extends AppCompatActivity {
             etdesc.setText(mytodo.getTododesc());
             etestimatedeffort.setText(mytodo.getEstimatedeffort() + "");
             etactualeffort.setText(mytodo.getUsedtime() + "");
-            eduedate.setText(mytodo.getDuedateFormattedForTextfield());  // passendes Datumsformat fürs Textfeld: dd.MM.yyyy
+            //eduedate.setText(mytodo.getDuedateFormattedForTextfield());  // passendes Datumsformat fürs Textfeld: dd.MM.yyyy
+            eduedate.setText(DateHelper.date2stringSimple(mytodo.getDuedate()));
             cErledigt.setChecked(mytodo.getDoneBoolean());
         }
 
@@ -203,6 +205,7 @@ public class TodoDetailActivity extends AppCompatActivity {
         txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
         DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String datumstring = txtEDeadline.getText().toString();
+        /*
         // wenn es nicht leer ist, dann den Text zu einem Datum umwandeln:
         if(!TextUtils.isEmpty(datumstring)) {
             try {
@@ -212,6 +215,9 @@ public class TodoDetailActivity extends AppCompatActivity {
                 Log.e(TAG, "Date parsing error: "+datumstring);
             }
         }
+        */
+
+        txtVDeadline = DateHelper.string2dateSimple(datumstring);
 
         txtEEstimatedEffort = (EditText) this.findViewById(R.id.txtEstimatedEffort);
         String float1string = txtEEstimatedEffort.getText().toString();
@@ -369,8 +375,11 @@ public class TodoDetailActivity extends AppCompatActivity {
                         } else {
                             caller.mytodo.setDone(0);
                         }
-                        caller.mytodo.setDuedateAsString(duedate); // Datum als String setzen (wird über die set-Methode zu einem Datum umgewandelt)
-                        caller.mytodo.setCreatedateAsString(createdate); // Datum als String setzen (wird über die set-Methode zu einem Datum umgewandelt)
+
+                        //caller.mytodo.setDuedateAsString(duedate); // Datum als String setzen (wird über die set-Methode zu einem Datum umgewandelt)
+                        //caller.mytodo.setCreatedateAsString(createdate); // Datum als String setzen (wird über die set-Methode zu einem Datum umgewandelt)
+                        caller.mytodo.setDuedate(DateHelper.string2date(duedate));
+                        caller.mytodo.setCreatedate(DateHelper.string2date(createdate));
 
                         Log.e(TAG, "jsonObj: id=" + id + ", name=" + name + ", description=" + description);
                         Log.e(TAG, "jsonObj: mytodo.tostring=" + caller.mytodo.toString());

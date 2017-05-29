@@ -114,7 +114,7 @@ public class UpdateTodoAction {
                 jsonObject.put("description",caller.mytodo.getTododesc());
                 jsonObject.put("estimatedEffort",caller.mytodo.getEstimatedeffort());
                 jsonObject.put("usedTime",caller.mytodo.getUsedtime());
-                jsonObject.put("dueDate",caller.mytodo.getDuedateFormatted());
+                jsonObject.put("dueDate", DateHelper.date2string(caller.mytodo.getDuedate()));
                 jsonObject.put("done",caller.mytodo.getDone());
             } catch (JSONException e) {
                 e.printStackTrace();

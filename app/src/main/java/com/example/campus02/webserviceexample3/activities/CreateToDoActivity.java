@@ -17,6 +17,7 @@ import android.widget.EditText;
 import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 import com.example.campus02.webserviceexample3.model.TodoEntry;
 import com.example.campus02.webserviceexample3.utils.DBHandler;
+import com.example.campus02.webserviceexample3.utils.DateHelper;
 import com.example.campus02.webserviceexample3.utils.HttpHandler;
 import com.example.campus02.webserviceexample3.utils.NameValuePair;
 import com.example.campus02.webserviceexample3.R;
@@ -127,6 +128,11 @@ public class CreateToDoActivity extends AppCompatActivity {
                         mcurrentDate.set(Calendar.YEAR, selectedyear);
                         mcurrentDate.set(Calendar.MONTH, selectedmonth);
                         mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
+                        // Zeit-Komponente einfach auf jeweils 0 setzen:
+                        mcurrentDate.set(Calendar.HOUR_OF_DAY, 0);
+                        mcurrentDate.set(Calendar.MINUTE, 0);
+                        mcurrentDate.set(Calendar.SECOND, 0);
+                        mcurrentDate.set(Calendar.MILLISECOND, 0);
                         updateFieldWithDate();
                     }
                 },mYear, mMonth, mDay);
@@ -138,6 +144,7 @@ public class CreateToDoActivity extends AppCompatActivity {
         txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
         DateFormat dformat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String datumstring = txtEDeadline.getText().toString();
+        /*
         if(!TextUtils.isEmpty(datumstring)) {
             try {
                 txtVDeadline = dformat.parse(datumstring);
@@ -146,6 +153,9 @@ public class CreateToDoActivity extends AppCompatActivity {
                 Log.e(TAG, "Date parsing error: "+datumstring);
             }
         }
+        */
+
+        txtVDeadline = DateHelper.string2dateSimple(datumstring);
 
         txtEEstimatedEffort = (EditText) this.findViewById(R.id.txtEstimatedEffort);
         String float1string = txtEEstimatedEffort.getText().toString();
@@ -346,8 +356,8 @@ public class CreateToDoActivity extends AppCompatActivity {
                         jsonObject.put("estimatedEffort", caller.mytodo.getEstimatedeffort());
                     if(caller.mytodo.getUsedtime() != 0.0f)
                         jsonObject.put("usedTime", caller.mytodo.getUsedtime());
-                    if(!TextUtils.isEmpty(caller.mytodo.getDuedateFormatted()))
-                        jsonObject.put("dueDate", caller.mytodo.getDuedateFormatted());
+                    if(caller.mytodo.getDuedate() != null)
+                        jsonObject.put("dueDate", DateHelper.date2string(caller.mytodo.getDuedate()));
                     if(caller.mytodo.getDone() == 0 || caller.mytodo.getDone() == 1)
                         jsonObject.put("done",caller.mytodo.getDone());
 

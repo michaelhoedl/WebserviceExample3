@@ -126,11 +126,11 @@ public class TodoEntry {
 
 
     /**
-     * get the createdate as a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
+     * get the createdate as a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
      * @return
      */
     public String getCreatedateFormatted() {
-        SimpleDateFormat dt1 = new SimpleDateFormat(/*"dd.MM.yyyy"*/ "yyyy-MM-dd'T'HH:mm:ss.SSS"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        SimpleDateFormat dt1 = new SimpleDateFormat(/*"dd.MM.yyyy"*/ "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
         if(createdate != null)
             return dt1.format(createdate);
         else
@@ -138,12 +138,12 @@ public class TodoEntry {
     }
 
     /**
-     * set the createdate from a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
+     * set the createdate from a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
      * for example, we get a date like "2017-04-23T16:05:07.3" from the webservice.
      * @param createdateAsString
      */
     public void setCreatedateAsString(String createdateAsString) {
-        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         if(!TextUtils.isEmpty(createdateAsString)) {
             try {
                 this.createdate = dt1.parse(createdateAsString);
@@ -155,11 +155,11 @@ public class TodoEntry {
     }
 
     /**
-     * get the duedate as a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
+     * get the duedate as a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
      * @return
      */
     public String getDuedateFormatted() {
-        SimpleDateFormat dt1 = new SimpleDateFormat(/*"dd.MM.yyyy"*/ "yyyy-MM-dd'T'HH:mm:ss.SSS"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
+        SimpleDateFormat dt1 = new SimpleDateFormat(/*"dd.MM.yyyy"*/ "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // oder dieses format: yyyy-MM-dd'T'HH:mm:ss
         if(duedate != null)
             return dt1.format(duedate);
         else
@@ -180,12 +180,12 @@ public class TodoEntry {
     }
 
     /**
-     * set the duedate from a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS")
+     * set the duedate from a string with a given dateformat ("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
      * for example, we get a date like "2017-04-23T16:05:07.3" from the webservice.
      * @param duedateAsString
      */
     public void setDuedateAsString(String duedateAsString) {
-        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         if(!TextUtils.isEmpty(duedateAsString)) {
             try {
                 this.duedate = dt1.parse(duedateAsString);

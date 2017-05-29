@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 import com.example.campus02.webserviceexample3.utils.CompleteTodoAction;
 import com.example.campus02.webserviceexample3.utils.DBHandler;
+import com.example.campus02.webserviceexample3.utils.DateHelper;
 import com.example.campus02.webserviceexample3.utils.DeleteTodoAction;
 import com.example.campus02.webserviceexample3.utils.HttpHandler;
 import com.example.campus02.webserviceexample3.utils.NameValuePair;
@@ -121,19 +122,24 @@ public class AllTodosActivity extends AppCompatActivity {
 
         // bevor die Liste neu geladen wird (via runAsync()),
         // werden etwaige lokale Änderungen an den Webservice gesynct, sofern Internetverbindung vorhanden.
+        ArrayList<SyncTodoEntry> synclist = null;
         try {
-            for(SyncTodoEntry se : localDb.getSyncTodoEntries(sessionid)){
-                Log.d(TAG,"syncEntry onResume = "+se.toString());
+            synclist = localDb.getSyncTodoEntries(sessionid);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (synclist.size() > 0 ) {
+            for (SyncTodoEntry se : synclist) {
+                Log.d(TAG, "syncEntry onResume = " + se.toString());
                 shelper.setSynctodo(se); // das SyncTodoEntry Object an den SyncHelper übergeben.
                 shelper.runSyncAction(); // die lokalen Änderungen an den Webservice syncen.
-                if(!TextUtils.isEmpty(shelper.getHttpResponse())) {
+                if (!TextUtils.isEmpty(shelper.getHttpResponse())) {
                     // den gerade bearbeiteten SyncTodoEntry lokal löschen, falls das syncen erfolgreich war.
                     localDb.deleteSyncTodoEntry(se.getId(), sessionid);
                 }
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
         }
+
 
         // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
         runAsync();
@@ -326,7 +332,6 @@ public class AllTodosActivity extends AppCompatActivity {
                 caller.setHttpResponse(jsonStr);
 
                 //just some logging
-                Log.e(TAG, "Response from url (jsonStr): " + jsonStr);
                 Log.e(TAG, "Response from url (httpResponse): " + httpResponse);
                 Log.e(TAG, "jsonStr.length: " + jsonStr.length());
 
@@ -368,8 +373,12 @@ public class AllTodosActivity extends AppCompatActivity {
                             } else {
                                 mytodo.setDone(0);
                             }
-                            mytodo.setDuedateAsString(_duedate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
-                            mytodo.setCreatedateAsString(_createdate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
+                            //mytodo.setDuedateAsString(_duedate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
+                            //mytodo.setCreatedateAsString(_createdate); // z.B. ein Datum wie dieses: "2017-05-12T17:02:23.643"
+
+                            mytodo.setDuedate(DateHelper.string2date(_duedate));
+                            mytodo.setCreatedate(DateHelper.string2date(_createdate));
+
                             mytodo.setSessionKey(sessionid);
 
                             // Hinzufuegen des TodoEntry Objektes zur ArrayList:
