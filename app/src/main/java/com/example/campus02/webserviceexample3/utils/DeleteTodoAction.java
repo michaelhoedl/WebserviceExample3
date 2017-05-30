@@ -171,22 +171,5 @@ public class DeleteTodoAction {
     private void runAsync()
     {
         new AsyncCaller(this).execute();
-
-        // bissl primitiver ansatz, um die problematik zu loesen
-        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
-        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
-        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
-        int x = 0;
-        while(httpResponse == null && x < 4000) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            x += 1;
-        }
-
-        Log.e(TAG, "x= " + x);
-        Log.e(TAG, "httpResponse: " + httpResponse);
     }
 }
