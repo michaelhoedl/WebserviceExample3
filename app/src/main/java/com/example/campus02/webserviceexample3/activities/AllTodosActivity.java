@@ -56,6 +56,8 @@ public class AllTodosActivity extends AppCompatActivity {
     private String suchbegriff;
     private SyncHelper shelper;
 
+    private HttpHandler sh = new HttpHandler();
+
 
     @Override
     /**
@@ -122,6 +124,8 @@ public class AllTodosActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        boolean isInternetConnected = sh.isNetworkAvailable(AllTodosActivity.this.getApplicationContext());
+
         // bevor die Liste neu geladen wird (via runAsync()),
         // werden etwaige lokale Änderungen an den Webservice gesynct, sofern Internetverbindung vorhanden.
         ArrayList<SyncTodoEntry> synclist = null;
@@ -130,7 +134,8 @@ public class AllTodosActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if (synclist.size() > 0 ) {
+        // sync it to API if there are synctodoentries and there is internet available
+        if (synclist.size() > 0 && isInternetConnected) {
             for (SyncTodoEntry se : synclist) {
                 Log.d(TAG, "syncEntry onResume = " + se.toString());
                 shelper.setSynctodo(se); // das SyncTodoEntry Object an den SyncHelper übergeben.
@@ -273,13 +278,12 @@ public class AllTodosActivity extends AppCompatActivity {
     private class AsyncCaller extends AsyncTask<Void, Void, Void> {
 
         boolean isInternetConnected;
-        HttpHandler sh;
+
 
         //necessary for exchanging data.
         AllTodosActivity caller;
         AsyncCaller(AllTodosActivity caller){
             this.caller = caller;
-            sh = new HttpHandler();
             // ermitteln ob die App eine Internet-Verbindung hat
             isInternetConnected = sh.isNetworkAvailable(caller.getApplicationContext());
 
