@@ -253,8 +253,8 @@ public class DBHandler extends SQLiteOpenHelper {
                 todo.setDone(cursor.getInt(5));
                 //todo.setCreatedate( todo.string2date(cursor.getString(6), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
                 //todo.setDuedate( todo.string2date(cursor.getString(7), "dd.MM.yyyy" /*"yyyy-MM-dd'T'HH:mm:ss"*/) );
-                todo.setCreatedate(DateHelper.string2dateSimple(cursor.getString(6)));
-                todo.setDuedate(DateHelper.string2dateSimple(cursor.getString(7)));
+                todo.setCreatedate(DateHelper.string2date(cursor.getString(6)));
+                todo.setDuedate(DateHelper.string2date(cursor.getString(7)));
                 todo.setSessionKey(cursor.getString(8));
 
                 // zu Liste von Todos hinzufügen, welche zurückgegeben wird
