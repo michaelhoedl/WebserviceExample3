@@ -2,6 +2,8 @@ package com.example.campus02.webserviceexample3.model;
 
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +28,18 @@ import java.util.ArrayList;
 public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
 
     private ArrayList<TodoEntry> tl;
-    public TodoListAdapter(Context context, ArrayList<TodoEntry> todos) {
-        super(context, 0, todos);
-        this.tl = todos;
+    public TodoListAdapter(Context context/*, ArrayList<TodoEntry> todos*/) {
+        super(context, 0 /*, todos */);
+        //this.tl = todos;
+    }
+
+    public TodoListAdapter(@NonNull Context context, @LayoutRes int resource) {
+        super(context, resource);
+    }
+
+    public void setTl(ArrayList<TodoEntry> tl) {
+        this.tl = tl;
+        notifyDataSetChanged();
     }
 
     @Override

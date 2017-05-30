@@ -75,6 +75,8 @@ public class AllTodosActivity extends AppCompatActivity {
         // Das GUI Element "list" ermitteln und die ListView lv damit initialisieren.
         lv = (ListView) findViewById(R.id.list);
 
+        adapter = new TodoListAdapter(this.getApplicationContext()/*, alltodos*/);
+
         // add click-listener to list. Reacting to a click on a list item.
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> myAdapter, View myView, int myItemInt, long mylng) {
@@ -453,7 +455,8 @@ public class AllTodosActivity extends AppCompatActivity {
             Log.e(TAG, " (onPostExecute) alltodos.size= "+alltodos.size());
 
             // Den Custom List Adapter fuer die Liste setzen:
-            adapter = new TodoListAdapter(caller.getApplicationContext(), alltodos);
+            //adapter = new TodoListAdapter(caller.getApplicationContext()/*, alltodos*/);
+            adapter.setTl(alltodos);
             lv.setAdapter(adapter);
             Log.e(TAG,"lv.getAdapter().getCount()="+lv.getAdapter().getCount());
         }
