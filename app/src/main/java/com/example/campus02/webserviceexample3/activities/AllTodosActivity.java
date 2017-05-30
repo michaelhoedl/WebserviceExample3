@@ -133,10 +133,7 @@ public class AllTodosActivity extends AppCompatActivity {
                 Log.d(TAG, "syncEntry onResume = " + se.toString());
                 shelper.setSynctodo(se); // das SyncTodoEntry Object an den SyncHelper übergeben.
                 shelper.runSyncAction(); // die lokalen Änderungen an den Webservice syncen.
-                if (!TextUtils.isEmpty(shelper.getHttpResponse())) {
-                    // den gerade bearbeiteten SyncTodoEntry lokal löschen, falls das syncen erfolgreich war.
-                    localDb.deleteSyncTodoEntry(se.getId(), sessionid);
-                }
+                localDb.deleteSyncTodoEntry(se.getId(), sessionid);  // den gerade bearbeiteten SyncTodoEntry lokal löschen
             }
         }
 
@@ -487,9 +484,6 @@ public class AllTodosActivity extends AppCompatActivity {
         // testweise ein paar daten ausgeben
         Log.e(TAG, "x= "+x);
         Log.e(TAG, "alltodos.size= "+alltodos.size());
-        for(TodoEntry t : alltodos){
-            Log.e(TAG, "--- t= "+t.toString());
-        }
     }
 
     /**
