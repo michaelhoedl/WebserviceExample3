@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private String mymail = null;
     private String mypwd = null;
     private DBHandler localDb = new DBHandler(this);
+    private HttpHandler sh = new HttpHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
          * do your long running http tasks here, you dont want to pass argument and u can access the parent class variable url over here
          */
         protected Void doInBackground(Void... arg0) {
-            HttpHandler sh = new HttpHandler();
 
             // set headers
             ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();

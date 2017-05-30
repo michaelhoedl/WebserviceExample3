@@ -33,9 +33,6 @@ public class TodoListAdapter extends ArrayAdapter<TodoEntry> {
         //this.tl = todos;
     }
 
-    public TodoListAdapter(@NonNull Context context, @LayoutRes int resource) {
-        super(context, resource);
-    }
 
     public void setTl(ArrayList<TodoEntry> tl) {
         this.tl = tl;
