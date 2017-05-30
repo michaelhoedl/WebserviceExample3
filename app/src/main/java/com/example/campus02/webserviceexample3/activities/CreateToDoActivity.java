@@ -79,6 +79,8 @@ public class CreateToDoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         sessionid = intent.getStringExtra(AllTodosActivity.EXTRA_MESSAGE3);
 
+        setDateTimeFields();
+
     }
 
     @Override
@@ -109,36 +111,6 @@ public class CreateToDoActivity extends AppCompatActivity {
 
         txtEDescription = (EditText) this.findViewById(R.id.txtDescription);
         txtVDescription = txtEDescription.getText().toString();
-
-        // Datum (DueDate) via DatePicker auswählen:  ... geht hier aber irgendwie noch nicht ?!? ...
-        mcurrentDate = Calendar.getInstance();
-        txtEDeadline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int mYear;
-                int mMonth;
-                int mDay;
-                mYear=mcurrentDate.get(Calendar.YEAR);
-                mMonth=mcurrentDate.get(Calendar.MONTH);
-                mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
-
-                DatePickerDialog mDatePicker=new DatePickerDialog(dma.getApplicationContext(), new DatePickerDialog.OnDateSetListener() {
-                    // wenn ein Datum via DatePicker ausgewählt wurde, dann zeige das Datum im EditText-Feld an:
-                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                        mcurrentDate.set(Calendar.YEAR, selectedyear);
-                        mcurrentDate.set(Calendar.MONTH, selectedmonth);
-                        mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
-                        // Zeit-Komponente einfach auf jeweils 0 setzen:
-                        mcurrentDate.set(Calendar.HOUR_OF_DAY, 0);
-                        mcurrentDate.set(Calendar.MINUTE, 0);
-                        mcurrentDate.set(Calendar.SECOND, 0);
-                        mcurrentDate.set(Calendar.MILLISECOND, 0);
-                        updateFieldWithDate();
-                    }
-                },mYear, mMonth, mDay);
-                mDatePicker.setTitle("Select date");
-                mDatePicker.show();  }
-        });
 
         // Datum aus dem Text extrahieren:
         txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
@@ -218,6 +190,37 @@ public class CreateToDoActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    /*
+     setzt den OnClickListener für das Deadline Textfeld - wird im onCreate von dieser Activity aufgerufen
+      */
+    private void setDateTimeFields() {
+        mcurrentDate = Calendar.getInstance();
+        txtEDeadline = (EditText) this.findViewById(R.id.txtDeadline);
+        txtEDeadline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int mYear;
+                int mMonth;
+                int mDay;
+                mYear=mcurrentDate.get(Calendar.YEAR);
+                mMonth=mcurrentDate.get(Calendar.MONTH);
+                mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog mDatePicker=new DatePickerDialog(CreateToDoActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    // wenn ein Datum via DatePicker ausgewählt wurde, dann zeige das Datum im EditText-Feld an:
+                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                        mcurrentDate.set(Calendar.YEAR, selectedyear);
+                        mcurrentDate.set(Calendar.MONTH, selectedmonth);
+                        mcurrentDate.set(Calendar.DAY_OF_MONTH, selectedday);
+                        // bei Auswahl eines Datums wird in dieser Methode das Deadline Textfeld befüllt
+                        updateFieldWithDate();
+                    }
+                },mYear, mMonth, mDay);
+                mDatePicker.setTitle("Select date");
+                mDatePicker.show();  }
+        });
     }
 
     // ---------------------------------------------------------------------------------------------
