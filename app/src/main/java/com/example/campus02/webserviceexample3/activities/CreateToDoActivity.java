@@ -152,6 +152,7 @@ public class CreateToDoActivity extends AppCompatActivity {
             mytodo.setUsedtime(txtVActualEffort);
             mytodo.setDuedate(txtVDeadline);
             mytodo.setSessionKey(sessionid);
+            mytodo.setCreatedate(new Date());
 
             // im Log ausgeben dass der Save Button geklickt wurde, und auch gleich das gerade erstellte Objekt ausgeben.
             Log.e(TAG, "Save Button was clicked");

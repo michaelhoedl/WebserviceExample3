@@ -23,7 +23,7 @@ import com.example.campus02.webserviceexample3.model.SyncTodoEntry;
 
 public class DBHandler extends SQLiteOpenHelper {
     // Datenbank Version - bei Datenbankänderung (Spalten oder Tabellen) muss die Version geändert werden, damit diese Änderungen erzeugt werden
-    private static final int DATABASE_VERSION               = 9;
+    private static final int DATABASE_VERSION               = 10;
     // Datenbank
     private static final String DATABASE_NAME               = "dbLocal";
     // Tabellen
@@ -64,7 +64,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TODO_TABLE =
                 "CREATE TABLE IF NOT EXISTS " + TABLE_TODOS + " ( "
-                        + KEY_TODO_ID + " INTEGER PRIMARY KEY, "
+                        + KEY_TODO_ID + " INTEGER, "
                         + KEY_TODO_TITLE + " TEXT, "
                         + KEY_TODO_DESC + " TEXT, "
                         + KEY_TODO_ESTIMATED + " REAL, "
@@ -72,7 +72,8 @@ public class DBHandler extends SQLiteOpenHelper {
                         + KEY_TODO_DONE + " INTEGER, "
                         + KEY_TODO_CREATE + " TEXT, "
                         + KEY_TODO_DUE + " TEXT, "
-                        + KEY_TODO_SESSIONKEY + " TEXT"
+                        + KEY_TODO_SESSIONKEY + " TEXT, "
+                        + "PRIMARY KEY ("+KEY_TODO_ID+","+KEY_TODO_CREATE+")"
                         + " )";
         db.execSQL(CREATE_TODO_TABLE);
 
