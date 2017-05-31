@@ -130,8 +130,19 @@ public class HttpHandler {
                     Log.e(TAG, "False - responseCode="+responseCode);
                     response = "";
                 }
-            } // ansonsten: wenn alle anderen HTTP Request Methoden ausser POST, dann:
-            else if (!reqMethod.equals("POST")) {
+            } else if (reqMethod.equals("DELETE")){
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_NO_CONTENT)  // HTTP_NO_CONTENT entpricht dem HTTP-Statuscode 204
+                {
+                    Log.e(TAG, "HTTP_NO_CONTENT, "+responseCode);
+                    response = "deleted"+responseCode;
+                } else {
+                    Log.e(TAG, "False - responseCode="+responseCode);
+                    response = "";
+                }
+            }
+            // ansonsten: wenn alle anderen HTTP Request Methoden ausser POST und DELETE, dann:
+            else if (!reqMethod.equals("POST") && !reqMethod.equals("DELETE")) {
                 // read the response if it is not a POST request
                 InputStream in = new BufferedInputStream(conn.getInputStream());
                 response = convertStreamToString(in);

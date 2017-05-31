@@ -140,7 +140,7 @@ public class AllTodosActivity extends AppCompatActivity {
                 Log.d(TAG, " syncEntry onResume =" + se.toString());
                 shelper.setSynctodo(se); // das SyncTodoEntry Object an den SyncHelper übergeben.
                 shelper.runSyncAction(); // die lokalen Änderungen an den Webservice syncen.
-                if(!httpResponse.equals("") && !TextUtils.isEmpty(httpResponse)) {
+                if(!TextUtils.isEmpty(shelper.getHttpResponse())) {
                     // den gerade bearbeiteten SyncTodoEntry lokal löschen, falls das syncen erfolgreich war.
                     localDb.deleteSyncTodoEntry(se.getId(), sessionid);
                 }
