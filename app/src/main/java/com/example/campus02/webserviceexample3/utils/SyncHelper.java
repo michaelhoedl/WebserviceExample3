@@ -83,10 +83,12 @@ public class SyncHelper {
             super.onPreExecute();
 
             // Showing progress dialog
-            pDialog = new ProgressDialog(mainDialog);
-            pDialog.setMessage("Please wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
+            if (pDialog == null) {
+                pDialog = new ProgressDialog(mainDialog);
+                pDialog.setMessage("Please wait...");
+                pDialog.setCancelable(false);
+                pDialog.show();
+            }
         }
 
         @Override
@@ -150,8 +152,10 @@ public class SyncHelper {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Dismiss the progress dialog
-            if (pDialog.isShowing())
+            if (pDialog != null) {
                 pDialog.dismiss();
+                pDialog = null;
+            }
 
             Log.e(TAG, "status: (im onPostExecute) complete action: " + this.getStatus());
         }
