@@ -117,9 +117,9 @@ public class HttpHandler {
                 os.write(outputBytes);
 
                 int responseCode = conn.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK)  // HTTP_OK entpricht dem HTTP-Statuscode 200
+                if (responseCode == HttpURLConnection.HTTP_CREATED)  // HTTP_CREATED entpricht dem HTTP-Statuscode 201
                 {
-                    Log.e(TAG, "HTTP_OK, "+responseCode);
+                    Log.e(TAG, "HTTP_CREATED, "+responseCode);
 
                     String line;
                     BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));

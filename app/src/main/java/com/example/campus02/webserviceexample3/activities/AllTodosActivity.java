@@ -137,12 +137,13 @@ public class AllTodosActivity extends AppCompatActivity {
         // sync it to API if there are synctodoentries and there is internet available
         if (synclist.size() > 0 && isInternetConnected) {
             for (SyncTodoEntry se : synclist) {
-                Log.d(TAG, "syncEntry onResume = " + se.toString());
+                Log.d(TAG, " syncEntry onResume =" + se.toString());
                 shelper.setSynctodo(se); // das SyncTodoEntry Object an den SyncHelper übergeben.
                 shelper.runSyncAction(); // die lokalen Änderungen an den Webservice syncen.
-                if(httpResponse == null || !httpResponse.equals("")) {
+                if(!httpResponse.equals("") && !TextUtils.isEmpty(httpResponse)) {
                     // den gerade bearbeiteten SyncTodoEntry lokal löschen, falls das syncen erfolgreich war.
-                    localDb.deleteSyncTodoEntry(se.getId(), sessionid);                }
+                    localDb.deleteSyncTodoEntry(se.getId(), sessionid);
+                }
             }
         }
 
