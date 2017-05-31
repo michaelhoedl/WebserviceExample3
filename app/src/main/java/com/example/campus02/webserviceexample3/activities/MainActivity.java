@@ -32,11 +32,13 @@ public class MainActivity extends AppCompatActivity {
     private String mypwd = null;
     private DBHandler localDb = new DBHandler(this);
     private HttpHandler sh = new HttpHandler();
+    private MainActivity mainact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.mainact = this;
     }
 
     /**
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void sendMessage(View view) {
 
+        boolean internetconnected = sh.isNetworkAvailable(mainact.getApplicationContext());
         String emymail = ((EditText) findViewById(R.id.editTextMail)).getText().toString();
         String emypwd = ((EditText) findViewById(R.id.editTextPwd)).getText().toString();
         MainActivity.this.setMymail(emymail);
@@ -62,23 +65,26 @@ public class MainActivity extends AppCompatActivity {
             AsyncTask async = new AsyncCaller(this).execute();
             Log.e(TAG, "status (im sendMessage): " + async.getStatus());
 
-            // bissl primitiver ansatz, um die problematik zu loesen
-            //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
-            // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
-            // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
-            int x = 0;
-            while (TextUtils.isEmpty(httpResponse) && x <= 4000) {
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+
+            // wenn Internetverbindung besteht, dann sicherheitshalber bissl warten...
+            if(internetconnected) {
+                // bissl primitiver ansatz, um die problematik zu loesen
+                //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
+                // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
+                // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
+                int x = 0;
+                while (TextUtils.isEmpty(httpResponse) && x <= 4000) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    x += 1;
                 }
-                x += 1;
+
+                Log.e(TAG, "x= " + x);
+                Log.e(TAG, "httpResponse: " + httpResponse);
             }
-
-            Log.e(TAG, "x= " + x);
-            Log.e(TAG, "httpResponse: " + httpResponse);
-
 
             UserEntry myuser = null;
 
