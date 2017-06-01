@@ -140,18 +140,15 @@ public class AllTodosActivity extends AppCompatActivity {
                 Log.d(TAG, " syncEntry onResume =" + se.toString());
                 shelper.setSynctodo(se); // das SyncTodoEntry Object an den SyncHelper übergeben.
                 boolean bsync = false;
-                bsync = shelper.runSyncAction();
+                bsync = shelper.runSyncAction(); // die lokalen Änderungen an den Webservice syncen. runSyncAction liefert true wenn ein response kam, sonst false.
                 Log.d(TAG, " syncEntry im onResume bsync =" + bsync);
-                if(bsync) // die lokalen Änderungen an den Webservice syncen. runSyncAction liefert true wenn ein response kam, sonst false.
-                {
+                if(bsync) {
                     int nrows = 0;
-                    // den gerade bearbeiteten SyncTodoEntry lokal löschen, falls das syncen erfolgreich war.
-                    nrows = localDb.deleteSyncTodoEntry(se.getId(), sessionid);
+                    nrows = localDb.deleteSyncTodoEntry(se.getId(), sessionid); // den gerade bearbeiteten SyncTodoEntry lokal löschen, falls das syncen erfolgreich war.
                     Log.d(TAG, " syncEntry loeschen im onResume nrows =" + nrows);
                 }
             }
         }
-
 
         // Neu Laden der Liste. // AsyncTask starten um Daten vom Webservice oder aus der Lokalen DB zu laden.
         runAsync();
