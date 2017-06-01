@@ -413,7 +413,7 @@ public class AllTodosActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(),
-                                    "Couldn't get json from server. Check LogCat for possible errors!",
+                                    "No Todo's found / Couldn't get json from server",
                                     Toast.LENGTH_LONG)
                                     .show();
                         }
@@ -530,17 +530,35 @@ public class AllTodosActivity extends AppCompatActivity {
      * @param searchStr
      */
     public void searchTodos(String searchStr) {
-        // URL für Webservice-Request anpassen:
-        url = "http://campus02win14mobapp.azurewebsites.net/Todo/search/" + searchStr;
-        setSuchbegriff(searchStr);
-        adapter.clear();
-        // neuen Request an den Webservice senden:
-        runAsync();
-        this.searchDialog.cancel();
+        if(searchStr.isEmpty()) {
+            showMyAlert("No Data entered", "Please enter a search term!");
+            //this.searchDialog.cancel();
+        } else {
+            // URL für Webservice-Request anpassen:
+            url = "http://campus02win14mobapp.azurewebsites.net/Todo/search/" + searchStr;
+            setSuchbegriff(searchStr);
+            adapter.clear();
+            runAsync();
+            this.searchDialog.cancel();
+        }
+
         // URL wieder zurücksetzen, sodass beim nächsten Aufruf der AllTodosActivity wieder alle geladen werden.
         url = "http://campus02win14mobapp.azurewebsites.net/Todo";
         // Suchbegriff wieder entfernen
         setSuchbegriff(null);
+    }
+
+    private void showMyAlert(String s, String s1) {
+        AlertDialog alertDialog = new AlertDialog.Builder(AllTodosActivity.this).create();
+        alertDialog.setTitle(s);
+        alertDialog.setMessage(s1);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 
 
