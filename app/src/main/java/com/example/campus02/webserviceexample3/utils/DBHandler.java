@@ -452,11 +452,13 @@ public class DBHandler extends SQLiteOpenHelper {
      * @param id
      * @param session
      */
-    public void deleteSyncTodoEntry(int id, String session) {
+    public int deleteSyncTodoEntry(int id, String session) {
+        int nrows = 0;
         SQLiteDatabase db = this.getWritableDatabase();
         String where = KEY_SYNCTODO_ID+" = '"+id+"' AND "+KEY_SYNCTODO_SESSIONKEY+" = '"+session+"'";
-        db.delete(TABLE_SYNCTODO, where, null);
+        nrows = db.delete(TABLE_SYNCTODO, where, null);
         db.close();
+        return nrows;
     }
 
     /**
@@ -469,7 +471,8 @@ public class DBHandler extends SQLiteOpenHelper {
         String selectQuery = "SELECT min(id) id, url, cmd, headers, params, jsonpoststr, sessionkey " +
                 "FROM " + TABLE_SYNCTODO
                 + " WHERE " + KEY_SYNCTODO_SESSIONKEY + " = '" + session + "'" +
-                " GROUP BY url, cmd, headers, params, jsonpoststr, sessionkey";
+                " GROUP BY url, cmd, headers, params, jsonpoststr, sessionkey" +
+                " ORDER BY 1 asc";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);

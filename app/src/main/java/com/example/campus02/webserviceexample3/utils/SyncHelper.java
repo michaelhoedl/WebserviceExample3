@@ -58,7 +58,27 @@ public class SyncHelper {
 
     private boolean runSync() {
         runAsync();
-        return httpResponse != null;
+
+        // bissl primitiver ansatz, um die problematik zu loesen
+        //   dass der server ein bisschen zeit braucht um zu responden nachdem der HTTP call abgesetzt wurde...
+        // Solange httpResponse nicht befuellt ist (mit dem json string, den der server liefert), warten.
+        // Auch wenn httpResponse nie befuellt werden sollte, erstmal ca. 4 Sekunden (bzw. bis 4000 zaehlen) abwarten.
+        // UPDATE: solange die Liste alltodos noch leer ist, warten. (weil: Liste kann entweder aus HTTP Request befuellt worden sein,
+        //   oder via Lokaler SQLite DB.
+        int x = 0;
+        while(TextUtils.isEmpty(httpResponse) && x <= 4000) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            x += 1;
+        }
+
+        if(!TextUtils.isEmpty(httpResponse) && httpResponse != null)
+            return true;
+        else
+            return false;
     }
 
 
